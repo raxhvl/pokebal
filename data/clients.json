@@ -1,0 +1,66 @@
+{
+  "spec": "Block Access Lists (BAL) - EIP-7928",
+  "progressStages": [
+    {
+      "id": "not_started",
+      "name": "Not Started",
+      "color": "red",
+      "description": "No implementation work has begun"
+    },
+    {
+      "id": "prototyping",
+      "name": "Prototyping",
+      "color": "orange",
+      "description": "Initial proof-of-concept development"
+    },
+    {
+      "id": "testing",
+      "name": "Testing",
+      "color": "yellow",
+      "description": "Implementation complete, undergoing testing"
+    },
+    {
+      "id": "stable",
+      "name": "Stable",
+      "color": "green",
+      "description": "Production-ready implementation"
+    }
+  ],
+  "clients": [
+    {
+      "id": "geth",
+      "name": "Geth",
+      "language": "Go",
+      "website": "https://geth.ethereum.org",
+      "progress": "prototyping"
+    },
+    {
+      "id": "nethermind",
+      "name": "Nethermind",
+      "language": "C#",
+      "website": "https://nethermind.io",
+      "progress": "not_started"
+    },
+    {
+      "id": "besu",
+      "name": "Besu",
+      "language": "Java",
+      "website": "https://besu.hyperledger.org",
+      "progress": "prototyping"
+    },
+    {
+      "id": "erigon",
+      "name": "Erigon",
+      "language": "Go",
+      "website": "https://erigon.tech",
+      "progress": "not_started"
+    },
+    {
+      "id": "reth",
+      "name": "Reth",
+      "language": "Rust",
+      "website": "https://reth.rs",
+      "progress": "not_started"
+    }
+  ]
+}
