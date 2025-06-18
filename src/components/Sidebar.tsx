@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import ClientProgressCard from "./ClientProgressCard";
 import MenuButton from "./MenuButton";
 
@@ -31,9 +31,14 @@ interface SidebarProps {
 
 export default function Sidebar({ clientsData }: SidebarProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleHomeClick = () => {
     router.push("/");
+  };
+
+  const handleSchemaClick = () => {
+    router.push("/schema");
   };
 
   const handleSpecsClick = () => {
@@ -87,8 +92,14 @@ export default function Sidebar({ clientsData }: SidebarProps) {
             MENU
           </div>
           <div className="space-y-1">
-            <MenuButton isActive={true} onClick={handleHomeClick}>
+            <MenuButton isActive={pathname === "/"} onClick={handleHomeClick}>
               HOME
+            </MenuButton>
+            <MenuButton
+              isActive={pathname === "/schema"}
+              onClick={handleSchemaClick}
+            >
+              SCHEMA
             </MenuButton>
           </div>
         </div>

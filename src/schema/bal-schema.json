@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ethereum.org/schemas/bal/block-access-list.json",
+  "title": "Block Access List (BAL)",
+  "description": "Ethereum Block Access List specification for EIP-7928. Contains all state access patterns, balance changes, code deployments, and nonce values for efficient state transition verification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "account_accesses",
+    "balance_diffs",
+    "code_diffs",
+    "nonce_diffs"
+  ],
+  "properties": {
+    "account_accesses": {
+      "title": "Account Access List",
+      "description": "Storage access patterns for each account. Critical for state proof generation and parallel execution optimization.",
+      "type": "array",
+      "maxItems": 300000,
+      "items": {
+        "$ref": "#/$defs/AccountAccess"
+      }
+    },
+    "balance_diffs": {
+      "title": "Balance Differences",
+      "description": "Balance changes for efficient state transition verification. Only accounts with balance changes are included.",
+      "type": "array",
+      "maxItems": 300000,
+      "items": {
+        "$ref": "#/$defs/AccountBalanceDiff"
+      }
+    },
+    "code_diffs": {
+      "title": "Code Differences",
+      "description": "Contract bytecode for newly deployed contracts. Essential for recreating exact state after block execution.",
+      "type": "array",
+      "maxItems": 300000,
+      "items": {
+        "$ref": "#/$defs/AccountCodeDiff"
+      }
+    },
+    "nonce_diffs": {
+      "title": "Nonce Differences",
+      "description": "Account nonce values before any transactions in the block. Needed for proper transaction replay and state reconstruction.",
+      "type": "array",
+      "maxItems": 300000,
+      "items": {
+        "$ref": "#/$defs/AccountNonce"
+      }
+    }
+  },
+  "$defs": {
+    "Address": {
+      "title": "Ethereum Address",
+      "description": "20-byte Ethereum address in hexadecimal format",
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "examples": ["0x1234567890abcdef1234567890abcdef12345678"]
+    },
+    "StorageKey": {
+      "title": "Storage Key",
+      "description": "32-byte storage slot identifier in hexadecimal format",
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{64}$",
+      "examples": [
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+      ]
+    },
+    "StorageValue": {
+      "title": "Storage Value",
+      "description": "32-byte storage value in hexadecimal format",
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{64}$",
+      "examples": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020"
+      ]
+    },
+    "BalanceDelta": {
+      "title": "Balance Delta",
+      "description": "12-byte balance change in two's complement format. Handles negative balances and full ETH supply range efficiently.",
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{24}$",
+      "examples": ["0x0de0b6b3a7640000", "0xf21f494c589c0000"]
+    },
+    "TxIndex": {
+      "title": "Transaction Index",
+      "description": "Zero-based index of transaction within the block",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 29999
+    },
+    "Nonce": {
+      "title": "Account Nonce",
+      "description": "Account nonce value (uint64)",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 18446744073709551615
+    },
+    "CodeData": {
+      "title": "Contract Bytecode",
+      "description": "Contract bytecode in hexadecimal format. Maximum size enforced by EIP-170.",
+      "type": "string",
+      "pattern": "^0x([a-fA-F0-9]{2})*$",
+      "maxLength": 49154,
+      "examples": ["0x608060405234801561001057600080fd5b50"]
+    },
+    "PerTxAccess": {
+      "title": "Per-Transaction Access",
+      "description": "Single transaction access record showing the storage value after transaction execution",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tx_index", "value_after"],
+      "properties": {
+        "tx_index": {
+          "$ref": "#/$defs/TxIndex",
+          "description": "Transaction index that accessed this storage slot"
+        },
+        "value_after": {
+          "$ref": "#/$defs/StorageValue",
+          "description": "Storage value after this transaction executed"
+        }
+      }
+    },
+    "SlotAccess": {
+      "title": "Storage Slot Access",
+      "description": "Access pattern for a single storage slot across multiple transactions",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot", "accesses"],
+      "properties": {
+        "slot": {
+          "$ref": "#/$defs/StorageKey",
+          "description": "Storage slot identifier"
+        },
+        "accesses": {
+          "description": "List of transaction accesses to this slot",
+          "type": "array",
+          "maxItems": 30000,
+          "items": {
+            "$ref": "#/$defs/PerTxAccess"
+          }
+        }
+      }
+    },
+    "AccountAccess": {
+      "title": "Account Access Pattern",
+      "description": "Complete access pattern for a single account including all storage slot accesses",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "accesses"],
+      "properties": {
+        "address": {
+          "$ref": "#/$defs/Address",
+          "description": "Account address being accessed"
+        },
+        "accesses": {
+          "description": "Storage slot access patterns for this account",
+          "type": "array",
+          "maxItems": 30000,
+          "items": {
+            "$ref": "#/$defs/SlotAccess"
+          }
+        }
+      }
+    },
+    "BalanceChange": {
+      "title": "Balance Change Record",
+      "description": "Records a balance change caused by a specific transaction",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tx_index", "delta"],
+      "properties": {
+        "tx_index": {
+          "$ref": "#/$defs/TxIndex",
+          "description": "Transaction index that caused this balance change"
+        },
+        "delta": {
+          "$ref": "#/$defs/BalanceDelta",
+          "description": "Amount of balance change (positive or negative)"
+        }
+      }
+    },
+    "AccountBalanceDiff": {
+      "title": "Account Balance Changes",
+      "description": "All balance changes for a single account within the block",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "changes"],
+      "properties": {
+        "address": {
+          "$ref": "#/$defs/Address",
+          "description": "Account whose balance changed"
+        },
+        "changes": {
+          "description": "List of balance changes for this account",
+          "type": "array",
+          "maxItems": 30000,
+          "items": {
+            "$ref": "#/$defs/BalanceChange"
+          }
+        }
+      }
+    },
+    "AccountCodeDiff": {
+      "title": "Account Code Deployment",
+      "description": "Contract bytecode deployment record",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "new_code"],
+      "properties": {
+        "address": {
+          "$ref": "#/$defs/Address",
+          "description": "Address where contract was deployed"
+        },
+        "new_code": {
+          "$ref": "#/$defs/CodeData",
+          "description": "Deployed contract bytecode"
+        }
+      }
+    },
+    "AccountNonce": {
+      "title": "Account Nonce Record",
+      "description": "Account nonce value before any transactions in the block",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "nonce"],
+      "properties": {
+        "address": {
+          "$ref": "#/$defs/Address",
+          "description": "Account address"
+        },
+        "nonce": {
+          "$ref": "#/$defs/Nonce",
+          "description": "Nonce value before first transaction in block"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "title": "Simple Storage Access",
+      "description": "Basic example showing storage slot access across transactions",
+      "account_accesses": [
+        {
+          "address": "0x1234567890abcdef1234567890abcdef12345678",
+          "accesses": [
+            {
+              "slot": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+              "accesses": [
+                {
+                  "tx_index": 0,
+                  "value_after": "0x0000000000000000000000000000000000000000000000000000000000000020"
+                },
+                {
+                  "tx_index": 1,
+                  "value_after": "0x0000000000000000000000000000000000000000000000000000000000000030"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "balance_diffs": [
+        {
+          "address": "0x1234567890abcdef1234567890abcdef12345678",
+          "changes": [{ "tx_index": 0, "delta": "0x0de0b6b3a7640000" }]
+        }
+      ],
+      "code_diffs": [],
+      "nonce_diffs": [
+        {
+          "address": "0x1234567890abcdef1234567890abcdef12345678",
+          "nonce": 42
+        }
+      ]
+    }
+  ],
+  "x-constants": {
+    "MAX_CODE_SIZE": {
+      "value": 24576,
+      "description": "Maximum contract bytecode size in bytes (EIP-170)",
+      "source": "main.py"
+    },
+    "MAX_TXS": {
+      "value": 30000,
+      "description": "Maximum number of transactions per block",
+      "source": "main.py"
+    },
+    "MAX_ACCOUNTS": {
+      "value": 300000,
+      "description": "Maximum number of accounts in access lists",
+      "source": "main.py"
+    }
+  },
+  "x-implementation-notes": {
+    "BalanceDelta": "Uses 12-byte two's complement to handle negative balances and full ETH supply range while being more compact than uint256",
+    "tx_index": "Zero-based indexing correlates access patterns with specific transactions for replay and verification",
+    "value_after": "Stores the result value that subsequent transactions would read, enabling parallel execution optimization",
+    "SSZ encoding": "All data structures use SSZ encoding as specified in the Ethereum consensus specification"
+  }
+}
