@@ -1,6 +1,7 @@
 import PrimaryButton from "../../components/PrimaryButton";
 import SchemaTree from "../../components/SchemaTree";
 import DocLayout from "../../components/DocLayout";
+import AnchorHeading from "../../components/AnchorHeading";
 import { PRIMITIVE_TYPES, SCHEMA_CONSTANTS } from "../../config/schema";
 
 export default function SchemaPage() {
@@ -17,22 +18,34 @@ export default function SchemaPage() {
     >
       {/* Schema Tree Section */}
       <section id="schema-tree" className="not-prose mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        <AnchorHeading 
+          id="schema-tree" 
+          level={2} 
+          className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
+        >
           Interactive Schema Tree
-        </h2>
+        </AnchorHeading>
         <SchemaTree />
       </section>
 
       {/* Type Reference Section */}
       <section id="types" className="not-prose mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        <AnchorHeading 
+          id="types" 
+          level={2} 
+          className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
+        >
           Type Reference
-        </h2>
+        </AnchorHeading>
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="bg-gray-200 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+            <AnchorHeading 
+              id="primitive-types" 
+              level={3} 
+              className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4"
+            >
               Primitive Types
-            </h3>
+            </AnchorHeading>
             <div className="space-y-3 font-mono text-sm">
               {PRIMITIVE_TYPES.map((type) => (
                 <div
@@ -59,9 +72,13 @@ export default function SchemaPage() {
           </div>
 
           <div className="bg-gray-200 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+            <AnchorHeading 
+              id="constants" 
+              level={3} 
+              className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4"
+            >
               Constants
-            </h3>
+            </AnchorHeading>
             <div className="space-y-3 font-mono text-sm">
               {SCHEMA_CONSTANTS.map((constant) => (
                 <div

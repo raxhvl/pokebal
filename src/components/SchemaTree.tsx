@@ -164,7 +164,7 @@ export default function SchemaTree() {
     <div className="bg-gray-200 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-          Interactive Schema Explorer
+          Schema Explorer
         </h3>
         <div className="text-xs text-gray-500 dark:text-gray-400">
           Click to expand/collapse • Hover for details
