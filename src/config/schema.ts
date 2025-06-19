@@ -1,7 +1,7 @@
 // BAL Schema Configuration
 // This file loads and processes the JSON Schema definition for Block Access Lists
 
-import balSchema from "../schema/bal-schema.json";
+import balSchema from "../schema/block-access-list.json";
 
 export interface SchemaType {
   name: string;
