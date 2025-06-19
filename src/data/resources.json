@@ -14,6 +14,11 @@
           "title": "ETH Research Discussion",
           "description": "Community discussion and research on Block Access Lists",
           "url": "https://ethresear.ch/t/block-level-access-lists-bals/22331/6"
+        },
+        {
+          "title": "BAL for Glamsterdam Hard Fork",
+          "description": "Proposal for including Block Access Lists in the Glamsterdam hard fork",
+          "url": "https://ethereum-magicians.org/t/eip-7928-block-level-access-lists-the-case-for-glamsterdam/24343"
         }
       ]
     },
