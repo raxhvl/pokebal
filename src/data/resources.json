@@ -33,6 +33,18 @@
           "url": "https://github.com/ethereum/go-ethereum/pull/31959"
         }
       ]
+    },
+    {
+      "id": "tools",
+      "title": "Tools & Analysis",
+      "description": "Development tools and analysis frameworks for Block Access Lists",
+      "resources": [
+        {
+          "title": "Python BAL implementation",
+          "description": "A Python implementation for generating BAL also includes analysis and test cases.",
+          "url": "https://github.com/nerolation/eth-bal-analysis"
+        }
+      ]
     }
   ]
 }
