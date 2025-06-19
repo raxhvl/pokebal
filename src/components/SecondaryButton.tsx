@@ -5,20 +5,26 @@ interface SecondaryButtonProps {
   href: string;
   children: React.ReactNode;
   external?: boolean;
+  icon?: React.ReactNode;
 }
 
 export default function SecondaryButton({
   href,
   children,
   external = false,
+  icon,
 }: SecondaryButtonProps) {
   const isExternal = external || href.startsWith("http");
 
   const buttonContent = (
     <div className="flex items-center space-x-2">
-      {!isExternal && (
+      {icon ? (
+        <div className="w-4 h-4 text-orange-500 group-hover:text-orange-400">
+          {icon}
+        </div>
+      ) : !isExternal ? (
         <FileText className="w-4 h-4 text-orange-500 group-hover:text-orange-400" />
-      )}
+      ) : null}
       <span className="font-mono text-xs text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200">
         {children}
       </span>

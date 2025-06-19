@@ -1,3 +1,4 @@
+import { MessageCircle } from "lucide-react";
 import clientsData from "../../data/clients.json";
 import Sidebar from "../components/Sidebar";
 import PrimaryButton from "../components/PrimaryButton";
@@ -54,12 +55,10 @@ export default function Home() {
                 <PrimaryButton href="https://eips.ethereum.org/EIPS/eip-7928">
                   READ THE SPECIFICATION
                 </PrimaryButton>
-                <SecondaryButton href="/schema">
-                  Schema Reference
-                </SecondaryButton>
                 <SecondaryButton
                   href="https://ethresear.ch/t/block-level-access-lists-bals/22331/6"
                   external
+                  icon={<MessageCircle className="w-4 h-4" />}
                 >
                   Follow the discussion on ETH.research
                 </SecondaryButton>

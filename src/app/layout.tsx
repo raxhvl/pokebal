@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "PokéBAL - Gotta access 'em all!",
-  description: "A collection of helpful resources for Block Access Lists (BAL) implementors",
+  description:
+    "A collection of helpful resources for Block Access Lists (BAL) implementors",
 };
 
 export default function RootLayout({
@@ -25,9 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        {children}
+        <main className="flex-1">{children}</main>
       </body>
     </html>
   );
