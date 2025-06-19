@@ -1,5 +1,5 @@
 import { Link } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, createElement } from "react";
 
 interface AnchorHeadingProps {
   id: string;
@@ -14,20 +14,25 @@ export default function AnchorHeading({
   className = "", 
   children 
 }: AnchorHeadingProps) {
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+  const tagName = `h${level}`;
   
-  return (
-    <Tag id={id} className={`group relative ${className}`}>
-      <a 
-        href={`#${id}`} 
-        className="hover:text-lime-500 transition-colors flex items-center gap-2"
-      >
-        {children}
-        <Link 
-          className="w-4 h-4 opacity-0 group-hover:opacity-50 transition-opacity" 
-          aria-hidden="true"
-        />
-      </a>
-    </Tag>
+  return createElement(
+    tagName,
+    {
+      id,
+      className: `group relative ${className}`,
+    },
+    createElement(
+      "a",
+      {
+        href: `#${id}`,
+        className: "hover:text-lime-500 transition-colors flex items-center gap-2",
+      },
+      children,
+      createElement(Link, {
+        className: "w-4 h-4 opacity-0 group-hover:opacity-50 transition-opacity",
+        "aria-hidden": "true",
+      })
+    )
   );
 }

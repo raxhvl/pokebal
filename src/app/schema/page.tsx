@@ -9,7 +9,6 @@ export default function SchemaPage() {
     <DocLayout
       title="Schema Reference"
       titleHighlight="Reference"
-      subtitle="Complete reference for Block Access List data structures and implementation"
       actions={
         <PrimaryButton href="https://eips.ethereum.org/EIPS/eip-7928">
           View EIP-7928
@@ -18,9 +17,9 @@ export default function SchemaPage() {
     >
       {/* Schema Tree Section */}
       <section id="schema-tree" className="not-prose mb-12">
-        <AnchorHeading 
-          id="schema-tree" 
-          level={2} 
+        <AnchorHeading
+          id="schema-tree"
+          level={2}
           className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
         >
           Interactive Schema Tree
@@ -30,18 +29,18 @@ export default function SchemaPage() {
 
       {/* Type Reference Section */}
       <section id="types" className="not-prose mb-12">
-        <AnchorHeading 
-          id="types" 
-          level={2} 
+        <AnchorHeading
+          id="types"
+          level={2}
           className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6"
         >
           Type Reference
         </AnchorHeading>
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="bg-gray-200 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-6">
-            <AnchorHeading 
-              id="primitive-types" 
-              level={3} 
+            <AnchorHeading
+              id="primitive-types"
+              level={3}
               className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4"
             >
               Primitive Types
@@ -72,9 +71,9 @@ export default function SchemaPage() {
           </div>
 
           <div className="bg-gray-200 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-6">
-            <AnchorHeading 
-              id="constants" 
-              level={3} 
+            <AnchorHeading
+              id="constants"
+              level={3}
               className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4"
             >
               Constants
