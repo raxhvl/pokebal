@@ -46,7 +46,7 @@ export default function DocLayout({
       <Sidebar clientsData={clientsData} />
 
       {/* Main content */}
-      <div className="ml-48 min-h-screen relative bg-gray-100 dark:bg-gray-900 border-l-2 border-gray-300 dark:border-gray-700">
+      <div className="lg:ml-48 min-h-screen relative bg-gray-100 dark:bg-gray-900 lg:border-l-2 border-gray-300 dark:border-gray-700">
         {/* Documentation content area */}
         <div className="bg-gradient-to-br from-gray-50 via-gray-100 to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-lime-950 min-h-screen relative">
           <GitHubLink />
@@ -54,7 +54,7 @@ export default function DocLayout({
           {/* Documentation container - Docusaurus inspired */}
           <div className="max-w-5xl mx-auto">
             {/* Documentation header */}
-            <header className="px-8 lg:px-16 pt-8 lg:pt-16 pb-8 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+            <header className="px-4 sm:px-8 lg:px-16 pt-16 sm:pt-8 lg:pt-16 pb-8 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
               <div className="max-w-4xl">
 
                 {/* Page title */}
@@ -79,14 +79,14 @@ export default function DocLayout({
             </header>
 
             {/* Documentation content */}
-            <main className="px-8 lg:px-16 py-8 lg:py-12">
+            <main className="px-4 sm:px-8 lg:px-16 py-8 lg:py-12">
               <div className="max-w-4xl prose prose-gray dark:prose-invert prose-lg">
                 {children}
               </div>
             </main>
 
             {/* Documentation footer */}
-            <footer className="px-8 lg:px-16 py-8 border-t border-gray-200 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm">
+            <footer className="px-4 sm:px-8 lg:px-16 py-8 border-t border-gray-200 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm">
               <div className="max-w-4xl">
                 <div className="flex items-center justify-between">
                   {/* Contribute button */}

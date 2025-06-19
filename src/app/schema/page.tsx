@@ -36,8 +36,8 @@ export default function SchemaPage() {
         >
           Type Reference
         </AnchorHeading>
-        <div className="grid lg:grid-cols-2 gap-6">
-          <div className="bg-gray-200 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-6">
+        <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-gray-200 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-4 sm:p-6">
             <AnchorHeading
               id="primitive-types"
               level={3}
@@ -51,7 +51,7 @@ export default function SchemaPage() {
                   key={type.name}
                   className="border-b border-gray-300 dark:border-gray-600 pb-2 last:border-b-0"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                     <span className="text-purple-600 dark:text-purple-400 font-bold">
                       {type.name}
                     </span>
@@ -84,7 +84,7 @@ export default function SchemaPage() {
                   key={constant.name}
                   className="border-b border-gray-300 dark:border-gray-600 pb-2 last:border-b-0"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                     <span className="text-orange-600 dark:text-orange-400 font-bold">
                       {constant.name}
                     </span>

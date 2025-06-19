@@ -11,9 +11,9 @@ export default function Home() {
       <Sidebar clientsData={clientsData} />
 
       {/* Main content */}
-      <div className="ml-48 min-h-screen relative bg-gray-100 dark:bg-gray-900 border-l-2 border-gray-300 dark:border-gray-700">
+      <div className="lg:ml-48 min-h-screen relative bg-gray-100 dark:bg-gray-900 lg:border-l-2 border-gray-300 dark:border-gray-700">
         {/* Main screen content */}
-        <div className="p-8 lg:p-16 bg-gradient-to-br from-gray-50 via-gray-100 to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-lime-950 min-h-screen relative">
+        <div className="p-4 sm:p-8 lg:p-16 pt-16 sm:pt-8 lg:pt-16 bg-gradient-to-br from-gray-50 via-gray-100 to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-lime-950 min-h-screen relative">
           <GitHubLink />
           <div className="max-w-4xl">
             {/* Pixelated title section */}
@@ -51,7 +51,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="flex items-center space-x-6 text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 text-sm">
                 <PrimaryButton href="https://eips.ethereum.org/EIPS/eip-7928">
                   READ THE SPECIFICATION
                 </PrimaryButton>
@@ -106,7 +106,7 @@ export default function Home() {
         </div>
 
         {/* Pixel art inspired decorations */}
-        <div className="absolute top-24 right-8 w-48 h-48 opacity-10 dark:opacity-20">
+        <div className="absolute top-24 right-4 sm:right-8 w-32 sm:w-48 h-32 sm:h-48 opacity-10 dark:opacity-20 hidden sm:block">
           {/* Ethereum diamond in pixel style */}
           <div className="relative w-full h-full">
             <div className="absolute top-8 left-1/2 transform -translate-x-1/2 space-y-1">

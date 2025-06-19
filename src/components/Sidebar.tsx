@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 import ClientProgressCard from "./ClientProgressCard";
 import MenuButton from "./MenuButton";
 
@@ -32,17 +34,21 @@ interface SidebarProps {
 export default function Sidebar({ clientsData }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleHomeClick = () => {
     router.push("/");
+    setIsMobileMenuOpen(false);
   };
 
   const handleSchemaClick = () => {
     router.push("/schema");
+    setIsMobileMenuOpen(false);
   };
 
   const handleResourcesClick = () => {
     router.push("/resources");
+    setIsMobileMenuOpen(false);
   };
 
   const handleSpecsClick = () => {
@@ -52,8 +58,33 @@ export default function Sidebar({ clientsData }: SidebarProps) {
     );
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    <div className="fixed left-0 top-0 h-full w-48 bg-gradient-to-b from-lime-100 to-lime-200 dark:from-lime-900 dark:to-lime-950 border-r-4 border-lime-300 dark:border-lime-700 flex flex-col py-8 shadow-2xl">
+    <>
+      {/* Mobile menu button */}
+      <button
+        onClick={toggleMobileMenu}
+        className="fixed top-4 left-4 z-50 lg:hidden bg-lime-500 hover:bg-lime-600 text-white p-2 rounded-md shadow-lg transition-colors duration-200"
+        aria-label="Toggle menu"
+      >
+        {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`fixed left-0 top-0 h-full w-48 bg-gradient-to-b from-lime-100 to-lime-200 dark:from-lime-900 dark:to-lime-950 border-r-4 border-lime-300 dark:border-lime-700 flex flex-col py-8 shadow-2xl transition-transform duration-300 z-50 ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
       {/* Conditional Branding - shown on all pages except home */}
       {pathname !== "/" && (
         <div className="px-4 mb-6 animate-in fade-in-0 slide-in-from-top-4 duration-500">
@@ -194,6 +225,7 @@ export default function Sidebar({ clientsData }: SidebarProps) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
