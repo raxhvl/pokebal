@@ -2,7 +2,7 @@ import clientsData from "../../data/clients.json";
 import Sidebar from "../components/Sidebar";
 import PrimaryButton from "../components/PrimaryButton";
 import SecondaryButton from "../components/SecondaryButton";
-import { Github } from "lucide-react";
+import GitHubLink from "../components/GitHubLink";
 
 export default function Home() {
   return (
@@ -13,16 +13,7 @@ export default function Home() {
       <div className="ml-48 min-h-screen relative bg-gray-100 dark:bg-gray-900 border-l-2 border-gray-300 dark:border-gray-700">
         {/* Main screen content */}
         <div className="p-8 lg:p-16 bg-gradient-to-br from-gray-50 via-gray-100 to-lime-50 dark:from-gray-950 dark:via-gray-900 dark:to-lime-950 min-h-screen relative">
-          {/* GitHub link in corner */}
-          <a
-            href="https://github.com/raxhvl/pokebal"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute top-8 right-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
-            title="View on GitHub"
-          >
-            <Github className="w-5 h-5" />
-          </a>
+          <GitHubLink />
           <div className="max-w-4xl">
             {/* Pixelated title section */}
             <div className="mb-16">

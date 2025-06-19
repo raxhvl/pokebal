@@ -50,6 +50,62 @@ export default function Sidebar({ clientsData }: SidebarProps) {
 
   return (
     <div className="fixed left-0 top-0 h-full w-48 bg-gradient-to-b from-lime-100 to-lime-200 dark:from-lime-900 dark:to-lime-950 border-r-4 border-lime-300 dark:border-lime-700 flex flex-col py-8 shadow-2xl">
+      {/* Conditional Branding - shown on all pages except home */}
+      {pathname !== "/" && (
+        <div className="px-4 mb-6 animate-in fade-in-0 slide-in-from-top-4 duration-500">
+          <div 
+            className="relative text-center cursor-pointer group transition-colors duration-300"
+            onClick={handleHomeClick}
+          >
+            {/* Subtle floating pokeball */}
+            <div className="absolute -top-1 -right-2 opacity-20 dark:opacity-30">
+              <div
+                className="w-3 h-3 relative animate-pulse"
+                style={{ animationDuration: "4s" }}
+              >
+                <div className="w-3 h-1.5 bg-red-400 rounded-t-full"></div>
+                <div className="w-3 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-b-full"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-0.5 h-0.5 bg-gray-600 dark:bg-gray-300 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating blockchain nodes */}
+            <div
+              className="absolute top-0 left-1 w-0.5 h-0.5 bg-lime-400 rounded-full animate-bounce opacity-25"
+              style={{ animationDuration: "5s", animationDelay: "0s" }}
+            ></div>
+            <div
+              className="absolute bottom-2 right-1 w-0.5 h-0.5 bg-blue-400 rounded-full animate-bounce opacity-20"
+              style={{ animationDuration: "6s", animationDelay: "2s" }}
+            ></div>
+            
+            {/* Main branding */}
+            <h2 className="text-lg font-black text-gray-900 dark:text-gray-100 leading-none tracking-tight group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-colors duration-300">
+              Poké<span className="text-lime-500 drop-shadow-sm">BAL</span>
+            </h2>
+            <div className="text-xs text-gray-600 dark:text-gray-400 italic font-mono mt-1 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300">
+              &gt; gotta access 'em all!
+            </div>
+            
+            {/* Pixelated fading underline */}
+            <div className="flex justify-center space-x-0.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-1 h-0.5 bg-lime-500"
+                  style={{ 
+                    opacity: 1 - i * 0.12,
+                    transitionDelay: `${i * 50}ms`
+                  }}
+                ></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Status indicators */}
       <div className="flex-1 space-y-8 px-4">
         {/* EIP Status */}
