@@ -1,0 +1,33 @@
+{
+  "categories": [
+    {
+      "id": "specifications",
+      "title": "Specifications & Standards",
+      "description": "Official EIPs and technical specifications",
+      "resources": [
+        {
+          "title": "EIP-7928: Block Access Lists",
+          "description": "The official Ethereum Improvement Proposal for Block Access Lists",
+          "url": "https://eips.ethereum.org/EIPS/eip-7928"
+        },
+        {
+          "title": "ETH Research Discussion",
+          "description": "Community discussion and research on Block Access Lists",
+          "url": "https://ethresear.ch/t/block-level-access-lists-bals/22331/6"
+        }
+      ]
+    },
+    {
+      "id": "implementations",
+      "title": "Client Implementations",
+      "description": "[WIP] Reference implementations and client support",
+      "resources": [
+        {
+          "title": "Geth Implementation",
+          "description": "Go-Ethereum implementation of BAL support",
+          "url": "https://github.com/ethereum/go-ethereum/pull/31959"
+        }
+      ]
+    }
+  ]
+}

@@ -41,6 +41,10 @@ export default function Sidebar({ clientsData }: SidebarProps) {
     router.push("/schema");
   };
 
+  const handleResourcesClick = () => {
+    router.push("/resources");
+  };
+
   const handleSpecsClick = () => {
     window.open(
       "https://ethresear.ch/t/block-level-access-lists-bals/22331/6",
@@ -156,6 +160,12 @@ export default function Sidebar({ clientsData }: SidebarProps) {
               onClick={handleSchemaClick}
             >
               SCHEMA
+            </MenuButton>
+            <MenuButton
+              isActive={pathname === "/resources"}
+              onClick={handleResourcesClick}
+            >
+              RESOURCES
             </MenuButton>
           </div>
         </div>
