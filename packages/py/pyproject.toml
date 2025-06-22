@@ -1,0 +1,27 @@
+[project]
+name = "pokebal"
+version = "0.1.0"
+description = "Python library for generating EIP-7928 Block Level Access Lists (BALs)."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.24.0",
+    "python-dotenv>=1.1.0",
+    "pytest>=8.4.1",
+    "pytest-watcher>=0.4.3",
+    "pydantic>=2.11.7",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.10.0",
+]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+log_cli = true
+log_cli_level = "DEBUG"
