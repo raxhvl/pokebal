@@ -1,0 +1,13 @@
+"""Test Address Constants for easier reasoning about tests."""
+
+
+class TestAddresses:
+    """Named test addresses for better test readability."""
+
+    ALICE = "0x1234567890abcdef1234567890abcdef12345678"
+    BOB = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+    CHARLIE = "0x1111111111111111111111111111111111111111"
+    DAVE = "0x2222222222222222222222222222222222222222"
+    EVE = "0x3333333333333333333333333333333333333333"
+    FRANK = "0x4444444444444444444444444444444444444444"
+    GRACE = "0x5555555555555555555555555555555555555555"

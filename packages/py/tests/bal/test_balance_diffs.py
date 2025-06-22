@@ -3,12 +3,12 @@
 import pytest
 from bal.builder import from_execution_trace
 from bal.types import BlockAccessList
-from bal.utils import TestAddresses, int_to_hex
+from tests.utils import TestAddresses
+from bal.utils import int_to_hex
 from rpc.types import (
     TransactionTrace,
     PrePostStates,
     AccountState,
-    BlockDebugTraceResult,
 )
 
 
@@ -225,7 +225,9 @@ class TestBalanceDiffs:
                             balance=int_to_hex(250)  # 250 wei
                         ),
                         TestAddresses.CHARLIE: AccountState(
-                            balance=int_to_hex(100)  # 100 wei - no change, should be ignored
+                            balance=int_to_hex(
+                                100
+                            )  # 100 wei - no change, should be ignored
                         ),
                     },
                 ),
@@ -473,10 +475,14 @@ class TestBalanceDiffs:
             TransactionTrace(
                 result=PrePostStates(
                     pre={
-                        TestAddresses.ALICE: AccountState(balance=int_to_hex(100))  # 100 wei
+                        TestAddresses.ALICE: AccountState(
+                            balance=int_to_hex(100)
+                        )  # 100 wei
                     },
                     post={
-                        TestAddresses.ALICE: AccountState(balance=int_to_hex(200))  # 200 wei
+                        TestAddresses.ALICE: AccountState(
+                            balance=int_to_hex(200)
+                        )  # 200 wei
                     },
                 ),
                 txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
