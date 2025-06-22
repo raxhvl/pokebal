@@ -4,7 +4,7 @@ import pytest
 from typing import List
 from bal.builder import from_execution_trace
 from bal.types import BlockAccessList, AccountBalanceDiff, BalanceChange
-from tests.utils import TestAddresses, BALTestCase
+from tests.utils import TestAddresses, TestTxHashes, BALTestCase
 from bal.utils import int_to_hex, encode_balance_delta
 from rpc.types import (
     TransactionTrace,
@@ -40,7 +40,7 @@ def create_test_cases() -> List[BALTestCase]:
                             )
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 )
             ],
             expected_result=BlockAccessList(),
@@ -57,7 +57,7 @@ def create_test_cases() -> List[BALTestCase]:
                             TestAddresses.ALICE: AccountState(balance=int_to_hex(200))
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 )
             ],
             expected_result=BlockAccessList(
@@ -86,7 +86,7 @@ def create_test_cases() -> List[BALTestCase]:
                             TestAddresses.ALICE: AccountState(balance=int_to_hex(100))
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 )
             ],
             expected_result=BlockAccessList(
@@ -120,7 +120,7 @@ def create_test_cases() -> List[BALTestCase]:
                             )
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 )
             ],
             expected_result=BlockAccessList(
@@ -149,7 +149,7 @@ def create_test_cases() -> List[BALTestCase]:
                             # Alice not present in post = balance goes to 0
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 )
             ],
             expected_result=BlockAccessList(
@@ -182,7 +182,7 @@ def create_test_cases() -> List[BALTestCase]:
                             )
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 )
             ],
             expected_result=BlockAccessList(
@@ -219,7 +219,7 @@ def create_test_cases() -> List[BALTestCase]:
                             ),  # No change
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 )
             ],
             expected_result=BlockAccessList(
@@ -253,7 +253,7 @@ def create_test_cases() -> List[BALTestCase]:
                             TestAddresses.ALICE: AccountState(balance=int_to_hex(200))
                         },
                     ),
-                    txHash="0x1111111111111111111111111111111111111111111111111111111111111111",
+                    txHash=TestTxHashes.TX1,
                 ),
                 # Transaction 1: Alice loses 25 wei
                 TransactionTrace(
@@ -265,7 +265,7 @@ def create_test_cases() -> List[BALTestCase]:
                             TestAddresses.ALICE: AccountState(balance=int_to_hex(175))
                         },
                     ),
-                    txHash="0x2222222222222222222222222222222222222222222222222222222222222222",
+                    txHash=TestTxHashes.TX2,
                 ),
             ],
             expected_result=BlockAccessList(
