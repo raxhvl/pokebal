@@ -1,7 +1,7 @@
 """Types for Block Level Access Lists (EIP-7928)."""
 
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from common.types import (
     Address,
@@ -43,21 +43,21 @@ class SlotAccess(BaseModel):
     """Storage slot access information."""
     
     slot: StorageKey
-    accesses: List[PerTxAccess]
+    accesses: List[PerTxAccess] = Field(default_factory=list)
 
 
 class AccountAccess(BaseModel):
     """Account storage access information."""
     
     address: Address
-    accesses: List[SlotAccess]
+    accesses: List[SlotAccess] = Field(default_factory=list)
 
 
 class AccountBalanceDiff(BaseModel):
     """Account balance difference information."""
     
     address: Address
-    changes: List[BalanceChange]
+    changes: List[BalanceChange] = Field(default_factory=list)
 
 
 class AccountCodeDiff(BaseModel):
@@ -83,7 +83,7 @@ NonceDiffs = List[AccountNonce]
 class BlockAccessList(BaseModel):
     """Complete block access list as per EIP-7928."""
     
-    account_accesses: AccountAccessList = []
-    balance_diffs: BalanceDiffs = []
-    code_diffs: AccountCodeDiffs = []
-    nonce_diffs: NonceDiffs = []
+    account_accesses: AccountAccessList = Field(default_factory=list)
+    balance_diffs: BalanceDiffs = Field(default_factory=list)
+    code_diffs: AccountCodeDiffs = Field(default_factory=list)
+    nonce_diffs: NonceDiffs = Field(default_factory=list)

@@ -10,9 +10,7 @@ class BlockAccessListBuilder:
 
     def __init__(self):
         """Initialize the builder."""
-        self.bal = BlockAccessList(
-            account_accesses=[], balance_diffs=[], code_diffs=[], nonce_diffs=[]
-        )
+        self.bal = BlockAccessList()
 
     def _create_or_get(self, collection: list, address: str, factory_func):
         """Generic function to find existing item by address or create new one.
@@ -88,7 +86,7 @@ class BlockAccessListBuilder:
                 account_diff = self._create_or_get(
                     self.bal.balance_diffs,
                     address,
-                    lambda addr: AccountBalanceDiff(address=addr, changes=[]),
+                    lambda addr: AccountBalanceDiff(address=addr),
                 )
                 account_diff.changes.append(balance_change)
 
