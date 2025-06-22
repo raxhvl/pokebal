@@ -1,4 +1,8 @@
-"""Test Address Constants for easier reasoning about tests."""
+"""Test utilities and constants for easier reasoning about tests."""
+
+from pydantic import BaseModel
+from rpc.types import BlockDebugTraceResult
+from bal.types import BlockAccessList
 
 
 class TestAddresses:
@@ -11,3 +15,16 @@ class TestAddresses:
     EVE = "0x3333333333333333333333333333333333333333"
     FRANK = "0x4444444444444444444444444444444444444444"
     GRACE = "0x5555555555555555555555555555555555555555"
+
+
+class BALTestCase(BaseModel):
+    """Generic test case data structure for Block Access List testing.
+    
+    This can be used to test different aspects of BlockAccessList generation:
+    - Complete BlockAccessList validation
+    - Individual field testing (balance_diffs, account_accesses, code_diffs, nonce_diffs)
+    """
+    
+    description: str
+    trace_input: BlockDebugTraceResult
+    expected_result: BlockAccessList

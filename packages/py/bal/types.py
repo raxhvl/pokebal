@@ -83,7 +83,7 @@ NonceDiffs = List[AccountNonce]
 class BlockAccessList(BaseModel):
     """Complete block access list as per EIP-7928."""
     
-    account_accesses: AccountAccessList
-    balance_diffs: BalanceDiffs
-    code_diffs: AccountCodeDiffs
-    nonce_diffs: NonceDiffs
+    account_accesses: AccountAccessList = []
+    balance_diffs: BalanceDiffs = []
+    code_diffs: AccountCodeDiffs = []
+    nonce_diffs: NonceDiffs = []
