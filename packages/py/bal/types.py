@@ -1,7 +1,7 @@
 """Types for Block Level Access Lists (EIP-7928)."""
 
 from typing import List
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 from common.types import (
     Address,
@@ -25,44 +25,51 @@ MAX_ACCOUNTS = 300_000
 MAX_CODE_SIZE = 24 * 1024  # 24 Kib
 
 
-@dataclass
-class BalanceChange:
+class BalanceChange(BaseModel):
+    """Balance change for a specific transaction."""
+    
     tx_index: TxIndex
     delta: BalanceDelta
 
 
-@dataclass
-class PerTxAccess:
+class PerTxAccess(BaseModel):
+    """Per-transaction storage access information."""
+    
     tx_index: TxIndex
     value_after: StorageValue
 
 
-@dataclass
-class SlotAccess:
+class SlotAccess(BaseModel):
+    """Storage slot access information."""
+    
     slot: StorageKey
     accesses: List[PerTxAccess]
 
 
-@dataclass
-class AccountAccess:
+class AccountAccess(BaseModel):
+    """Account storage access information."""
+    
     address: Address
     accesses: List[SlotAccess]
 
 
-@dataclass
-class AccountBalanceDiff:
+class AccountBalanceDiff(BaseModel):
+    """Account balance difference information."""
+    
     address: Address
     changes: List[BalanceChange]
 
 
-@dataclass
-class AccountCodeDiff:
+class AccountCodeDiff(BaseModel):
+    """Account code difference information."""
+    
     address: Address
     new_code: CodeData
 
 
-@dataclass
-class AccountNonce:
+class AccountNonce(BaseModel):
+    """Account nonce information."""
+    
     address: Address
     nonce: Nonce
 
@@ -73,8 +80,9 @@ AccountCodeDiffs = List[AccountCodeDiff]
 NonceDiffs = List[AccountNonce]
 
 
-@dataclass
-class BlockAccessList:
+class BlockAccessList(BaseModel):
+    """Complete block access list as per EIP-7928."""
+    
     account_accesses: AccountAccessList
     balance_diffs: BalanceDiffs
     code_diffs: AccountCodeDiffs
