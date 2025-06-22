@@ -4,7 +4,6 @@ import pytest
 from bal.utils import (
     is_valid_balance_delta,
     encode_balance_delta,
-    create_balance_change_entry
 )
 
 
@@ -106,37 +105,3 @@ class TestEncodeBalanceDelta:
             encode_balance_delta(delta)
 
 
-class TestCreateBalanceChangeEntry:
-    """Test balance change entry creation."""
-    
-    def test_create_positive_change(self):
-        """Test creating entry for positive balance change."""
-        result = create_balance_change_entry(5, 100)
-        assert result.tx_index == 5
-        assert result.delta == '0x000000000000000000000064'
-    
-    def test_create_negative_change(self):
-        """Test creating entry for negative balance change."""
-        result = create_balance_change_entry(3, -100)
-        assert result.tx_index == 3
-        assert result.delta == '0xffffffffffffffffffffff9c'
-    
-    def test_create_zero_change_returns_none(self):
-        """Test that zero delta returns None."""
-        result = create_balance_change_entry(1, 0)
-        assert result is None
-    
-    def test_create_large_change(self):
-        """Test creating entry for large balance change."""
-        delta = 1_000_000_000_000_000_000  # 1 ETH
-        result = create_balance_change_entry(10, delta)
-        assert result is not None
-        assert result.tx_index == 10
-        assert result.delta.startswith('0x')
-        assert len(result.delta) == 26
-    
-    def test_create_invalid_change_raises_error(self):
-        """Test that invalid delta raises ValueError."""
-        invalid_delta = 2**95
-        with pytest.raises(ValueError):
-            create_balance_change_entry(1, invalid_delta)

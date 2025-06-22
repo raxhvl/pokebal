@@ -3,6 +3,16 @@
 from typing import List
 from dataclasses import dataclass
 
+from common.types import (
+    Address,
+    StorageKey,
+    StorageValue,
+    CodeData,
+    BalanceDelta,
+    TxIndex,
+    Nonce,
+)
+
 
 ################################
 #          CONSTANTS           #
@@ -13,22 +23,6 @@ MAX_TXS = 30_000
 MAX_SLOTS = 300_000
 MAX_ACCOUNTS = 300_000
 MAX_CODE_SIZE = 24 * 1024  # 24 Kib
-
-
-################################
-#          TYPE ALIAS          #
-################################
-
-HexString = str  # 0x-prefixed hex string
-Address = HexString  # 20-byte hex string
-StorageKey = HexString  # 32-byte hex string
-StorageValue = HexString  # 32-byte hex string
-CodeData = HexString  # up to MAX_CODE_SIZE bytes
-# TODO: Why is it 12 bytes and not 32 bytes?
-# TODO: Also why is this not an integer?
-BalanceDelta = HexString  # 12-byte two's complement
-TxIndex = int
-Nonce = int
 
 
 @dataclass

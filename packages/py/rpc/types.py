@@ -1,18 +1,11 @@
-from typing import Dict, List, Literal, Union, Optional, Annotated
-from pydantic import BaseModel, Field
+from typing import Dict, List, Optional
+from pydantic import BaseModel
 
-
-# Base hex string validation
-HexString = Annotated[str, Field(pattern=r"^0x[0-9a-fA-F]+$")]
-
-# Specific hex string types that extend the base pattern
-Address = Annotated[
+from common.types import (
     HexString,
-    Field(pattern=r"^0x[0-9a-fA-F]{40}$", description="Ethereum address (20 bytes)"),
-]
-Hash = Annotated[
-    HexString, Field(pattern=r"^0x[0-9a-fA-F]{64}$", description="Hash (32 bytes)")
-]
+    Address,
+    Hash,
+)
 
 
 class AccountState(BaseModel):
@@ -39,6 +32,4 @@ class TransactionTrace(BaseModel):
 
 
 # Type aliases for common RPC types
-BlockNumber = Union[int, Literal["latest", "earliest", "pending"]]
-
 BlockDebugTraceResult = List[TransactionTrace]
