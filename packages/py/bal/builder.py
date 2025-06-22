@@ -40,7 +40,7 @@ class BlockAccessListBuilder:
     def add_balance_change(
         self, tx_index: int, transaction_trace: TransactionTrace
     ) -> None:
-        """Add balance changes from a transaction trace using functional composition.
+        """Add balance changes from a transaction trace.
 
         Extracts balance changes from pre/post states and processes each one.
         Composes pure functions to calculate, validate, and encode balance changes.

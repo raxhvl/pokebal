@@ -1,9 +1,11 @@
 import httpx
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 class HTTPTransport:
-    def __init__(self, url: str, timeout: float = 30.0, headers: Dict[str, str] = None):
+    def __init__(
+        self, url: str, timeout: float = 30.0, headers: Optional[Dict[str, str]] = None
+    ):
         self.url = url
         self.timeout = timeout
         self.custom_headers = headers or {}
@@ -24,5 +26,5 @@ class HTTPTransport:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self):
         self.close()
