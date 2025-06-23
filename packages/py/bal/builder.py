@@ -7,6 +7,8 @@ from .types import (
     AccountAccess,
     SlotAccess,
     PerTxAccess,
+    AccountCodeDiff,
+    MAX_CODE_SIZE,
 )
 from .utils import encode_balance_delta
 from rpc.types import TransactionTrace, BlockDebugTraceResult
@@ -172,6 +174,52 @@ class BlockAccessListBuilder:
                         PerTxAccess(tx_index=tx_index, value_after=post_value)
                     )
 
+    def add_code_changes(self, transaction_trace: TransactionTrace) -> None:
+        """Add code changes from a transaction trace.
+
+        Args:
+            transaction_trace: TransactionTrace containing pre/post states
+
+        Raises:
+            ValueError: If code size exceeds MAX_CODE_SIZE limit
+        """
+        # Extract all addresses that might have code changes
+        all_addresses = set(transaction_trace.result.pre.keys()) | set(
+            transaction_trace.result.post.keys()
+        )
+
+        # Step 1: Iterate over all addresses in pre/post states
+        for address in all_addresses:
+            pre_state = transaction_trace.result.pre.get(address)
+            post_state = transaction_trace.result.post.get(address)
+
+            # Step 2: Gather pre/post code.
+            pre_code = None
+            if pre_state and pre_state.code:
+                pre_code = pre_state.code
+
+            post_code = None
+            if post_state and post_state.code:
+                post_code = post_state.code
+
+            # Step 3: Check if code was changed
+            if pre_code != post_code and post_code is not None:
+                # Validate code size
+                code_bytes = bytes.fromhex(post_code[2:])  # Remove '0x' prefix
+                if len(code_bytes) > MAX_CODE_SIZE:
+                    raise ValueError(
+                        f"Code size {len(code_bytes)} exceeds maximum {MAX_CODE_SIZE} bytes"
+                    )
+
+                # Step 4: Update the code diff entry (last change wins)
+                code_diff = self._create_or_get(
+                    self.bal.code_diffs,
+                    address,
+                    lambda addr: AccountCodeDiff(address=addr, new_code=post_code),
+                    key_attr="address",
+                )
+                code_diff.new_code = post_code
+
     def build(self) -> BlockAccessList:
         """Build the final BlockAccessList."""
         return self.bal
@@ -198,7 +246,9 @@ def from_execution_trace(trace_data: BlockDebugTraceResult) -> BlockAccessList:
         # Process storage access from this transaction
         builder.add_account_access(tx_index, transaction_trace)
 
-        # TODO: Add code change processing
+        # Process code changes from this transaction
+        builder.add_code_changes(transaction_trace)
+
         # TODO: Add nonce change processing
 
     return builder.build()
