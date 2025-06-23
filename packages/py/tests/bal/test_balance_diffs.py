@@ -3,7 +3,7 @@
 import pytest
 from typing import List
 from bal.builder import from_execution_trace
-from bal.types import BlockAccessList, AccountBalanceDiff, BalanceChange
+from bal.types import BlockAccessList, AccountBalanceDiff, BalanceChange, AccountNonce
 from tests.utils import TestAddresses, TestTxHashes, BALTestCase
 from bal.utils import int_to_hex, encode_balance_delta
 from rpc.types import (
@@ -43,7 +43,14 @@ def create_test_cases() -> List[BALTestCase]:
                     txHash=TestTxHashes.TX1,
                 )
             ],
-            expected_result=BlockAccessList(),
+            expected_result=BlockAccessList(
+                nonce_diffs=[
+                    AccountNonce(
+                        address=TestAddresses.ALICE,
+                        nonce=2,
+                    )
+                ]
+            ),
         ),
         BALTestCase(
             description="Alice gains 100 wei in single transaction",
@@ -133,6 +140,12 @@ def create_test_cases() -> List[BALTestCase]:
                                 delta=encode_balance_delta(500),  # +500
                             )
                         ],
+                    )
+                ],
+                nonce_diffs=[
+                    AccountNonce(
+                        address=TestAddresses.ALICE,
+                        nonce=2,
                     )
                 ]
             ),

@@ -8,6 +8,7 @@ from .types import (
     SlotAccess,
     PerTxAccess,
     AccountCodeDiff,
+    AccountNonce,
     MAX_CODE_SIZE,
 )
 from .utils import encode_balance_delta
@@ -220,6 +221,50 @@ class BlockAccessListBuilder:
                 )
                 code_diff.new_code = post_code
 
+    def add_nonce_changes(self, transaction_trace: TransactionTrace) -> None:
+        """Add nonce changes from a transaction trace.
+
+        Extracts nonce changes from pre/post states and processes each one.
+        Composes pure functions to identify, compare, and track nonce changes.
+        Only mutates state when actual nonce changes are detected.
+
+        Args:
+            transaction_trace: TransactionTrace containing pre/post states
+
+        Note:
+            This tracks nonce changes by comparing pre/post nonce values.
+            Only the final nonce value (post-transaction) is stored.
+        """
+        # Extract all addresses that might have nonce changes
+        all_addresses = set(transaction_trace.result.pre.keys()) | set(
+            transaction_trace.result.post.keys()
+        )
+
+        # Step 1: Iterate over all addresses in pre/post states
+        for address in all_addresses:
+            pre_state = transaction_trace.result.pre.get(address)
+            post_state = transaction_trace.result.post.get(address)
+
+            # Step 2: Extract nonces, defaulting to 0 if not present
+            pre_nonce = 0
+            if pre_state and pre_state.nonce is not None:
+                pre_nonce = pre_state.nonce
+
+            post_nonce = 0
+            if post_state and post_state.nonce is not None:
+                post_nonce = post_state.nonce
+
+            # Step 3: Check if nonce was changed
+            if pre_nonce != post_nonce:
+                # Step 4: Update the nonce diff entry (last change wins)
+                nonce_diff = self._create_or_get(
+                    self.bal.nonce_diffs,
+                    address,
+                    lambda addr: AccountNonce(address=addr, nonce=post_nonce),
+                    key_attr="address",
+                )
+                nonce_diff.nonce = post_nonce
+
     def build(self) -> BlockAccessList:
         """Build the final BlockAccessList."""
         return self.bal
@@ -249,6 +294,7 @@ def from_execution_trace(trace_data: BlockDebugTraceResult) -> BlockAccessList:
         # Process code changes from this transaction
         builder.add_code_changes(transaction_trace)
 
-        # TODO: Add nonce change processing
+        # Process nonce changes from this transaction
+        builder.add_nonce_changes(transaction_trace)
 
     return builder.build()
