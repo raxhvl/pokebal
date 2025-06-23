@@ -1,6 +1,13 @@
 """Builder for constructing Block Access Lists from execution traces."""
 
-from .types import BlockAccessList, AccountBalanceDiff, BalanceChange
+from .types import (
+    BlockAccessList,
+    AccountBalanceDiff,
+    BalanceChange,
+    AccountAccess,
+    SlotAccess,
+    PerTxAccess,
+)
 from .utils import encode_balance_delta
 from rpc.types import TransactionTrace, BlockDebugTraceResult
 
@@ -12,28 +19,29 @@ class BlockAccessListBuilder:
         """Initialize the builder."""
         self.bal = BlockAccessList()
 
-    def _create_or_get(self, collection: list, address: str, factory_func):
-        """Generic function to find existing item by address or create new one.
+    def _create_or_get(self, collection: list, key: str, factory_func, key_attr: str):
+        """Generic function to find existing item by key or create new one.
 
-        Pure functional approach - searches collection for item with matching address.
+        Pure functional approach - searches collection for item with matching key.
         If found, returns existing item. If not found, creates new item using factory_func
         and appends to collection.
 
         Args:
             collection: List to search in (e.g., self.bal.balance_diffs)
-            address: Address to match against item.address
-            factory_func: Function that creates new item when called with address
+            key: Key to match against item's key attribute
+            factory_func: Function that creates new item when called with key
+            key_attr: Attribute name to match against (e.g., "address", "slot")
 
         Returns:
             Existing or newly created item from collection
         """
-        # Search for existing item with matching address
+        # Search for existing item with matching key
         for item in collection:
-            if item.address == address:
+            if getattr(item, key_attr) == key:
                 return item
 
         # Create new item if none found
-        new_item = factory_func(address)
+        new_item = factory_func(key)
         collection.append(new_item)
         return new_item
 
@@ -87,8 +95,82 @@ class BlockAccessListBuilder:
                     self.bal.balance_diffs,
                     address,
                     lambda addr: AccountBalanceDiff(address=addr),
+                    key_attr="address",
                 )
                 account_diff.changes.append(balance_change)
+
+    def add_account_access(
+        self, tx_index: int, transaction_trace: TransactionTrace
+    ) -> None:
+        """Add storage access information from a transaction trace.
+
+        Extracts storage accesses from pre/post states and processes each one.
+        Composes pure functions to identify, compare, and track storage changes.
+        Only mutates state when actual storage changes are detected.
+
+        Args:
+            tx_index: Transaction index in block
+            transaction_trace: TransactionTrace containing pre/post states
+
+        Note:
+            This tracks storage slot accesses by comparing pre/post storage states.
+            Each modified storage slot is recorded with its post-transaction value.
+        """
+        # Extract all addresses that have storage changes
+        all_addresses = set(transaction_trace.result.pre.keys()) | set(
+            transaction_trace.result.post.keys()
+        )
+
+        # Step 1: Iterate over all addresses in pre/post states
+        for address in all_addresses:
+            pre_state = transaction_trace.result.pre.get(address)
+            post_state = transaction_trace.result.post.get(address)
+
+            # Extract storage states, defaulting to empty dict if not present
+            pre_storage = {}
+            if pre_state and pre_state.storage:
+                pre_storage = pre_state.storage
+
+            post_storage = {}
+            if post_state and post_state.storage:
+                post_storage = post_state.storage
+
+            # Step 2: Loop through all storage slots
+            all_slots = set(pre_storage.keys()) | set(post_storage.keys())
+            for slot in all_slots:
+                pre_value = pre_storage.get(
+                    slot,
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                )
+                post_value = post_storage.get(
+                    slot,
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                )
+
+                # Step 3: Check if value was changed
+                if pre_value != post_value:
+                    # Step 4: Add per-tx entry this slot.
+
+                    # Step 4a: Create or get account access entry
+                    account_access = self._create_or_get(
+                        self.bal.account_accesses,
+                        address,
+                        lambda addr: AccountAccess(address=addr),
+                        key_attr="address",
+                    )
+
+                    # Step 4b: Create or get slot access entry
+                    slot_access = self._create_or_get(
+                        account_access.accesses,
+                        slot,
+                        lambda slot_key: SlotAccess(slot=slot_key),
+                        key_attr="slot",
+                    )
+
+                    # Step 4c: Add per-transaction access to slot
+                    slot_access.accesses.append(
+                        PerTxAccess(tx_index=tx_index, value_after=post_value)
+                    )
 
     def build(self) -> BlockAccessList:
         """Build the final BlockAccessList."""
@@ -113,7 +195,9 @@ def from_execution_trace(trace_data: BlockDebugTraceResult) -> BlockAccessList:
         # Process balance changes from this transaction
         builder.add_balance_change(tx_index, transaction_trace)
 
-        # TODO: Add storage access processing
+        # Process storage access from this transaction
+        builder.add_account_access(tx_index, transaction_trace)
+
         # TODO: Add code change processing
         # TODO: Add nonce change processing
 

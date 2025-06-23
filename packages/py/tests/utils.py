@@ -3,6 +3,7 @@
 from pydantic import BaseModel
 from rpc.types import BlockDebugTraceResult
 from bal.types import BlockAccessList
+from common.types import EVMWord
 
 
 class TestAddresses:
@@ -29,12 +30,17 @@ class TestTxHashes:
 
 class BALTestCase(BaseModel):
     """Generic test case data structure for Block Access List testing.
-    
+
     This can be used to test different aspects of BlockAccessList generation:
     - Complete BlockAccessList validation
     - Individual field testing (balance_diffs, account_accesses, code_diffs, nonce_diffs)
     """
-    
+
     description: str
     trace_input: BlockDebugTraceResult
     expected_result: BlockAccessList
+
+
+def to_evm_word(value: int) -> EVMWord:
+    """Convert integer to 32-byte hex EVM word."""
+    return f"0x{value:064x}"
