@@ -12,7 +12,7 @@ from .types import (
     MAX_CODE_SIZE,
 )
 from .utils import encode_balance_delta
-from rpc.types import TransactionTrace, BlockDebugTraceResult
+from pokebal.rpc.types import TransactionTrace, BlockDebugTraceResult
 
 
 class BlockAccessListBuilder:

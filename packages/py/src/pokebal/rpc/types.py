@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from pydantic import BaseModel
 
-from common.types import (
+from pokebal.common.types import (
     HexString,
     Address,
     Hash,

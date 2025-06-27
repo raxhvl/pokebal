@@ -3,7 +3,7 @@
 from typing import List
 from pydantic import BaseModel, Field
 
-from common.types import (
+from pokebal.common.types import (
     Address,
     StorageKey,
     StorageValue,
@@ -27,49 +27,49 @@ MAX_CODE_SIZE = 24 * 1024  # 24 Kib
 
 class BalanceChange(BaseModel):
     """Balance change for a specific transaction."""
-    
+
     tx_index: TxIndex
     delta: BalanceDelta
 
 
 class PerTxAccess(BaseModel):
     """Per-transaction storage access information."""
-    
+
     tx_index: TxIndex
     value_after: StorageValue
 
 
 class SlotAccess(BaseModel):
     """Storage slot access information."""
-    
+
     slot: StorageKey
     accesses: List[PerTxAccess] = Field(default_factory=list)
 
 
 class AccountAccess(BaseModel):
     """Account storage access information."""
-    
+
     address: Address
     accesses: List[SlotAccess] = Field(default_factory=list)
 
 
 class AccountBalanceDiff(BaseModel):
     """Account balance difference information."""
-    
+
     address: Address
     changes: List[BalanceChange] = Field(default_factory=list)
 
 
 class AccountCodeDiff(BaseModel):
     """Account code difference information."""
-    
+
     address: Address
     new_code: CodeData
 
 
 class AccountNonce(BaseModel):
     """Account nonce information."""
-    
+
     address: Address
     nonce: Nonce
 
@@ -82,7 +82,7 @@ NonceDiffs = List[AccountNonce]
 
 class BlockAccessList(BaseModel):
     """Complete block access list as per EIP-7928."""
-    
+
     account_accesses: AccountAccessList = Field(default_factory=list)
     balance_diffs: BalanceDiffs = Field(default_factory=list)
     code_diffs: AccountCodeDiffs = Field(default_factory=list)
