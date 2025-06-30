@@ -8,7 +8,6 @@ from pokebal.common.types import (
     StorageKey,
     StorageValue,
     CodeData,
-    BalanceDelta,
     TxIndex,
     Nonce,
 )
@@ -22,68 +21,66 @@ from pokebal.common.types import (
 MAX_TXS = 30_000
 MAX_SLOTS = 300_000
 MAX_ACCOUNTS = 300_000
-MAX_CODE_SIZE = 24 * 1024  # 24 Kib
+MAX_CODE_SIZE = 24_576  # 24 KiB
+
+
+# Type aliases from EIP-7928
+Balance = int  # uint128 in spec
+
+
+class StorageChange(BaseModel):
+    """Storage change for a specific transaction."""
+
+    tx_index: TxIndex
+    new_value: StorageValue
 
 
 class BalanceChange(BaseModel):
     """Balance change for a specific transaction."""
 
     tx_index: TxIndex
-    delta: BalanceDelta
+    post_balance: Balance
 
 
-class PerTxAccess(BaseModel):
-    """Per-transaction storage access information."""
+class NonceChange(BaseModel):
+    """Nonce change for a specific transaction."""
 
     tx_index: TxIndex
-    value_after: StorageValue
+    new_nonce: Nonce
 
 
-class SlotAccess(BaseModel):
-    """Storage slot access information."""
+class CodeChange(BaseModel):
+    """Code change for a specific transaction."""
 
-    slot: StorageKey
-    accesses: List[PerTxAccess] = Field(default_factory=list)
-
-
-class AccountAccess(BaseModel):
-    """Account storage access information."""
-
-    address: Address
-    accesses: List[SlotAccess] = Field(default_factory=list)
-
-
-class AccountBalanceDiff(BaseModel):
-    """Account balance difference information."""
-
-    address: Address
-    changes: List[BalanceChange] = Field(default_factory=list)
-
-
-class AccountCodeDiff(BaseModel):
-    """Account code difference information."""
-
-    address: Address
+    tx_index: TxIndex
     new_code: CodeData
 
 
-class AccountNonce(BaseModel):
-    """Account nonce information."""
+class SlotChanges(BaseModel):
+    """Storage slot changes information."""
+
+    slot: StorageKey
+    changes: List[StorageChange] = Field(default_factory=list, max_items=MAX_TXS)
+
+
+class SlotRead(BaseModel):
+    """Storage slot read information."""
+
+    slot: StorageKey
+
+
+class AccountChanges(BaseModel):
+    """Account changes information per EIP-7928."""
 
     address: Address
-    nonce: Nonce
-
-
-AccountAccessList = List[AccountAccess]
-BalanceDiffs = List[AccountBalanceDiff]
-AccountCodeDiffs = List[AccountCodeDiff]
-NonceDiffs = List[AccountNonce]
+    storage_changes: List[SlotChanges] = Field(default_factory=list, max_items=MAX_SLOTS)
+    storage_reads: List[SlotRead] = Field(default_factory=list, max_items=MAX_SLOTS)
+    balance_changes: List[BalanceChange] = Field(default_factory=list, max_items=MAX_TXS)
+    nonce_changes: List[NonceChange] = Field(default_factory=list, max_items=MAX_TXS)
+    code_changes: List[CodeChange] = Field(default_factory=list, max_items=MAX_TXS)
 
 
 class BlockAccessList(BaseModel):
     """Complete block access list as per EIP-7928."""
 
-    account_accesses: AccountAccessList = Field(default_factory=list)
-    balance_diffs: BalanceDiffs = Field(default_factory=list)
-    code_diffs: AccountCodeDiffs = Field(default_factory=list)
-    nonce_diffs: NonceDiffs = Field(default_factory=list)
+    account_changes: List[AccountChanges] = Field(default_factory=list, max_items=MAX_ACCOUNTS)

@@ -14,6 +14,8 @@ from .types import (
 from .utils import encode_balance_delta
 from pokebal.rpc.types import TransactionTrace, BlockDebugTraceResult
 
+ZERO_WORD = "0x" + "0" * 64
+
 
 class BlockAccessListBuilder:
     """Builds block access lists from transaction execution data."""
@@ -21,6 +23,19 @@ class BlockAccessListBuilder:
     def __init__(self):
         """Initialize the builder."""
         self.bal = BlockAccessList()
+
+    def _get_storage(self, account_state) -> dict:
+        """Extract storage from account state, returning empty dict if None.
+
+        Pure function that safely extracts storage dictionary from account state.
+
+        Args:
+            account_state: AccountState object or None
+
+        Returns:
+            Storage dictionary or empty dict if account/storage is None
+        """
+        return account_state.storage if account_state and account_state.storage else {}
 
     def _create_or_get(self, collection: list, key: str, factory_func, key_attr: str):
         """Generic function to find existing item by key or create new one.
@@ -119,42 +134,33 @@ class BlockAccessListBuilder:
             This tracks storage slot accesses by comparing pre/post storage states.
             Each modified storage slot is recorded with its post-transaction value.
         """
-        # Extract all addresses that have storage changes
-        all_addresses = set(transaction_trace.result.pre.keys()) | set(
-            transaction_trace.result.post.keys()
-        )
 
-        # Step 1: Iterate over all addresses in pre/post states
-        for address in all_addresses:
-            pre_state = transaction_trace.result.pre.get(address)
-            post_state = transaction_trace.result.post.get(address)
+        pre = transaction_trace.result.pre
+        post = transaction_trace.result.post
+        touched_addresses = set(pre.keys()) | set(post.keys())
 
-            # Extract storage states, defaulting to empty dict if not present
-            pre_storage = {}
-            if pre_state and pre_state.storage:
-                pre_storage = pre_state.storage
+        # Step 1: Iterate over all touched addresses
+        for address in touched_addresses:
+            pre_storage = self._get_storage(pre.get(address))
+            post_storage = self._get_storage(post.get(address))
+            touched_slots = set(pre_storage.keys()) | set(post_storage.keys())
 
-            post_storage = {}
-            if post_state and post_state.storage:
-                post_storage = post_state.storage
+            # Step 2: Iterate over all touched slots
+            for slot in touched_slots:
+                pre_value = pre_storage.get(slot, None)
+                post_value = post_storage.get(slot, None)
 
-            # Step 2: Loop through all storage slots
-            all_slots = set(pre_storage.keys()) | set(post_storage.keys())
-            for slot in all_slots:
-                pre_value = pre_storage.get(
-                    slot,
-                    "0x0000000000000000000000000000000000000000000000000000000000000000",
-                )
-                post_value = post_storage.get(
-                    slot,
-                    "0x0000000000000000000000000000000000000000000000000000000000000000",
-                )
+                is_set = pre_value is None
+                is_reset = post_value is None
+                is_changed = pre_value != post_value and not (is_set or is_reset)
 
-                # Step 3: Check if value was changed
-                if pre_value != post_value:
-                    # Step 4: Add per-tx entry this slot.
+                is_write = is_set or is_reset or is_changed
 
-                    # Step 4a: Create or get account access entry
+                if is_reset:
+                    post_value = ZERO_WORD
+
+                if is_write:
+                    # Step x: Create or get account access entry
                     account_access = self._create_or_get(
                         self.bal.account_accesses,
                         address,
@@ -162,7 +168,7 @@ class BlockAccessListBuilder:
                         key_attr="address",
                     )
 
-                    # Step 4b: Create or get slot access entry
+                    # Step x: Create or get slot access entry
                     slot_access = self._create_or_get(
                         account_access.accesses,
                         slot,
@@ -170,7 +176,7 @@ class BlockAccessListBuilder:
                         key_attr="slot",
                     )
 
-                    # Step 4c: Add per-transaction access to slot
+                    # Step x: Add per-transaction access to slot
                     slot_access.accesses.append(
                         PerTxAccess(tx_index=tx_index, value_after=post_value)
                     )

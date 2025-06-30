@@ -1,6 +1,9 @@
 # PokeBAL
 
-A Python implementation of [EIP-7928](https://eips.ethereum.org/EIPS/eip-7928).
+A Python implementation of [EIP-7928](https://eips.ethereum.org/EIPS/eip-7928) to help test client implementations.
+
+> [!Note]
+> EIP-7928 version: [35732ba](https://github.com/ethereum/EIPs/blob/35732baa14cfea785d9c58d5f18033392b7ed886/EIPS/eip-7928.md)
 
 ## Quick Start
 
@@ -70,7 +73,7 @@ uv run pytest             # All tests
 uv run pytest tests/bal/  # Just the core logic
 ```
 
-Tests are fast because they're just data transformation - no network calls, no databases, no external dependencies.
+Tests are fast because they're just data transformation - no network calls or external dependencies.
 
 ## Implementation Status
 
@@ -78,9 +81,3 @@ Tests are fast because they're just data transformation - no network calls, no d
 - 🚧 Storage access tracking (planned)
 - 🚧 Code change tracking (planned)
 - 🚧 Nonce change tracking (planned)
-
-Each piece follows the same pattern: parse, compare, encode, return.
-
----
-
-_Simple tools for complex problems._
