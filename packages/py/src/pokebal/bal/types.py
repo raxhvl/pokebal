@@ -60,7 +60,7 @@ class SlotChanges(BaseModel):
     """Storage slot changes information."""
 
     slot: StorageKey
-    changes: List[StorageChange] = Field(default_factory=list, max_items=MAX_TXS)
+    changes: List[StorageChange] = Field(default=[], max_length=MAX_TXS)
 
 
 class SlotRead(BaseModel):
@@ -73,14 +73,100 @@ class AccountChanges(BaseModel):
     """Account changes information per EIP-7928."""
 
     address: Address
-    storage_changes: List[SlotChanges] = Field(default_factory=list, max_items=MAX_SLOTS)
-    storage_reads: List[SlotRead] = Field(default_factory=list, max_items=MAX_SLOTS)
-    balance_changes: List[BalanceChange] = Field(default_factory=list, max_items=MAX_TXS)
-    nonce_changes: List[NonceChange] = Field(default_factory=list, max_items=MAX_TXS)
-    code_changes: List[CodeChange] = Field(default_factory=list, max_items=MAX_TXS)
+    storage_changes: List[SlotChanges] = Field(default=[], max_length=MAX_SLOTS)
+    storage_reads: List[SlotRead] = Field(default=[], max_length=MAX_SLOTS)
+    balance_changes: List[BalanceChange] = Field(default=[], max_length=MAX_TXS)
+    nonce_changes: List[NonceChange] = Field(default=[], max_length=MAX_TXS)
+    code_changes: List[CodeChange] = Field(default=[], max_length=MAX_TXS)
 
 
 class BlockAccessList(BaseModel):
     """Complete block access list as per EIP-7928."""
 
-    account_changes: List[AccountChanges] = Field(default_factory=list, max_items=MAX_ACCOUNTS)
+    account_changes: List[AccountChanges] = Field(default=[], max_length=MAX_ACCOUNTS)
+
+    def _find_or_create_account(self, address: Address) -> AccountChanges:
+        """Find existing account or create new one - pure functional approach."""
+        for account in self.account_changes:
+            if account.address == address:
+                return account
+
+        new_account = AccountChanges(address=address)
+        self.account_changes.append(new_account)
+        return new_account
+
+    def _find_or_create_slot_changes(
+        self, account: AccountChanges, slot: StorageKey
+    ) -> SlotChanges:
+        """Find existing slot changes or create new one."""
+        for slot_changes in account.storage_changes:
+            if slot_changes.slot == slot:
+                return slot_changes
+
+        new_slot_changes = SlotChanges(slot=slot)
+        account.storage_changes.append(new_slot_changes)
+        return new_slot_changes
+
+    def _slot_already_read(self, account: AccountChanges, slot: StorageKey) -> bool:
+        """Ensure slot read entry exists for given slot."""
+        for slot_read in account.storage_reads:
+            if slot_read.slot == slot:
+                return True
+        return False
+
+    def add_storage_write(
+        self,
+        address: Address,
+        slot: StorageKey,
+        tx_index: TxIndex,
+        new_value: StorageValue,
+    ):
+        """Add a storage changed by specific transaction."""
+        account = self._find_or_create_account(address)
+        slot_changes = self._find_or_create_slot_changes(account, slot)
+
+        storage_change = StorageChange(tx_index=tx_index, new_value=new_value)
+        slot_changes.changes.append(storage_change)
+
+    def add_storage_read(
+        self,
+        address: Address,
+        slot: StorageKey,
+    ):
+        """Add a storage read by a block."""
+        account = self._find_or_create_account(address)
+        if not self._slot_already_read(account, slot):
+            account.storage_reads.append(SlotRead(slot=slot))
+
+    def add_balance_change(
+        self,
+        address: Address,
+        tx_index: TxIndex,
+        post_balance: Balance,
+    ):
+        """Add a balance changed by a specific transaction."""
+        account = self._find_or_create_account(address)
+        balance_change = BalanceChange(tx_index=tx_index, post_balance=post_balance)
+        account.balance_changes.append(balance_change)
+
+    def add_nonce_change(
+        self,
+        address: Address,
+        tx_index: TxIndex,
+        new_nonce: Nonce,
+    ):
+        """Add a nonce changed by a specific transaction."""
+        account = self._find_or_create_account(address)
+        nonce_change = NonceChange(tx_index=tx_index, new_nonce=new_nonce)
+        account.nonce_changes.append(nonce_change)
+
+    def add_code_change(
+        self,
+        address: Address,
+        tx_index: TxIndex,
+        new_code: CodeData,
+    ):
+        """Add a code changed by a specific transaction."""
+        account = self._find_or_create_account(address)
+        code_change = CodeChange(tx_index=tx_index, new_code=new_code)
+        account.code_changes.append(code_change)
