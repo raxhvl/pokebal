@@ -1,4 +1,11 @@
-"""Tests for Block Access List types."""
+"""Tests for Block Access List types.
+
+Definitions:
+Touched account: An account that has been either nonce, balance, code or storage modified. Storage read
+is also considered a touch.
+Untouched account: An account that has not been touched.
+
+"""
 
 from pokebal.bal.types import (
     BlockAccessList,
@@ -16,8 +23,8 @@ from pokebal.common.types import (
 class TestStorageOperations:
     """Test cases for storage operations."""
 
-    def test_add_storage_write_new_account(self):
-        """Test adding storage write for a new account."""
+    def test_storage_write_untouched_account(self):
+        """Test adding storage write for an untouched account."""
         bal = BlockAccessList()
         address = Address("0x1234567890123456789012345678901234567890")
         slot = StorageKey(
@@ -39,8 +46,32 @@ class TestStorageOperations:
         assert account.storage_changes[0].changes[0].tx_index == tx_index
         assert account.storage_changes[0].changes[0].new_value == new_value
 
-    def test_add_storage_write_existing_account_new_slot(self):
-        """Test adding storage write for existing account but new slot."""
+    def test_storage_write_touched_account(self):
+        """Test adding storage write for a touched account."""
+        bal = BlockAccessList()
+        address = Address("0x1234567890123456789012345678901234567890")
+        slot = StorageKey(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+        tx_index = TxIndex(0)
+        value = StorageValue(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+
+        # Touch the account first with balance change
+        bal.add_balance_change(address, tx_index, 1000)
+
+        # Now add storage write to the touched account
+        bal.add_storage_write(address, slot, tx_index, value)
+
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert account.storage_changes[0].slot == slot
+
+    def test_multiple_slots_same_account_same_transaction(self):
+        """Test writing to multiple slots for the same account in the same transaction."""
         bal = BlockAccessList()
         address = Address("0x1234567890123456789012345678901234567890")
         slot1 = StorageKey(
@@ -64,9 +95,40 @@ class TestStorageOperations:
         account = bal.account_changes[0]
         assert len(account.storage_changes) == 2
         assert {sc.slot for sc in account.storage_changes} == {slot1, slot2}
+        # Both should be in the same transaction
+        assert account.storage_changes[0].changes[0].tx_index == tx_index
+        assert account.storage_changes[1].changes[0].tx_index == tx_index
 
-    def test_add_storage_write_existing_slot(self):
-        """Test adding multiple storage writes for the same slot."""
+    def test_same_slot_multiple_times_same_transaction(self):
+        """Test writing to the same slot multiple times in the same transaction (last write wins)."""
+        bal = BlockAccessList()
+        address = Address("0x1234567890123456789012345678901234567890")
+        slot = StorageKey(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+        tx_index = TxIndex(0)
+        value1 = StorageValue(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+        value2 = StorageValue(
+            "0x0000000000000000000000000000000000000000000000000000000000000002"
+        )
+
+        bal.add_storage_write(address, slot, tx_index, value1)
+        bal.add_storage_write(address, slot, tx_index, value2)
+
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_changes) == 1
+        slot_changes = account.storage_changes[0]
+        # Only one change should exist (last write wins)
+        assert len(slot_changes.changes) == 1
+        assert slot_changes.changes[0].tx_index == tx_index
+        # Should have the last written value (value2)
+        assert slot_changes.changes[0].new_value == value2
+
+    def test_same_slot_multiple_times_different_transactions(self):
+        """Test writing to the same slot multiple times in different transactions."""
         bal = BlockAccessList()
         address = Address("0x1234567890123456789012345678901234567890")
         slot = StorageKey(
@@ -92,8 +154,29 @@ class TestStorageOperations:
         assert slot_changes.changes[0].tx_index == tx_index1
         assert slot_changes.changes[1].tx_index == tx_index2
 
-    def test_add_storage_read_new_account(self):
-        """Test adding storage read for a new account."""
+    def test_storage_read_touched_account(self):
+        """Test reading from a slot for a touched account."""
+        bal = BlockAccessList()
+        address = Address("0x1234567890123456789012345678901234567890")
+        slot = StorageKey(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+        tx_index = TxIndex(0)
+
+        # Touch the account first with nonce change
+        bal.add_nonce_change(address, tx_index, Nonce(42))
+
+        # Now add storage read to the touched account
+        bal.add_storage_read(address, slot)
+
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+        assert len(account.nonce_changes) == 1
+        assert account.storage_reads[0].slot == slot
+
+    def test_storage_read_untouched_account(self):
+        """Test reading from a slot for an untouched account."""
         bal = BlockAccessList()
         address = Address("0x1234567890123456789012345678901234567890")
         slot = StorageKey(
@@ -108,8 +191,8 @@ class TestStorageOperations:
         assert len(account.storage_reads) == 1
         assert account.storage_reads[0].slot == slot
 
-    def test_add_storage_read_existing_slot(self):
-        """Test adding duplicate storage reads (should not duplicate)."""
+    def test_storage_read_multiple_times_same_transaction(self):
+        """Test reading from a slot multiple times in the same transaction (should not duplicate)."""
         bal = BlockAccessList()
         address = Address("0x1234567890123456789012345678901234567890")
         slot = StorageKey(
@@ -122,6 +205,64 @@ class TestStorageOperations:
         assert len(bal.account_changes) == 1
         account = bal.account_changes[0]
         assert len(account.storage_reads) == 1
+
+    def test_storage_read_multiple_times_different_transactions(self):
+        """Test reading from a slot multiple times in different transactions (should not duplicate)."""
+        bal = BlockAccessList()
+        address = Address("0x1234567890123456789012345678901234567890")
+        slot = StorageKey(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+
+        # Note: Storage reads don't have transaction indices in the current implementation
+        # They are tracked at the account level, not per transaction
+        bal.add_storage_read(address, slot)
+        bal.add_storage_read(address, slot)
+
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+
+    def test_storage_read_slot_not_written(self):
+        """Test reading from a slot that has not been written to."""
+        bal = BlockAccessList()
+        address = Address("0x1234567890123456789012345678901234567890")
+        slot = StorageKey(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+
+        bal.add_storage_read(address, slot)
+
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+        assert len(account.storage_changes) == 0  # No writes
+        assert account.storage_reads[0].slot == slot
+
+    def test_storage_read_slot_written(self):
+        """Test reading from a slot that has been written to."""
+        bal = BlockAccessList()
+        address = Address("0x1234567890123456789012345678901234567890")
+        slot = StorageKey(
+            "0x0000000000000000000000000000000000000000000000000000000000000001"
+        )
+        tx_index = TxIndex(0)
+        value = StorageValue(
+            "0x0000000000000000000000000000000000000000000000000000000000000002"
+        )
+
+        # First write to the slot
+        bal.add_storage_write(address, slot, tx_index, value)
+
+        # Then read from the same slot
+        bal.add_storage_read(address, slot)
+
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+        assert len(account.storage_changes) == 1
+        assert account.storage_reads[0].slot == slot
+        assert account.storage_changes[0].slot == slot
 
 
 class TestBalanceOperations:

@@ -85,8 +85,8 @@ class BlockAccessList(BaseModel):
 
     account_changes: List[AccountChanges] = Field(default=[], max_length=MAX_ACCOUNTS)
 
-    def _find_or_create_account(self, address: Address) -> AccountChanges:
-        """Find existing account or create new one - pure functional approach."""
+    def _get_account(self, address: Address) -> AccountChanges:
+        """Find existing account or create new one."""
         for account in self.account_changes:
             if account.address == address:
                 return account
@@ -95,17 +95,30 @@ class BlockAccessList(BaseModel):
         self.account_changes.append(new_account)
         return new_account
 
-    def _find_or_create_slot_changes(
-        self, account: AccountChanges, slot: StorageKey
-    ) -> SlotChanges:
-        """Find existing slot changes or create new one."""
-        for slot_changes in account.storage_changes:
-            if slot_changes.slot == slot:
-                return slot_changes
+    def _get_slot_change_for_tx(
+        self, account: AccountChanges, slot: StorageKey, tx_index: TxIndex
+    ) -> StorageChange:
+        """Find existing storage change for specific transaction or create new one."""
+        # First find or create the SlotChanges for this slot
+        slot_changes = None
+        for sc in account.storage_changes:
+            if sc.slot == slot:
+                slot_changes = sc
+                break
 
-        new_slot_changes = SlotChanges(slot=slot)
-        account.storage_changes.append(new_slot_changes)
-        return new_slot_changes
+        if slot_changes is None:
+            slot_changes = SlotChanges(slot=slot)
+            account.storage_changes.append(slot_changes)
+
+        # Then find or create the StorageChange for this transaction
+        for change in slot_changes.changes:
+            if change.tx_index == tx_index:
+                return change
+
+        # No existing change for this tx, create and add new one
+        new_change = StorageChange(tx_index=tx_index)
+        slot_changes.changes.append(new_change)
+        return new_change
 
     def _slot_already_read(self, account: AccountChanges, slot: StorageKey) -> bool:
         """Ensure slot read entry exists for given slot."""
@@ -122,11 +135,11 @@ class BlockAccessList(BaseModel):
         new_value: StorageValue,
     ):
         """Add a storage changed by specific transaction."""
-        account = self._find_or_create_account(address)
-        slot_changes = self._find_or_create_slot_changes(account, slot)
+        account = self._get_account(address)
 
-        storage_change = StorageChange(tx_index=tx_index, new_value=new_value)
-        slot_changes.changes.append(storage_change)
+        # Get or create storage change for this transaction (last write wins)
+        storage_change = self._get_slot_change_for_tx(account, slot, tx_index)
+        storage_change.new_value = new_value
 
     def add_storage_read(
         self,
@@ -134,7 +147,7 @@ class BlockAccessList(BaseModel):
         slot: StorageKey,
     ):
         """Add a storage read by a block."""
-        account = self._find_or_create_account(address)
+        account = self._get_account(address)
         if not self._slot_already_read(account, slot):
             account.storage_reads.append(SlotRead(slot=slot))
 
@@ -145,7 +158,7 @@ class BlockAccessList(BaseModel):
         post_balance: Balance,
     ):
         """Add a balance changed by a specific transaction."""
-        account = self._find_or_create_account(address)
+        account = self._get_account(address)
         balance_change = BalanceChange(tx_index=tx_index, post_balance=post_balance)
         account.balance_changes.append(balance_change)
 
@@ -156,7 +169,7 @@ class BlockAccessList(BaseModel):
         new_nonce: Nonce,
     ):
         """Add a nonce changed by a specific transaction."""
-        account = self._find_or_create_account(address)
+        account = self._get_account(address)
         nonce_change = NonceChange(tx_index=tx_index, new_nonce=new_nonce)
         account.nonce_changes.append(nonce_change)
 
@@ -167,6 +180,6 @@ class BlockAccessList(BaseModel):
         new_code: CodeData,
     ):
         """Add a code changed by a specific transaction."""
-        account = self._find_or_create_account(address)
+        account = self._get_account(address)
         code_change = CodeChange(tx_index=tx_index, new_code=new_code)
         account.code_changes.append(code_change)
