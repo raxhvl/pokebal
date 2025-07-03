@@ -78,6 +78,7 @@ from .constants import (
     TxIndices,
     Nonces,
     Balances,
+    CodeSamples,
 )
 
 
@@ -594,6 +595,203 @@ class TestBalanceOperations:
         assert account.balance_changes[0].post_balance == large_balance
 
 
+class TestNonceOperations:
+    """Test cases for nonce operations following the generalized testing pattern."""
+
+    # 1. Account State Coverage Tests
+
+    def test_nonce_change_untouched_account(self):
+        """Test nonce change on untouched account creates new account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert account.address == Addresses.ALICE
+        assert len(account.nonce_changes) == 1
+        assert account.nonce_changes[0].tx_index == TxIndices.TX_0
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+
+    def test_nonce_change_touched_account(self):
+        """Test nonce change on touched account extends existing account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Pre-touch the account with balance change
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert account.nonce_changes[0].tx_index == TxIndices.TX_0
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+
+    # 2. Transaction Scope Testing
+
+    def test_nonce_change_same_transaction(self):
+        """Test multiple nonce changes within same transaction."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_nonce_change(Addresses.BOB, TxIndices.TX_0, Nonces.NONCE_100)
+
+        # Assert
+        assert len(bal.account_changes) == 2
+        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
+        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        assert len(alice_account.nonce_changes) == 1
+        assert len(bob_account.nonce_changes) == 1
+        assert alice_account.nonce_changes[0].tx_index == TxIndices.TX_0
+        assert bob_account.nonce_changes[0].tx_index == TxIndices.TX_0
+
+    def test_nonce_change_different_transactions(self):
+        """Test same account nonce changes across multiple transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_1, Nonces.NONCE_100)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 2
+        assert account.nonce_changes[0].tx_index == TxIndices.TX_0
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+        assert account.nonce_changes[1].tx_index == TxIndices.TX_1
+        assert account.nonce_changes[1].new_nonce == Nonces.NONCE_100
+
+    # 3. Deduplication Logic Testing
+
+    def test_nonce_change_same_transaction_duplicates(self):
+        """Test nonce change deduplication within same transaction (last write wins)."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_100)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 1
+        assert account.nonce_changes[0].tx_index == TxIndices.TX_0
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_100
+
+    def test_nonce_change_same_transactions_multiple_accounts(self):
+        """Test nonce changes for multiple accounts in same transaction."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_nonce_change(Addresses.BOB, TxIndices.TX_0, Nonces.NONCE_100)
+        bal.add_nonce_change(Addresses.CAROL, TxIndices.TX_0, Nonces.NONCE_1000)
+
+        # Assert
+        assert len(bal.account_changes) == 3
+        addresses = {acc.address for acc in bal.account_changes}
+        assert addresses == {Addresses.ALICE, Addresses.BOB, Addresses.CAROL}
+        for account in bal.account_changes:
+            assert len(account.nonce_changes) == 1
+            assert account.nonce_changes[0].tx_index == TxIndices.TX_0
+
+    def test_nonce_change_different_transactions_multiple_accounts(self):
+        """Test nonce changes for multiple accounts across transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_nonce_change(Addresses.BOB, TxIndices.TX_1, Nonces.NONCE_100)
+
+        # Assert
+        assert len(bal.account_changes) == 2
+        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
+        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        assert alice_account.nonce_changes[0].tx_index == TxIndices.TX_0
+        assert bob_account.nonce_changes[0].tx_index == TxIndices.TX_1
+
+    # 4. Operation Type Coverage
+
+    def test_nonce_change_operations(self):
+        """Test nonce change operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 1
+        assert len(account.balance_changes) == 0
+        assert len(account.code_changes) == 0
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+
+    # 5. Edge Case Coverage
+
+    def test_nonce_change_zero_nonce(self):
+        """Test behavior with zero nonce values."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_0)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 1
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_0
+
+    def test_nonce_change_large_values(self):
+        """Test boundary conditions for nonce change operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_1000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 1
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_1000
+
+    def test_nonce_change_sequential_increments(self):
+        """Test nonce changes with sequential increments across transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_1)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_1, Nonces.NONCE_42)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_2, Nonces.NONCE_100)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 3
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_1
+        assert account.nonce_changes[1].new_nonce == Nonces.NONCE_42
+        assert account.nonce_changes[2].new_nonce == Nonces.NONCE_100
+
+
 class TestMixedOperations:
     """Test cases for mixed operations across different account fields and storage."""
 
@@ -707,3 +905,69 @@ class TestMixedOperations:
         assert account.balance_changes[0].post_balance == large_balance
         assert account.balance_changes[1].post_balance == 0
         assert account.nonce_changes[0].new_nonce == Nonces.NONCE_100
+
+    def test_nonce_mixed_operations(self):
+        """Test combination of nonce changes with other operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_storage_write(
+            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1
+        )
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert len(account.storage_changes) == 1
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+
+    def test_nonce_boundary_conditions_mixed(self):
+        """Test boundary conditions for mixed nonce operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_1000)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_1, Nonces.NONCE_0)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 2
+        assert len(account.balance_changes) == 1
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_1000
+        assert account.nonce_changes[1].new_nonce == Nonces.NONCE_0
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_2000
+
+    def test_comprehensive_mixed_operations(self):
+        """Test combination of all operation types on same account."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_storage_write(
+            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1
+        )
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_2)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.nonce_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert len(account.storage_changes) == 1
+        assert len(account.storage_reads) == 1
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+        assert account.storage_reads[0].slot == StorageSlots.SLOT_2

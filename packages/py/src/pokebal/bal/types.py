@@ -46,7 +46,9 @@ class NonceChange(BaseModel):
     """Nonce change for a specific transaction."""
 
     tx_index: TxIndex
-    new_nonce: Nonce
+    new_nonce: Nonce = Field(
+        default=0,
+    )
 
 
 class CodeChange(BaseModel):
@@ -141,6 +143,34 @@ class BlockAccessList(BaseModel):
         account.balance_changes.append(new_balance_change)
         return new_balance_change
 
+    def _get_nonce_change_for_tx(
+        self, account: AccountChanges, tx_index: TxIndex
+    ) -> NonceChange:
+        """Find existing nonce change for specific transaction or create new one."""
+        # Find existing nonce change for this transaction
+        for nonce_change in account.nonce_changes:
+            if nonce_change.tx_index == tx_index:
+                return nonce_change
+
+        # No existing change for this tx, create and add new one
+        new_nonce_change = NonceChange(tx_index=tx_index)
+        account.nonce_changes.append(new_nonce_change)
+        return new_nonce_change
+
+    def _get_code_change_for_tx(
+        self, account: AccountChanges, tx_index: TxIndex
+    ) -> CodeChange:
+        """Find existing code change for specific transaction or create new one."""
+        # Find existing code change for this transaction
+        for code_change in account.code_changes:
+            if code_change.tx_index == tx_index:
+                return code_change
+
+        # No existing change for this tx, create and add new one
+        new_code_change = CodeChange(tx_index=tx_index, new_code=CodeData("0x"))
+        account.code_changes.append(new_code_change)
+        return new_code_change
+
     def add_storage_write(
         self,
         address: Address,
@@ -173,7 +203,7 @@ class BlockAccessList(BaseModel):
     ):
         """Add a balance changed by a specific transaction."""
         account = self._get_account(address)
-        
+
         # Get or create balance change for this transaction (last write wins)
         balance_change = self._get_balance_change_for_tx(account, tx_index)
         balance_change.post_balance = post_balance
@@ -186,8 +216,10 @@ class BlockAccessList(BaseModel):
     ):
         """Add a nonce changed by a specific transaction."""
         account = self._get_account(address)
-        nonce_change = NonceChange(tx_index=tx_index, new_nonce=new_nonce)
-        account.nonce_changes.append(nonce_change)
+
+        # Get or create nonce change for this transaction (last write wins)
+        nonce_change = self._get_nonce_change_for_tx(account, tx_index)
+        nonce_change.new_nonce = new_nonce
 
     def add_code_change(
         self,
@@ -197,5 +229,7 @@ class BlockAccessList(BaseModel):
     ):
         """Add a code changed by a specific transaction."""
         account = self._get_account(address)
-        code_change = CodeChange(tx_index=tx_index, new_code=new_code)
-        account.code_changes.append(code_change)
+
+        # Get or create code change for this transaction (last write wins)
+        code_change = self._get_code_change_for_tx(account, tx_index)
+        code_change.new_code = new_code
