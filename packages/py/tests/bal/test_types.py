@@ -792,6 +792,217 @@ class TestNonceOperations:
         assert account.nonce_changes[2].new_nonce == Nonces.NONCE_100
 
 
+class TestCodeOperations:
+    """Test cases for code operations following the generalized testing pattern."""
+
+    # 1. Account State Coverage Tests
+
+    def test_code_change_untouched_account(self):
+        """Test code change on untouched account creates new account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert account.address == Addresses.ALICE
+        assert len(account.code_changes) == 1
+        assert account.code_changes[0].tx_index == TxIndices.TX_0
+        assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
+
+    def test_code_change_touched_account(self):
+        """Test code change on touched account extends existing account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Pre-touch the account with balance change
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert account.code_changes[0].tx_index == TxIndices.TX_0
+        assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
+
+    # 2. Transaction Scope Testing
+
+    def test_code_change_same_transaction(self):
+        """Test multiple code changes within same transaction."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+        bal.add_code_change(Addresses.BOB, TxIndices.TX_0, CodeSamples.ANOTHER_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 2
+        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
+        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        assert len(alice_account.code_changes) == 1
+        assert len(bob_account.code_changes) == 1
+        assert alice_account.code_changes[0].tx_index == TxIndices.TX_0
+        assert bob_account.code_changes[0].tx_index == TxIndices.TX_0
+
+    def test_code_change_different_transactions(self):
+        """Test same account code changes across multiple transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_1, CodeSamples.ANOTHER_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 2
+        assert account.code_changes[0].tx_index == TxIndices.TX_0
+        assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
+        assert account.code_changes[1].tx_index == TxIndices.TX_1
+        assert account.code_changes[1].new_code == CodeSamples.ANOTHER_CODE
+
+    # 3. Deduplication Logic Testing
+
+    def test_code_change_same_transaction_duplicates(self):
+        """Test code change deduplication within same transaction (last write wins)."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.ANOTHER_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert account.code_changes[0].tx_index == TxIndices.TX_0
+        assert account.code_changes[0].new_code == CodeSamples.ANOTHER_CODE
+
+    def test_code_change_same_transactions_multiple_accounts(self):
+        """Test code changes for multiple accounts in same transaction."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+        bal.add_code_change(Addresses.BOB, TxIndices.TX_0, CodeSamples.ANOTHER_CODE)
+        bal.add_code_change(Addresses.CAROL, TxIndices.TX_0, CodeSamples.COMPLEX_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 3
+        addresses = {acc.address for acc in bal.account_changes}
+        assert addresses == {Addresses.ALICE, Addresses.BOB, Addresses.CAROL}
+        for account in bal.account_changes:
+            assert len(account.code_changes) == 1
+            assert account.code_changes[0].tx_index == TxIndices.TX_0
+
+    def test_code_change_different_transactions_multiple_accounts(self):
+        """Test code changes for multiple accounts across transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+        bal.add_code_change(Addresses.BOB, TxIndices.TX_1, CodeSamples.ANOTHER_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 2
+        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
+        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        assert alice_account.code_changes[0].tx_index == TxIndices.TX_0
+        assert bob_account.code_changes[0].tx_index == TxIndices.TX_1
+
+    # 4. Operation Type Coverage
+
+    def test_code_change_operations(self):
+        """Test code change operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert len(account.balance_changes) == 0
+        assert len(account.nonce_changes) == 0
+        assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
+
+    # 5. Edge Case Coverage
+
+    def test_code_change_empty_code(self):
+        """Test behavior with empty code values."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.EMPTY_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert account.code_changes[0].new_code == CodeSamples.EMPTY_CODE
+
+    def test_code_change_large_code(self):
+        """Test boundary conditions for code change operations with large code."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.LARGE_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert account.code_changes[0].new_code == CodeSamples.LARGE_CODE
+
+    def test_code_change_complex_patterns(self):
+        """Test code changes with complex bytecode patterns."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.COMPLEX_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert account.code_changes[0].new_code == CodeSamples.COMPLEX_CODE
+
+    def test_code_change_sequential_deployments(self):
+        """Test code changes with sequential deployments across transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.EMPTY_CODE)
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_1, CodeSamples.SIMPLE_CODE)
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_2, CodeSamples.COMPLEX_CODE)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 3
+        assert account.code_changes[0].new_code == CodeSamples.EMPTY_CODE
+        assert account.code_changes[1].new_code == CodeSamples.SIMPLE_CODE
+        assert account.code_changes[2].new_code == CodeSamples.COMPLEX_CODE
+
+
 class TestMixedOperations:
     """Test cases for mixed operations across different account fields and storage."""
 
@@ -971,3 +1182,99 @@ class TestMixedOperations:
         assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
         assert account.storage_reads[0].slot == StorageSlots.SLOT_2
+
+    def test_code_mixed_operations(self):
+        """Test combination of code changes with other operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert len(account.nonce_changes) == 1
+        assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+
+    def test_code_boundary_conditions_mixed(self):
+        """Test boundary conditions for mixed code operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.LARGE_CODE)
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_1, CodeSamples.EMPTY_CODE)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 2
+        assert len(account.balance_changes) == 1
+        assert account.code_changes[0].new_code == CodeSamples.LARGE_CODE
+        assert account.code_changes[1].new_code == CodeSamples.EMPTY_CODE
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_2000
+
+    def test_comprehensive_all_operations(self):
+        """Test combination of all operation types including code on same account."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.COMPLEX_CODE)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_storage_write(
+            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1
+        )
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_2)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert len(account.nonce_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert len(account.storage_changes) == 1
+        assert len(account.storage_reads) == 1
+        assert account.code_changes[0].new_code == CodeSamples.COMPLEX_CODE
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+        assert account.storage_reads[0].slot == StorageSlots.SLOT_2
+
+    def test_contract_deployment_scenario(self):
+        """Test realistic contract deployment scenario with all operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act - Simulate contract deployment
+        # 1. Deploy contract (code change from empty to actual code)
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.COMPLEX_CODE)
+        # 2. Set initial balance
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        # 3. Initialize nonce
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_1)
+        # 4. Set initial storage
+        bal.add_storage_write(
+            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1
+        )
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.code_changes) == 1
+        assert len(account.balance_changes) == 1
+        assert len(account.nonce_changes) == 1
+        assert len(account.storage_changes) == 1
+        assert account.code_changes[0].new_code == CodeSamples.COMPLEX_CODE
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_1
+        assert account.storage_changes[0].slot == StorageSlots.SLOT_1

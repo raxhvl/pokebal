@@ -9,7 +9,7 @@ from pydantic import Field
 
 
 # Base hex string validation - foundation for all hex-encoded data
-HexString = Annotated[str, Field(pattern=r"^0x[0-9a-fA-F]+$")]
+HexString = Annotated[str, Field(pattern=r"^0x[0-9a-fA-F]*$")]
 EVM_WORD_ZERO = "0x" + "00" * 32  # Default value for EVM word
 
 # EVM word - 32-byte hex string (64 hex chars + 0x prefix)
