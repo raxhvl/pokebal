@@ -13,8 +13,8 @@ from pokebal.common.types import (
 )
 
 
-class TestBlockAccessList:
-    """Test cases for BlockAccessList functionality."""
+class TestStorageOperations:
+    """Test cases for storage operations."""
 
     def test_add_storage_write_new_account(self):
         """Test adding storage write for a new account."""
@@ -123,6 +123,10 @@ class TestBlockAccessList:
         account = bal.account_changes[0]
         assert len(account.storage_reads) == 1
 
+
+class TestBalanceOperations:
+    """Test cases for balance operations."""
+
     def test_add_balance_change(self):
         """Test adding balance change."""
         bal = BlockAccessList()
@@ -137,6 +141,10 @@ class TestBlockAccessList:
         assert len(account.balance_changes) == 1
         assert account.balance_changes[0].tx_index == tx_index
         assert account.balance_changes[0].post_balance == post_balance
+
+
+class TestNonceOperations:
+    """Test cases for nonce operations."""
 
     def test_add_nonce_change(self):
         """Test adding nonce change."""
@@ -153,6 +161,10 @@ class TestBlockAccessList:
         assert account.nonce_changes[0].tx_index == tx_index
         assert account.nonce_changes[0].new_nonce == new_nonce
 
+
+class TestCodeOperations:
+    """Test cases for code operations."""
+
     def test_add_code_change(self):
         """Test adding code change."""
         bal = BlockAccessList()
@@ -167,6 +179,10 @@ class TestBlockAccessList:
         assert len(account.code_changes) == 1
         assert account.code_changes[0].tx_index == tx_index
         assert account.code_changes[0].new_code == new_code
+
+
+class TestMixedOperations:
+    """Test cases for mixed operations."""
 
     def test_mixed_operations_same_account(self):
         """Test multiple different operations on the same account."""
