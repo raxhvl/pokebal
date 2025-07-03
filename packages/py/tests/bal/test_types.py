@@ -414,6 +414,186 @@ class TestStorageReadOperations:
         assert slots_read == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
 
 
+class TestBalanceOperations:
+    """Test cases for balance operations following the generalized testing pattern."""
+
+    # 1. Account State Coverage Tests
+
+    def test_balance_change_untouched_account(self):
+        """Test balance change on untouched account creates new account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert account.address == Addresses.ALICE
+        assert len(account.balance_changes) == 1
+        assert account.balance_changes[0].tx_index == TxIndices.TX_0
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+
+    def test_balance_change_touched_account(self):
+        """Test balance change on touched account extends existing account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Pre-touch the account with nonce change
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 1
+        assert len(account.nonce_changes) == 1
+        assert account.balance_changes[0].tx_index == TxIndices.TX_0
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+
+    # 2. Transaction Scope Testing
+
+    def test_balance_change_same_transaction(self):
+        """Test multiple balance changes within same transaction."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.BOB, TxIndices.TX_0, Balances.BALANCE_2000)
+
+        # Assert
+        assert len(bal.account_changes) == 2
+        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
+        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        assert len(alice_account.balance_changes) == 1
+        assert len(bob_account.balance_changes) == 1
+        assert alice_account.balance_changes[0].tx_index == TxIndices.TX_0
+        assert bob_account.balance_changes[0].tx_index == TxIndices.TX_0
+
+    def test_balance_change_different_transactions(self):
+        """Test same account balance changes across multiple transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_1, Balances.BALANCE_2000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 2
+        assert account.balance_changes[0].tx_index == TxIndices.TX_0
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+        assert account.balance_changes[1].tx_index == TxIndices.TX_1
+        assert account.balance_changes[1].post_balance == Balances.BALANCE_2000
+
+    # 3. Deduplication Logic Testing
+
+    def test_balance_change_same_transaction_duplicates(self):
+        """Test balance change deduplication within same transaction (last write wins)."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 1
+        assert account.balance_changes[0].tx_index == TxIndices.TX_0
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_2000
+
+    def test_balance_change_same_transactions_multiple_accounts(self):
+        """Test balance changes for multiple accounts in same transaction."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.BOB, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.CAROL, TxIndices.TX_0, Balances.BALANCE_1000)
+
+        # Assert
+        assert len(bal.account_changes) == 3
+        addresses = {acc.address for acc in bal.account_changes}
+        assert addresses == {Addresses.ALICE, Addresses.BOB, Addresses.CAROL}
+        for account in bal.account_changes:
+            assert len(account.balance_changes) == 1
+            assert account.balance_changes[0].tx_index == TxIndices.TX_0
+
+    def test_balance_change_different_transactions_multiple_accounts(self):
+        """Test balance changes for multiple accounts across transactions."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.BOB, TxIndices.TX_1, Balances.BALANCE_2000)
+
+        # Assert
+        assert len(bal.account_changes) == 2
+        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
+        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        assert alice_account.balance_changes[0].tx_index == TxIndices.TX_0
+        assert bob_account.balance_changes[0].tx_index == TxIndices.TX_1
+
+    # 4. Operation Type Coverage
+
+    def test_balance_change_operations(self):
+        """Test balance change operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 1
+        assert len(account.nonce_changes) == 0
+        assert len(account.code_changes) == 0
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+
+    # 5. Edge Case Coverage
+
+    def test_balance_change_zero_balance(self):
+        """Test behavior with zero balance values."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, 0)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 1
+        assert account.balance_changes[0].post_balance == 0
+
+    def test_balance_change_large_values(self):
+        """Test boundary conditions for balance change operations."""
+        # Arrange
+        bal = BlockAccessList()
+        large_balance = 10**18  # 1 ETH in wei
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, large_balance)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 1
+        assert account.balance_changes[0].post_balance == large_balance
+
+
 class TestMixedOperations:
     """Test cases for mixed operations across different account fields and storage."""
 
@@ -485,3 +665,45 @@ class TestMixedOperations:
         slots_read = {sr.slot for sr in account.storage_reads}
         assert slots_written == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
         assert slots_read == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
+
+    def test_balance_mixed_operations(self):
+        """Test combination of balance changes with other operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_storage_write(
+            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1
+        )
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 1
+        assert len(account.nonce_changes) == 1
+        assert len(account.storage_changes) == 1
+        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
+        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+
+    def test_balance_boundary_conditions_mixed(self):
+        """Test boundary conditions for mixed balance operations."""
+        # Arrange
+        bal = BlockAccessList()
+        large_balance = 10**18  # 1 ETH in wei
+
+        # Act
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, large_balance)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_1, 0)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_100)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.balance_changes) == 2
+        assert len(account.nonce_changes) == 1
+        assert account.balance_changes[0].post_balance == large_balance
+        assert account.balance_changes[1].post_balance == 0
+        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_100

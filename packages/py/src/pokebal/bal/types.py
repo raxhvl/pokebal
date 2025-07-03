@@ -127,6 +127,20 @@ class BlockAccessList(BaseModel):
                 return True
         return False
 
+    def _get_balance_change_for_tx(
+        self, account: AccountChanges, tx_index: TxIndex
+    ) -> BalanceChange:
+        """Find existing balance change for specific transaction or create new one."""
+        # Find existing balance change for this transaction
+        for balance_change in account.balance_changes:
+            if balance_change.tx_index == tx_index:
+                return balance_change
+
+        # No existing change for this tx, create and add new one
+        new_balance_change = BalanceChange(tx_index=tx_index, post_balance=0)
+        account.balance_changes.append(new_balance_change)
+        return new_balance_change
+
     def add_storage_write(
         self,
         address: Address,
@@ -159,8 +173,10 @@ class BlockAccessList(BaseModel):
     ):
         """Add a balance changed by a specific transaction."""
         account = self._get_account(address)
-        balance_change = BalanceChange(tx_index=tx_index, post_balance=post_balance)
-        account.balance_changes.append(balance_change)
+        
+        # Get or create balance change for this transaction (last write wins)
+        balance_change = self._get_balance_change_for_tx(account, tx_index)
+        balance_change.post_balance = post_balance
 
     def add_nonce_change(
         self,
