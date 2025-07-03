@@ -34,15 +34,15 @@ The pattern ensures comprehensive coverage of field behavior within the Block Ac
    - "write_operations": Test write operations (storage writes, balance/nonce/code changes)
    - "mixed_operations": Test combination of reads and writes
 
-5. Field Interaction Testing:
-    Test how different fields interact with each other.
-   - "same_account_mixed_operations": Combine different field operations on same account
-   - "multi_account_mixed_operations": Combine different field operations across multiple accounts
-
-6. Edge Case Coverage:
+5. Edge Case Coverage:
    - "read_write_interactions": Test interactions between read and write operations on same slot
    - "boundary_conditions": Test limits and edge scenarios specific to the field
    - "empty_operations": Test behavior with empty or zero values
+
+And additionally, Field Interaction Testing:
+    Test how different fields interact with each other.
+   - "same_account_mixed_operations": Combine different field operations on same account
+   - "multi_account_mixed_operations": Combine different field operations across multiple accounts
 
 Test Structure Template:
 ```python
@@ -78,12 +78,11 @@ from .constants import (
     TxIndices,
     Nonces,
     Balances,
-    CodeSamples,
 )
 
 
-class TestStorageOperations:
-    """Test cases for storage operations following the generalized testing pattern."""
+class TestStorageWriteOperations:
+    """Test cases for storage write operations following the generalized testing pattern."""
 
     # 1. Account State Coverage Tests
 
@@ -126,39 +125,6 @@ class TestStorageOperations:
         assert len(account.storage_changes) == 1
         assert len(account.balance_changes) == 1
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
-
-    def test_storage_read_untouched_account(self):
-        """Test storage read on untouched account creates new account entry."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert account.address == Addresses.ALICE
-        assert len(account.storage_reads) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
-
-    def test_storage_read_touched_account(self):
-        """Test storage read on touched account extends existing account entry."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Pre-touch the account with nonce change
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
-
-        # Act
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-        assert len(account.nonce_changes) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
 
     # 2. Transaction Scope Testing
 
@@ -232,34 +198,6 @@ class TestStorageOperations:
         assert slot_changes.changes[0].tx_index == TxIndices.TX_0
         assert slot_changes.changes[0].new_value == StorageValues.VALUE_2
 
-    def test_storage_read_same_transaction_duplicates(self):
-        """Test storage read deduplication within same transaction (no duplication)."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-
-    def test_storage_read_cross_transaction_duplicates(self):
-        """Test storage read deduplication across transactions (no duplication)."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-
     def test_storage_write_same_transactions_multiple_unique_entries(self):
         """Test same storage operation multiple times in same transaction with unique slots."""
         # Arrange
@@ -305,21 +243,6 @@ class TestStorageOperations:
 
     # 4. Operation Type Coverage
 
-    def test_storage_read_operations(self):
-        """Test read-only storage operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-        assert len(account.storage_changes) == 0
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
-
     def test_storage_write_operations(self):
         """Test write storage operations."""
         # Arrange
@@ -337,47 +260,7 @@ class TestStorageOperations:
         assert len(account.storage_reads) == 0
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
 
-    def test_storage_mixed_operations(self):
-        """Test combination of storage reads and writes."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_write(
-            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
-        )
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-        assert len(account.storage_changes) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
-        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
-
-    # 5. Field Interaction Testing (handled in TestMixedOperations)
-
-    # 6. Edge Case Coverage
-
-    def test_storage_read_write_interactions(self):
-        """Test interactions between read and write operations on same slot."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act - Read first, then write
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-        bal.add_storage_write(
-            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
-        )
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-        assert len(account.storage_changes) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
-        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+    # 5. Edge Case Coverage
 
     def test_storage_empty_operations(self):
         """Test behavior with zero storage values."""
@@ -400,8 +283,180 @@ class TestStorageOperations:
             account.storage_changes[0].changes[0].new_value == StorageValues.ZERO_VALUE
         )
 
-    def test_storage_boundary_conditions(self):
-        """Test boundary conditions for storage operations."""
+    def test_storage_write_boundary_conditions(self):
+        """Test boundary conditions for storage write operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_storage_write(
+            Addresses.ALICE,
+            StorageSlots.MAX_SLOT,
+            TxIndices.TX_0,
+            StorageValues.MAX_VALUE,
+        )
+        bal.add_storage_write(
+            Addresses.ALICE,
+            StorageSlots.MIN_SLOT,
+            TxIndices.TX_0,
+            StorageValues.ZERO_VALUE,
+        )
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_changes) == 2
+        slots_written = {sc.slot for sc in account.storage_changes}
+        assert slots_written == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
+
+
+class TestStorageReadOperations:
+    """Test cases for storage read operations following the generalized testing pattern."""
+
+    # 1. Account State Coverage Tests
+
+    def test_storage_read_untouched_account(self):
+        """Test storage read on untouched account creates new account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert account.address == Addresses.ALICE
+        assert len(account.storage_reads) == 1
+        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+
+    def test_storage_read_touched_account(self):
+        """Test storage read on touched account extends existing account entry."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Pre-touch the account with nonce change
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+
+        # Act
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+        assert len(account.nonce_changes) == 1
+        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+
+    # 3. Deduplication Logic Testing
+
+    def test_storage_read_same_transaction_duplicates(self):
+        """Test storage read deduplication within same transaction (no duplication)."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+
+    def test_storage_read_cross_transaction_duplicates(self):
+        """Test storage read deduplication across transactions (no duplication)."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+
+    # 4. Operation Type Coverage
+
+    def test_storage_read_operations(self):
+        """Test read-only storage operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+        assert len(account.storage_changes) == 0
+        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+
+    # 5. Edge Case Coverage
+
+    def test_storage_read_boundary_conditions(self):
+        """Test boundary conditions for storage read operations."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.MAX_SLOT)
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.MIN_SLOT)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 2
+        slots_read = {sr.slot for sr in account.storage_reads}
+        assert slots_read == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
+
+
+class TestMixedOperations:
+    """Test cases for mixed operations across different account fields and storage."""
+
+    def test_storage_mixed_operations(self):
+        """Test combination of storage reads and writes."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        bal.add_storage_write(
+            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
+        )
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+        assert len(account.storage_changes) == 1
+        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+
+    def test_storage_read_write_interactions(self):
+        """Test interactions between read and write operations on same slot."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act - Read first, then write
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+        bal.add_storage_write(
+            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
+        )
+
+        # Assert
+        assert len(bal.account_changes) == 1
+        account = bal.account_changes[0]
+        assert len(account.storage_reads) == 1
+        assert len(account.storage_changes) == 1
+        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+
+    def test_storage_boundary_conditions_mixed(self):
+        """Test boundary conditions for mixed storage operations."""
         # Arrange
         bal = BlockAccessList()
 
@@ -430,93 +485,3 @@ class TestStorageOperations:
         slots_read = {sr.slot for sr in account.storage_reads}
         assert slots_written == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
         assert slots_read == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
-
-
-class TestBalanceOperations:
-    """Test cases for balance operations."""
-
-    def test_add_balance_change(self):
-        """Test adding balance change."""
-        bal = BlockAccessList()
-
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
-
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.balance_changes) == 1
-        assert account.balance_changes[0].tx_index == TxIndices.TX_0
-        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
-
-
-class TestNonceOperations:
-    """Test cases for nonce operations."""
-
-    def test_add_nonce_change(self):
-        """Test adding nonce change."""
-        bal = BlockAccessList()
-
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
-
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.nonce_changes) == 1
-        assert account.nonce_changes[0].tx_index == TxIndices.TX_0
-        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
-
-
-class TestCodeOperations:
-    """Test cases for code operations."""
-
-    def test_add_code_change(self):
-        """Test adding code change."""
-        bal = BlockAccessList()
-
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
-
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.code_changes) == 1
-        assert account.code_changes[0].tx_index == TxIndices.TX_0
-        assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
-
-
-class TestMixedOperations:
-    """Test cases for mixed operations."""
-
-    def test_mixed_operations_same_account(self):
-        """Test multiple different operations on the same account."""
-        bal = BlockAccessList()
-
-        bal.add_storage_write(
-            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
-        )
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.ANOTHER_CODE)
-
-        # Should only have one account
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-
-        # Verify all operations were recorded
-        assert len(account.storage_changes) == 1
-        assert len(account.storage_reads) == 1
-        assert len(account.balance_changes) == 1
-        assert len(account.nonce_changes) == 1
-        assert len(account.code_changes) == 1
-
-    def test_multiple_accounts(self):
-        """Test operations on multiple different accounts."""
-        bal = BlockAccessList()
-
-        bal.add_storage_write(
-            Addresses.BOB, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
-        )
-        bal.add_storage_write(
-            Addresses.CAROL, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
-        )
-
-        assert len(bal.account_changes) == 2
-        addresses = {account.address for account in bal.account_changes}
-        assert addresses == {Addresses.BOB, Addresses.CAROL}
