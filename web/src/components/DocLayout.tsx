@@ -56,7 +56,6 @@ export default function DocLayout({
             {/* Documentation header */}
             <header className="px-4 sm:px-8 lg:px-16 pt-16 sm:pt-8 lg:pt-16 pb-8 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
               <div className="max-w-4xl">
-
                 {/* Page title */}
                 <h1 className="text-3xl lg:text-5xl font-black text-gray-900 dark:text-gray-100 leading-tight mb-4 tracking-tight">
                   {renderTitle()}
@@ -90,7 +89,7 @@ export default function DocLayout({
               <div className="max-w-4xl">
                 <div className="flex items-center justify-between">
                   {/* Contribute button */}
-                  <SecondaryButton 
+                  <SecondaryButton
                     href="https://github.com/raxhvl/pokebal/blob/main/CONTRIBUTING.md"
                     icon={<Github className="w-4 h-4" />}
                   >
@@ -103,17 +102,12 @@ export default function DocLayout({
                     <span className="text-red-500">♥</span>
                     <span>by</span>
                     <a
-                      href="https://ethereum.foundation/"
+                      href="https://github.com/raxhvl"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center space-x-1 hover:opacity-80 transition-opacity duration-200"
                     >
-                      <img
-                        src="/img/ethereum-foundation.png"
-                        alt="Ethereum Foundation"
-                        className="w-4 h-4"
-                      />
-                      <span className="font-medium">EF</span>
+                      <span className="font-medium">@raxhvl</span>
                     </a>
                   </div>
                 </div>
