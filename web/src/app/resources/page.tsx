@@ -5,6 +5,7 @@ import {
   Wrench,
   GraduationCap,
   FileText,
+  Video,
 } from "lucide-react";
 import DocLayout from "../../components/DocLayout";
 import AnchorHeading from "../../components/AnchorHeading";
@@ -17,6 +18,7 @@ const categoryIcons = {
   tools: Wrench,
   research: BookOpen,
   tutorials: GraduationCap,
+  videos: Video,
 };
 
 export default function ResourcesPage() {
@@ -60,18 +62,36 @@ export default function ResourcesPage() {
                       <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-colors">
                         {resource.title}
                       </h3>
-                      <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-lime-500 transition-colors flex-shrink-0" />
+                      {resource.type === "link" && (
+                        <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-lime-500 transition-colors flex-shrink-0" />
+                      )}
                     </div>
 
                     <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm leading-relaxed">
                       {resource.description}
                     </p>
 
-                    <div className="flex justify-end">
-                      <SecondaryButton href={resource.url} external>
-                        Visit
-                      </SecondaryButton>
-                    </div>
+                    {resource.type === "video" ? (
+                      <div className="aspect-video mb-4">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={resource.url}
+                          title={resource.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen
+                          className="rounded-lg"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex justify-end">
+                        <SecondaryButton href={resource.url} external>
+                          Visit
+                        </SecondaryButton>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

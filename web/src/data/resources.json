@@ -8,17 +8,20 @@
         {
           "title": "EIP-7928: Block Access Lists",
           "description": "The official Proposal for Block Access Lists",
-          "url": "https://eips.ethereum.org/EIPS/eip-7928"
+          "url": "https://eips.ethereum.org/EIPS/eip-7928",
+          "type": "link"
         },
         {
           "title": "ETH Research Discussion",
           "description": "Community discussion and research on Block Access Lists",
-          "url": "https://ethresear.ch/t/block-level-access-lists-bals/22331/6"
+          "url": "https://ethresear.ch/t/block-level-access-lists-bals/22331/6",
+          "type": "link"
         },
         {
           "title": "BAL for Glamsterdam Hard Fork",
           "description": "Proposal for including Block Access Lists in the Glamsterdam hard fork",
-          "url": "https://ethereum-magicians.org/t/eip-7928-block-level-access-lists-the-case-for-glamsterdam/24343"
+          "url": "https://ethereum-magicians.org/t/eip-7928-block-level-access-lists-the-case-for-glamsterdam/24343",
+          "type": "link"
         }
       ]
     },
@@ -30,7 +33,8 @@
         {
           "title": "Geth Implementation",
           "description": "Go-Ethereum implementation of BAL support",
-          "url": "https://github.com/ethereum/go-ethereum/pull/31959"
+          "url": "https://github.com/ethereum/go-ethereum/pull/31959",
+          "type": "link"
         }
       ]
     },
@@ -42,7 +46,21 @@
         {
           "title": "Python BAL implementation",
           "description": "A Python implementation for generating BAL also includes analysis and test cases.",
-          "url": "https://github.com/nerolation/eth-bal-analysis"
+          "url": "https://github.com/nerolation/eth-bal-analysis",
+          "type": "link"
+        }
+      ]
+    },
+    {
+      "id": "videos",
+      "title": "Videos & Presentations",
+      "description": "Educational videos and presentations about Block Access Lists",
+      "resources": [
+        {
+          "title": "EIP-7928 Presentation",
+          "description": "Technical presentation explaining what problems Block Access Lists solve",
+          "url": "https://www.youtube.com/embed/EvYRiFRYQ9Q?si=8kCWnixu3Ikhi6LG&start=4597",
+          "type": "video"
         }
       ]
     }
