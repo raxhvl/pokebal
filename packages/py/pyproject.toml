@@ -26,3 +26,6 @@ python_classes = "Test*"
 python_functions = "test_*"
 log_cli = true
 log_cli_level = "DEBUG"
+
+[tool.mypy]
+ignore_missing_imports = true
