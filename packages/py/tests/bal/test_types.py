@@ -123,9 +123,13 @@ class TestStorageWriteOperations:
         # Assert
         assert len(bal.account_changes) == 1
         account = bal.account_changes[0]
+        assert account.address == Addresses.ALICE
         assert len(account.storage_changes) == 1
         assert len(account.balance_changes) == 1
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+        assert len(account.storage_changes[0].changes) == 1
+        assert account.storage_changes[0].changes[0].tx_index == TxIndices.TX_0
+        assert account.storage_changes[0].changes[0].new_value == StorageValues.VALUE_1
 
     # 2. Transaction Scope Testing
 
@@ -151,7 +155,10 @@ class TestStorageWriteOperations:
             StorageSlots.SLOT_2,
         }
         assert account.storage_changes[0].changes[0].tx_index == TxIndices.TX_0
+        assert account.storage_changes[0].changes[0].new_value == StorageValues.VALUE_1
+
         assert account.storage_changes[1].changes[0].tx_index == TxIndices.TX_0
+        assert account.storage_changes[1].changes[0].new_value == StorageValues.VALUE_2
 
     def test_storage_write_different_transactions(self):
         """Test same storage operation across multiple transactions."""
@@ -241,25 +248,6 @@ class TestStorageWriteOperations:
         assert len(account.storage_changes) == 2
         slots = {sc.slot for sc in account.storage_changes}
         assert slots == {StorageSlots.SLOT_1, StorageSlots.SLOT_2}
-
-    # 4. Operation Type Coverage
-
-    def test_storage_write_operations(self):
-        """Test write storage operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_write(
-            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
-        )
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_changes) == 1
-        assert len(account.storage_reads) == 0
-        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
 
     # 5. Edge Case Coverage
 
@@ -364,36 +352,6 @@ class TestStorageReadOperations:
         assert len(bal.account_changes) == 1
         account = bal.account_changes[0]
         assert len(account.storage_reads) == 1
-
-    def test_storage_read_cross_transaction_duplicates(self):
-        """Test storage read deduplication across transactions (no duplication)."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-
-    # 4. Operation Type Coverage
-
-    def test_storage_read_operations(self):
-        """Test read-only storage operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-        assert len(account.storage_changes) == 0
         assert account.storage_reads[0].slot == StorageSlots.SLOT_1
 
     # 5. Edge Case Coverage
@@ -468,8 +426,12 @@ class TestBalanceOperations:
 
         # Assert
         assert len(bal.account_changes) == 2
-        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
-        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        alice_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.ALICE
+        )
+        bob_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.BOB
+        )
         assert len(alice_account.balance_changes) == 1
         assert len(bob_account.balance_changes) == 1
         assert alice_account.balance_changes[0].tx_index == TxIndices.TX_0
@@ -540,28 +502,14 @@ class TestBalanceOperations:
 
         # Assert
         assert len(bal.account_changes) == 2
-        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
-        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        alice_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.ALICE
+        )
+        bob_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.BOB
+        )
         assert alice_account.balance_changes[0].tx_index == TxIndices.TX_0
         assert bob_account.balance_changes[0].tx_index == TxIndices.TX_1
-
-    # 4. Operation Type Coverage
-
-    def test_balance_change_operations(self):
-        """Test balance change operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.balance_changes) == 1
-        assert len(account.nonce_changes) == 0
-        assert len(account.code_changes) == 0
-        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
 
     # 5. Edge Case Coverage
 
@@ -648,8 +596,12 @@ class TestNonceOperations:
 
         # Assert
         assert len(bal.account_changes) == 2
-        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
-        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        alice_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.ALICE
+        )
+        bob_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.BOB
+        )
         assert len(alice_account.nonce_changes) == 1
         assert len(bob_account.nonce_changes) == 1
         assert alice_account.nonce_changes[0].tx_index == TxIndices.TX_0
@@ -720,28 +672,14 @@ class TestNonceOperations:
 
         # Assert
         assert len(bal.account_changes) == 2
-        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
-        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        alice_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.ALICE
+        )
+        bob_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.BOB
+        )
         assert alice_account.nonce_changes[0].tx_index == TxIndices.TX_0
         assert bob_account.nonce_changes[0].tx_index == TxIndices.TX_1
-
-    # 4. Operation Type Coverage
-
-    def test_nonce_change_operations(self):
-        """Test nonce change operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.nonce_changes) == 1
-        assert len(account.balance_changes) == 0
-        assert len(account.code_changes) == 0
-        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
 
     # 5. Edge Case Coverage
 
@@ -845,8 +783,12 @@ class TestCodeOperations:
 
         # Assert
         assert len(bal.account_changes) == 2
-        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
-        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        alice_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.ALICE
+        )
+        bob_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.BOB
+        )
         assert len(alice_account.code_changes) == 1
         assert len(bob_account.code_changes) == 1
         assert alice_account.code_changes[0].tx_index == TxIndices.TX_0
@@ -917,28 +859,14 @@ class TestCodeOperations:
 
         # Assert
         assert len(bal.account_changes) == 2
-        alice_account = next(acc for acc in bal.account_changes if acc.address == Addresses.ALICE)
-        bob_account = next(acc for acc in bal.account_changes if acc.address == Addresses.BOB)
+        alice_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.ALICE
+        )
+        bob_account = next(
+            acc for acc in bal.account_changes if acc.address == Addresses.BOB
+        )
         assert alice_account.code_changes[0].tx_index == TxIndices.TX_0
         assert bob_account.code_changes[0].tx_index == TxIndices.TX_1
-
-    # 4. Operation Type Coverage
-
-    def test_code_change_operations(self):
-        """Test code change operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.code_changes) == 1
-        assert len(account.balance_changes) == 0
-        assert len(account.nonce_changes) == 0
-        assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
 
     # 5. Edge Case Coverage
 
@@ -970,38 +898,6 @@ class TestCodeOperations:
         assert len(account.code_changes) == 1
         assert account.code_changes[0].new_code == CodeSamples.LARGE_CODE
 
-    def test_code_change_complex_patterns(self):
-        """Test code changes with complex bytecode patterns."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.COMPLEX_CODE)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.code_changes) == 1
-        assert account.code_changes[0].new_code == CodeSamples.COMPLEX_CODE
-
-    def test_code_change_sequential_deployments(self):
-        """Test code changes with sequential deployments across transactions."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.EMPTY_CODE)
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_1, CodeSamples.SIMPLE_CODE)
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_2, CodeSamples.COMPLEX_CODE)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.code_changes) == 3
-        assert account.code_changes[0].new_code == CodeSamples.EMPTY_CODE
-        assert account.code_changes[1].new_code == CodeSamples.SIMPLE_CODE
-        assert account.code_changes[2].new_code == CodeSamples.COMPLEX_CODE
-
 
 class TestMixedOperations:
     """Test cases for mixed operations across different account fields and storage."""
@@ -1025,56 +921,6 @@ class TestMixedOperations:
         assert account.storage_reads[0].slot == StorageSlots.SLOT_1
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
 
-    def test_storage_read_write_interactions(self):
-        """Test interactions between read and write operations on same slot."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act - Read first, then write
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
-        bal.add_storage_write(
-            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2
-        )
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_reads) == 1
-        assert len(account.storage_changes) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
-        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
-
-    def test_storage_boundary_conditions_mixed(self):
-        """Test boundary conditions for mixed storage operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_storage_write(
-            Addresses.ALICE,
-            StorageSlots.MAX_SLOT,
-            TxIndices.TX_0,
-            StorageValues.MAX_VALUE,
-        )
-        bal.add_storage_write(
-            Addresses.ALICE,
-            StorageSlots.MIN_SLOT,
-            TxIndices.TX_0,
-            StorageValues.ZERO_VALUE,
-        )
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.MAX_SLOT)
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.MIN_SLOT)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.storage_changes) == 2
-        assert len(account.storage_reads) == 2
-        slots_written = {sc.slot for sc in account.storage_changes}
-        slots_read = {sr.slot for sr in account.storage_reads}
-        assert slots_written == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
-        assert slots_read == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
-
     def test_balance_mixed_operations(self):
         """Test combination of balance changes with other operations."""
         # Arrange
@@ -1096,26 +942,6 @@ class TestMixedOperations:
         assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
         assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
-
-    def test_balance_boundary_conditions_mixed(self):
-        """Test boundary conditions for mixed balance operations."""
-        # Arrange
-        bal = BlockAccessList()
-        large_balance = 10**18  # 1 ETH in wei
-
-        # Act
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, large_balance)
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_1, 0)
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_100)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.balance_changes) == 2
-        assert len(account.nonce_changes) == 1
-        assert account.balance_changes[0].post_balance == large_balance
-        assert account.balance_changes[1].post_balance == 0
-        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_100
 
     def test_nonce_mixed_operations(self):
         """Test combination of nonce changes with other operations."""
@@ -1139,50 +965,6 @@ class TestMixedOperations:
         assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
 
-    def test_nonce_boundary_conditions_mixed(self):
-        """Test boundary conditions for mixed nonce operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_1000)
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_1, Nonces.NONCE_0)
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.nonce_changes) == 2
-        assert len(account.balance_changes) == 1
-        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_1000
-        assert account.nonce_changes[1].new_nonce == Nonces.NONCE_0
-        assert account.balance_changes[0].post_balance == Balances.BALANCE_2000
-
-    def test_comprehensive_mixed_operations(self):
-        """Test combination of all operation types on same account."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_1000)
-        bal.add_storage_write(
-            Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1
-        )
-        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_2)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.nonce_changes) == 1
-        assert len(account.balance_changes) == 1
-        assert len(account.storage_changes) == 1
-        assert len(account.storage_reads) == 1
-        assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
-        assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
-        assert account.storage_changes[0].slot == StorageSlots.SLOT_1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_2
-
     def test_code_mixed_operations(self):
         """Test combination of code changes with other operations."""
         # Arrange
@@ -1202,25 +984,6 @@ class TestMixedOperations:
         assert account.code_changes[0].new_code == CodeSamples.SIMPLE_CODE
         assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
         assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
-
-    def test_code_boundary_conditions_mixed(self):
-        """Test boundary conditions for mixed code operations."""
-        # Arrange
-        bal = BlockAccessList()
-
-        # Act
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_0, CodeSamples.LARGE_CODE)
-        bal.add_code_change(Addresses.ALICE, TxIndices.TX_1, CodeSamples.EMPTY_CODE)
-        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
-
-        # Assert
-        assert len(bal.account_changes) == 1
-        account = bal.account_changes[0]
-        assert len(account.code_changes) == 2
-        assert len(account.balance_changes) == 1
-        assert account.code_changes[0].new_code == CodeSamples.LARGE_CODE
-        assert account.code_changes[1].new_code == CodeSamples.EMPTY_CODE
-        assert account.balance_changes[0].post_balance == Balances.BALANCE_2000
 
     def test_comprehensive_all_operations(self):
         """Test combination of all operation types including code on same account."""
