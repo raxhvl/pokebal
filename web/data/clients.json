@@ -53,14 +53,14 @@
       "name": "Erigon",
       "language": "Go",
       "website": "https://erigon.tech",
-      "progress": "not_started"
+      "progress": "prototyping"
     },
     {
       "id": "reth",
       "name": "Reth",
       "language": "Rust",
       "website": "https://reth.rs",
-      "progress": "not_started"
+      "progress": "prototyping"
     }
   ]
 }
