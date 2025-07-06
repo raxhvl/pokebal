@@ -67,7 +67,7 @@ def from_execution_trace(trace_data: BlockDebugTraceResult) -> BlockAccessList:
 
                 if is_write:
                     # Use zero word for reset operations
-                    new_value = EVM_WORD_ZERO if is_reset else post_value
+                    new_value = post_value if post_value is not None else EVM_WORD_ZERO
                     bal.add_storage_write(address, slot, tx_index, new_value)
 
             # Process code changes
