@@ -233,3 +233,7 @@ class BlockAccessList(BaseModel):
         # Get or create code change for this transaction (last write wins)
         code_change = self._get_code_change_for_tx(account, tx_index)
         code_change.new_code = new_code
+
+    def serialize(self) -> bytes:
+        """Encode BlockAccessList to SSZ format."""
+        return b"TODO"
