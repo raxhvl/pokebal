@@ -9,7 +9,7 @@ from pokebal.common.types import EVM_ZERO_WORD
 Address = bytes
 StorageKey = bytes
 StorageValue = bytes
-CodeData = bytes
+Bytecode = bytes
 Balance = bytes
 # Numeric types
 TxIndex = int
@@ -37,7 +37,7 @@ class BalanceChange(BaseModel):
     """Balance change for a specific transaction."""
 
     tx_index: TxIndex
-    post_balance: Balance = b''
+    post_balance: Balance = b""
 
 
 class NonceChange(BaseModel):
@@ -53,7 +53,7 @@ class CodeChange(BaseModel):
     """Code change for a specific transaction."""
 
     tx_index: TxIndex
-    new_code: CodeData
+    new_code: Bytecode
 
 
 class SlotChanges(BaseModel):
@@ -223,7 +223,7 @@ class BlockAccessList(BaseModel):
         self,
         address: Address,
         tx_index: TxIndex,
-        new_code: CodeData,
+        new_code: Bytecode,
     ):
         """Add a code changed by a specific transaction."""
         account = self._get_account(address)
