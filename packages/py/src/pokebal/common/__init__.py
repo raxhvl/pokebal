@@ -1,27 +1,11 @@
 """Common types and utilities."""
 
 from .types import (
-    HexString,
-    Address,
-    Hash,
-    StorageKey,
-    StorageValue,
-    CodeData,
-    BalanceDelta,
-    TxIndex,
-    Nonce,
+    EVM_ZERO_WORD,
     BlockNumber,
 )
 
 __all__ = [
-    "HexString",
-    "Address",
-    "Hash",
-    "StorageKey",
-    "StorageValue",
-    "CodeData",
-    "BalanceDelta",
-    "TxIndex",
-    "Nonce",
+    "EVM_ZERO_WORD",
     "BlockNumber",
 ]

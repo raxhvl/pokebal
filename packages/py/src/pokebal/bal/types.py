@@ -3,15 +3,17 @@
 from typing import List
 from pydantic import BaseModel, Field
 
-from pokebal.common.types import (
-    Address,
-    StorageKey,
-    StorageValue,
-    CodeData,
-    TxIndex,
-    Nonce,
-)
+from pokebal.common.types import EVM_ZERO_WORD
 
+# Type aliases for bytes - keeping semantic meaning
+Address = bytes
+StorageKey = bytes
+StorageValue = bytes
+CodeData = bytes
+Balance = bytes
+# Numeric types
+TxIndex = int
+Nonce = int
 
 ################################
 #          CONSTANTS           #
@@ -32,7 +34,7 @@ class StorageChange(BaseModel):
     """Storage change for a specific transaction."""
 
     tx_index: TxIndex
-    new_value: StorageValue
+    new_value: StorageValue = EVM_ZERO_WORD
 
 
 class BalanceChange(BaseModel):
@@ -167,7 +169,7 @@ class BlockAccessList(BaseModel):
                 return code_change
 
         # No existing change for this tx, create and add new one
-        new_code_change = CodeChange(tx_index=tx_index, new_code=CodeData("0x"))
+        new_code_change = CodeChange(tx_index=tx_index, new_code=b"")
         account.code_changes.append(new_code_change)
         return new_code_change
 

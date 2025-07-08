@@ -1,20 +1,18 @@
 from typing import Dict, List, Optional
 from pydantic import BaseModel
 
-from pokebal.common.types import (
-    HexString,
-    Address,
-    Hash,
-)
+# Type aliases for bytes
+Address = bytes
+Hash = bytes
 
 
 class AccountState(BaseModel):
     """Account state information."""
 
-    balance: Optional[HexString] = None
-    code: Optional[HexString] = None
+    balance: Optional[bytes] = None
+    code: Optional[bytes] = None
     nonce: Optional[int] = None
-    storage: Optional[Dict[HexString, HexString]] = None
+    storage: Optional[Dict[bytes, bytes]] = None
 
 
 class PrePostStates(BaseModel):
