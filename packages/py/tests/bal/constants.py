@@ -7,7 +7,7 @@ from pokebal.bal.types import (
     TxIndex,
     Nonce,
 )
-from pokebal.common.hex_utils import hex_to_bytes
+from pokebal.common.hex_utils import hex_to_bytes, int_to_bytes
 
 # Type aliases for bytes
 Address = bytes
@@ -82,8 +82,8 @@ class Nonces:
 class Balances:
     """Test balance values."""
 
-    BALANCE_1000 = 1000
-    BALANCE_2000 = 2000
+    BALANCE_1000 = int_to_bytes(1000)
+    BALANCE_2000 = int_to_bytes(2000)
 
 
 class CodeSamples:

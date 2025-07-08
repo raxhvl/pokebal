@@ -33,3 +33,28 @@ def bytes_to_hex(data: bytes) -> str:
         str: Hex string with 0x prefix
     """
     return f"0x{data.hex()}"
+
+
+def int_to_bytes(value: int, length: int = 32) -> bytes:
+    """Convert integer to bytes with specified length.
+    
+    Args:
+        value: The integer to convert
+        length: The desired byte length (default: 32 for 256-bit values)
+        
+    Returns:
+        bytes: The integer as big-endian bytes
+    """
+    return value.to_bytes(length, byteorder='big')
+
+
+def bytes_to_int(data: bytes) -> int:
+    """Convert bytes to integer.
+    
+    Args:
+        data: The bytes to convert
+        
+    Returns:
+        int: The integer value from big-endian bytes
+    """
+    return int.from_bytes(data, byteorder='big')

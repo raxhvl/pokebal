@@ -26,10 +26,6 @@ MAX_ACCOUNTS = 300_000
 MAX_CODE_SIZE = 24_576  # 24 KiB
 
 
-# Type aliases from EIP-7928
-Balance = int  # uint128 in spec
-
-
 class StorageChange(BaseModel):
     """Storage change for a specific transaction."""
 
@@ -41,7 +37,7 @@ class BalanceChange(BaseModel):
     """Balance change for a specific transaction."""
 
     tx_index: TxIndex
-    post_balance: Balance
+    post_balance: Balance = b''
 
 
 class NonceChange(BaseModel):
@@ -141,7 +137,7 @@ class BlockAccessList(BaseModel):
                 return balance_change
 
         # No existing change for this tx, create and add new one
-        new_balance_change = BalanceChange(tx_index=tx_index, post_balance=0)
+        new_balance_change = BalanceChange(tx_index=tx_index)
         account.balance_changes.append(new_balance_change)
         return new_balance_change
 
