@@ -1,0 +1,31 @@
+[
+  {
+    "block_number": 22739638,
+    "sizes": {
+      "storage_changes_kb": 28.642578125,
+      "storage_reads_kb": 19.302734375,
+      "storage_total_kb": 47.9453125,
+      "balance_diffs_kb": 6.7939453125,
+      "nonce_diffs_kb": 0.04296875,
+      "code_diffs_kb": 0,
+      "total_kb": 54.7822265625
+    },
+    "counts": {
+      "accounts": 443,
+      "slots": 651
+    },
+    "bal_stats": {
+      "total_accounts": 529,
+      "accounts_with_storage_writes": 131,
+      "accounts_with_storage_reads": 196,
+      "accounts_with_balance_changes": 333,
+      "accounts_with_nonce_changes": 5,
+      "accounts_with_code_changes": 0,
+      "total_storage_writes": 684,
+      "total_storage_reads": 1183,
+      "total_balance_changes": 656,
+      "total_nonce_changes": 5,
+      "total_code_changes": 0
+    }
+  }
+]
