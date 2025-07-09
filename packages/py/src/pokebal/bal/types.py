@@ -10,8 +10,8 @@ Address = bytes
 StorageKey = bytes
 StorageValue = bytes
 Bytecode = bytes
-Balance = bytes
 # Numeric types
+Balance = int
 TxIndex = int
 Nonce = int
 
@@ -37,7 +37,7 @@ class BalanceChange(BaseModel):
     """Balance change for a specific transaction."""
 
     tx_index: TxIndex
-    post_balance: Balance = b""
+    post_balance: Balance = 0
 
 
 class NonceChange(BaseModel):
