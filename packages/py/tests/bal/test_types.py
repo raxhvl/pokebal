@@ -317,7 +317,7 @@ class TestStorageReadOperations:
         account = bal.account_changes[0]
         assert account.address == Addresses.ALICE
         assert len(account.storage_reads) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+        assert account.storage_reads[0] == StorageSlots.SLOT_1
 
     def test_storage_read_touched_account(self):
         """Test storage read on touched account extends existing account entry."""
@@ -335,7 +335,7 @@ class TestStorageReadOperations:
         account = bal.account_changes[0]
         assert len(account.storage_reads) == 1
         assert len(account.nonce_changes) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+        assert account.storage_reads[0] == StorageSlots.SLOT_1
 
     # 3. Deduplication Logic Testing
 
@@ -352,7 +352,7 @@ class TestStorageReadOperations:
         assert len(bal.account_changes) == 1
         account = bal.account_changes[0]
         assert len(account.storage_reads) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+        assert account.storage_reads[0] == StorageSlots.SLOT_1
 
     # 5. Edge Case Coverage
 
@@ -369,7 +369,7 @@ class TestStorageReadOperations:
         assert len(bal.account_changes) == 1
         account = bal.account_changes[0]
         assert len(account.storage_reads) == 2
-        slots_read = {sr.slot for sr in account.storage_reads}
+        slots_read = set(account.storage_reads)
         assert slots_read == {StorageSlots.MAX_SLOT, StorageSlots.MIN_SLOT}
 
 
@@ -918,7 +918,7 @@ class TestMixedOperations:
         account = bal.account_changes[0]
         assert len(account.storage_reads) == 1
         assert len(account.storage_changes) == 1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_1
+        assert account.storage_reads[0] == StorageSlots.SLOT_1
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
 
     def test_balance_mixed_operations(self):
@@ -1011,7 +1011,7 @@ class TestMixedOperations:
         assert account.nonce_changes[0].new_nonce == Nonces.NONCE_42
         assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
-        assert account.storage_reads[0].slot == StorageSlots.SLOT_2
+        assert account.storage_reads[0] == StorageSlots.SLOT_2
 
     def test_contract_deployment_scenario(self):
         """Test realistic contract deployment scenario with all operations."""
