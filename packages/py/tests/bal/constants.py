@@ -53,6 +53,9 @@ class StorageValues:
     VALUE_2 = hex_to_bytes(
         "0x0000000000000000000000000000000000000000000000000000000000000002"
     )
+    VALUE_3 = hex_to_bytes(
+        "0x0000000000000000000000000000000000000000000000000000000000000003"
+    )
     ZERO_VALUE = hex_to_bytes(
         "0x0000000000000000000000000000000000000000000000000000000000000000"
     )
@@ -82,8 +85,9 @@ class Nonces:
 class Balances:
     """Test balance values."""
 
-    BALANCE_1000 = 1000
-    BALANCE_2000 = 2000
+    BALANCE_1000 = (1000).to_bytes(16, byteorder='little')
+    BALANCE_2000 = (2000).to_bytes(16, byteorder='little')
+    BALANCE_3000 = (3000).to_bytes(16, byteorder='little')
 
 
 class CodeSamples:

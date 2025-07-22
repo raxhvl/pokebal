@@ -167,5 +167,74 @@ class BlockAccessList(BaseModel):
         code_change = self._get_code_change_for_tx(account, tx_index)
         code_change.new_code = new_code
 
-    def serialize(self) -> bytes:
-        return to_ssz(self)
+    def sort(self) -> "BlockAccessList":
+        """Return a new sorted BlockAccessList according to EIP-7928 ordering requirements.
+
+        Ordering rules:
+        1. Addresses: lexicographic (bytewise)
+        2. Storage keys: lexicographic within each account
+        3. Transaction indices: ascending within each change list
+        """
+        # Sort account changes by address (lexicographic)
+        sorted_accounts = sorted(self.account_changes, key=lambda acc: acc.address)
+
+        # Create new sorted account changes
+        new_accounts = []
+        for account in sorted_accounts:
+            # Sort storage changes by slot key (lexicographic)
+            sorted_storage_changes = sorted(
+                account.storage_changes, key=lambda slot_change: slot_change.slot
+            )
+
+            # Within each slot change, sort changes by tx_index (ascending)
+            new_storage_changes = []
+            for slot_change in sorted_storage_changes:
+                sorted_changes = sorted(
+                    slot_change.changes, key=lambda change: change.tx_index
+                )
+                new_slot_change = SlotChanges(
+                    slot=slot_change.slot, changes=sorted_changes
+                )
+                new_storage_changes.append(new_slot_change)
+
+            # Sort storage reads lexicographically
+            sorted_storage_reads = sorted(account.storage_reads)
+
+            # Sort balance changes by tx_index (ascending)
+            sorted_balance_changes = sorted(
+                account.balance_changes, key=lambda change: change.tx_index
+            )
+
+            # Sort nonce changes by tx_index (ascending)
+            sorted_nonce_changes = sorted(
+                account.nonce_changes, key=lambda change: change.tx_index
+            )
+
+            # Sort code changes by tx_index (ascending)
+            sorted_code_changes = sorted(
+                account.code_changes, key=lambda change: change.tx_index
+            )
+
+            # Create new sorted account
+            new_account = AccountChanges(
+                address=account.address,
+                storage_changes=new_storage_changes,
+                storage_reads=sorted_storage_reads,
+                balance_changes=sorted_balance_changes,
+                nonce_changes=sorted_nonce_changes,
+                code_changes=sorted_code_changes,
+            )
+            new_accounts.append(new_account)
+
+        # Return new sorted instance
+        return BlockAccessList(account_changes=new_accounts)
+
+    def serialize(self, sort: bool = True) -> bytes:
+        """Serialize the BlockAccessList to SSZ bytes.
+
+        Args:
+            sort: Whether to sort the data according to EIP-7928 requirements before serialization.
+                 Defaults to True.
+        """
+        bal_to_serialize = self.sort() if sort else self
+        return to_ssz(bal_to_serialize)

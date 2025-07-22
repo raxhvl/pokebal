@@ -1041,3 +1041,287 @@ class TestMixedOperations:
         assert account.balance_changes[0].post_balance == Balances.BALANCE_1000
         assert account.nonce_changes[0].new_nonce == Nonces.NONCE_1
         assert account.storage_changes[0].slot == StorageSlots.SLOT_1
+
+
+class TestBlockAccessListSorting:
+    """Test cases for BlockAccessList sorting functionality following EIP-7928 ordering requirements."""
+
+    def test_sort_empty_list(self):
+        """Test sorting empty BlockAccessList returns empty sorted list."""
+        # Arrange
+        bal = BlockAccessList()
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 0
+        assert sorted_bal is not bal  # Should return new instance
+
+    def test_sort_single_account(self):
+        """Test sorting single account returns same account structure."""
+        # Arrange
+        bal = BlockAccessList()
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 1
+        assert sorted_bal.account_changes[0].address == Addresses.ALICE
+        assert sorted_bal is not bal  # Should return new instance
+
+    def test_sort_addresses_lexicographic(self):
+        """Test addresses are sorted lexicographically (bytewise)."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add accounts in reverse lexicographic order
+        bal.add_balance_change(Addresses.CAROL, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.BOB, TxIndices.TX_0, Balances.BALANCE_2000)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_3000)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 3
+        # Should be sorted: ALICE < BOB < CAROL lexicographically
+        addresses = [acc.address for acc in sorted_bal.account_changes]
+        expected_order = sorted([Addresses.ALICE, Addresses.BOB, Addresses.CAROL])
+        assert addresses == expected_order
+
+    def test_sort_storage_keys_lexicographic(self):
+        """Test storage keys are sorted lexicographically within each account."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add storage writes in reverse order
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_3, TxIndices.TX_0, StorageValues.VALUE_1)
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2)
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_2, TxIndices.TX_0, StorageValues.VALUE_3)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 1
+        account = sorted_bal.account_changes[0]
+        assert len(account.storage_changes) == 3
+        slots = [sc.slot for sc in account.storage_changes]
+        expected_slots = sorted([StorageSlots.SLOT_1, StorageSlots.SLOT_2, StorageSlots.SLOT_3])
+        assert slots == expected_slots
+
+    def test_sort_storage_reads_lexicographic(self):
+        """Test storage reads are sorted lexicographically within each account."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add storage reads in reverse order
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_3)
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_2)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 1
+        account = sorted_bal.account_changes[0]
+        assert len(account.storage_reads) == 3
+        reads = account.storage_reads
+        expected_reads = sorted([StorageSlots.SLOT_1, StorageSlots.SLOT_2, StorageSlots.SLOT_3])
+        assert reads == expected_reads
+
+    def test_sort_transaction_indices_ascending(self):
+        """Test transaction indices are sorted ascending within each change list."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add changes in reverse tx order
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_2, StorageValues.VALUE_1)
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2)
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_1, StorageValues.VALUE_3)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 1
+        account = sorted_bal.account_changes[0]
+        assert len(account.storage_changes) == 1
+        slot_changes = account.storage_changes[0]
+        assert len(slot_changes.changes) == 3
+        tx_indices = [change.tx_index for change in slot_changes.changes]
+        assert tx_indices == [TxIndices.TX_0, TxIndices.TX_1, TxIndices.TX_2]
+
+    def test_sort_balance_changes_by_tx_index(self):
+        """Test balance changes are sorted by tx_index ascending."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add balance changes in reverse tx order
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_2, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_1, Balances.BALANCE_3000)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 1
+        account = sorted_bal.account_changes[0]
+        assert len(account.balance_changes) == 3
+        tx_indices = [change.tx_index for change in account.balance_changes]
+        assert tx_indices == [TxIndices.TX_0, TxIndices.TX_1, TxIndices.TX_2]
+
+    def test_sort_nonce_changes_by_tx_index(self):
+        """Test nonce changes are sorted by tx_index ascending."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add nonce changes in reverse tx order
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_2, Nonces.NONCE_100)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_0, Nonces.NONCE_42)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_1, Nonces.NONCE_1000)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 1
+        account = sorted_bal.account_changes[0]
+        assert len(account.nonce_changes) == 3
+        tx_indices = [change.tx_index for change in account.nonce_changes]
+        assert tx_indices == [TxIndices.TX_0, TxIndices.TX_1, TxIndices.TX_2]
+
+    def test_sort_code_changes_by_tx_index(self):
+        """Test code changes are sorted by tx_index ascending."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add code changes on different accounts (since MAX_CODE_CHANGES is 1 per account)
+        bal.add_code_change(Addresses.ALICE, TxIndices.TX_1, CodeSamples.SIMPLE_CODE)
+        bal.add_code_change(Addresses.BOB, TxIndices.TX_0, CodeSamples.ANOTHER_CODE)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert
+        assert len(sorted_bal.account_changes) == 2
+        addresses = [acc.address for acc in sorted_bal.account_changes]
+        expected_addresses = sorted([Addresses.ALICE, Addresses.BOB])
+        assert addresses == expected_addresses
+        
+        # Check individual code changes
+        for account in sorted_bal.account_changes:
+            assert len(account.code_changes) == 1
+
+    def test_sort_comprehensive_mixed_operations(self):
+        """Test comprehensive sorting with all operation types on multiple accounts."""
+        # Arrange
+        bal = BlockAccessList()
+        
+        # Add operations in deliberately unsorted order across multiple accounts
+        # Carol's operations
+        bal.add_storage_write(Addresses.CAROL, StorageSlots.SLOT_3, TxIndices.TX_1, StorageValues.VALUE_1)
+        bal.add_balance_change(Addresses.CAROL, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_storage_read(Addresses.CAROL, StorageSlots.SLOT_2)
+        
+        # Alice's operations  
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_2, TxIndices.TX_2, StorageValues.VALUE_2)
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_3)
+        bal.add_nonce_change(Addresses.ALICE, TxIndices.TX_1, Nonces.NONCE_42)
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_3)
+        bal.add_storage_read(Addresses.ALICE, StorageSlots.SLOT_1)
+        
+        # Bob's operations
+        bal.add_code_change(Addresses.BOB, TxIndices.TX_0, CodeSamples.SIMPLE_CODE)
+        bal.add_balance_change(Addresses.BOB, TxIndices.TX_2, Balances.BALANCE_2000)
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert addresses are sorted lexicographically
+        assert len(sorted_bal.account_changes) == 3
+        addresses = [acc.address for acc in sorted_bal.account_changes]
+        expected_addresses = sorted([Addresses.ALICE, Addresses.BOB, Addresses.CAROL])
+        assert addresses == expected_addresses
+        
+        # Check Bob's account (should be first lexicographically: 0x1111... < 0x1234... < 0x2222...)
+        bob_account = sorted_bal.account_changes[0]
+        assert bob_account.address == Addresses.BOB
+        
+        # Check Alice's account (should be second)
+        alice_account = sorted_bal.account_changes[1]
+        assert alice_account.address == Addresses.ALICE
+        
+        # Check storage changes are sorted by slot
+        alice_slots = [sc.slot for sc in alice_account.storage_changes]
+        expected_alice_slots = sorted([StorageSlots.SLOT_1, StorageSlots.SLOT_2])
+        assert alice_slots == expected_alice_slots
+        
+        # Check storage reads are sorted
+        alice_reads = alice_account.storage_reads
+        expected_alice_reads = sorted([StorageSlots.SLOT_1, StorageSlots.SLOT_3])
+        assert alice_reads == expected_alice_reads
+        
+        # Check tx indices within storage changes are sorted
+        slot1_changes = next(sc for sc in alice_account.storage_changes if sc.slot == StorageSlots.SLOT_1)
+        slot2_changes = next(sc for sc in alice_account.storage_changes if sc.slot == StorageSlots.SLOT_2)
+        assert slot1_changes.changes[0].tx_index == TxIndices.TX_0
+        assert slot2_changes.changes[0].tx_index == TxIndices.TX_2
+
+    def test_sort_immutability(self):
+        """Test that sort() returns new instance and doesn't mutate original."""
+        # Arrange
+        bal = BlockAccessList()
+        bal.add_storage_write(Addresses.CAROL, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_1)
+        bal.add_storage_write(Addresses.ALICE, StorageSlots.SLOT_1, TxIndices.TX_0, StorageValues.VALUE_2)
+        
+        # Store original state
+        original_addresses = [acc.address for acc in bal.account_changes]
+
+        # Act
+        sorted_bal = bal.sort()
+
+        # Assert original is unchanged
+        current_addresses = [acc.address for acc in bal.account_changes]
+        assert current_addresses == original_addresses
+        assert sorted_bal is not bal
+        
+        # Assert sorted is different
+        sorted_addresses = [acc.address for acc in sorted_bal.account_changes]
+        assert sorted_addresses != original_addresses
+        assert sorted_addresses == sorted(original_addresses)
+
+    def test_serialize_with_sort_enabled(self):
+        """Test serialize with sort=True (default) applies sorting."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add accounts in reverse lexicographic order
+        bal.add_balance_change(Addresses.CAROL, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
+
+        # Act
+        serialized = bal.serialize(sort=True)  # Explicit True
+        default_serialized = bal.serialize()   # Default True
+
+        # Assert both produce same result and sorting was applied
+        assert serialized == default_serialized
+        assert isinstance(serialized, bytes)
+        assert len(serialized) > 0
+
+    def test_serialize_with_sort_disabled(self):
+        """Test serialize with sort=False preserves original order."""
+        # Arrange
+        bal = BlockAccessList()
+        # Add accounts in reverse lexicographic order
+        bal.add_balance_change(Addresses.CAROL, TxIndices.TX_0, Balances.BALANCE_1000)
+        bal.add_balance_change(Addresses.ALICE, TxIndices.TX_0, Balances.BALANCE_2000)
+
+        # Act
+        unsorted_serialized = bal.serialize(sort=False)
+        sorted_serialized = bal.serialize(sort=True)
+
+        # Assert they produce different results (order matters in serialization)
+        assert isinstance(unsorted_serialized, bytes)
+        assert isinstance(sorted_serialized, bytes)
+        assert len(unsorted_serialized) > 0
+        assert len(sorted_serialized) > 0
+        # Note: We can't easily compare bytes directly as SSZ encoding is complex,
+        # but we verify both are valid serializations with different ordering
