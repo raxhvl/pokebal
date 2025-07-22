@@ -9,12 +9,11 @@ from ssz.sedes import (
     uint16,
 )
 
-from pokebal.bal.types import (
+from .basic import (
     MAX_ACCOUNTS,
     MAX_CODE_SIZE,
     MAX_SLOTS,
     MAX_TXS,
-    BlockAccessList,
     AccountChanges,
     BalanceChange,
     CodeChange,
@@ -69,7 +68,7 @@ def _transform_account_changes(
     )
 
 
-def serialize(bal: BlockAccessList) -> bytes:
+def to_ssz(bal) -> bytes:
     """Serialize BlockAccessList to SSZ format."""
 
     # Basic types

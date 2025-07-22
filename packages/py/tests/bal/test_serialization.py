@@ -10,7 +10,6 @@ from pokebal.bal.types import (
     CodeChange,
 )
 from pokebal.bal.serialization import (
-    serialize,
     _transform_storage_change,
     _transform_balance_change,
     _transform_nonce_change,
@@ -86,7 +85,7 @@ def test_transform_slot_changes():
 
 def test_empty_block_access_list_serialization():
     bal = BlockAccessList()
-    result = serialize(bal)
+    result = bal.serialize()
     assert isinstance(result, bytes)
     assert len(result) > 0
 
@@ -94,7 +93,7 @@ def test_empty_block_access_list_serialization():
 def test_simple_block_access_list_serialization():
     account = AccountChanges(address=b"\x01" * 20)
     bal = BlockAccessList(account_changes=[account])
-    result = serialize(bal)
+    result = bal.serialize()
     assert isinstance(result, bytes)
     assert len(result) > 0
 
@@ -103,7 +102,9 @@ def test_complex_block_access_list_serialization():
     storage_change = StorageChange(tx_index=1, new_value=b"\xaa" * 32)
     slot_changes = SlotChanges(slot=b"\xbb" * 32, changes=[storage_change])
 
-    balance_change = BalanceChange(tx_index=2, post_balance=(1000).to_bytes(16, "little"))
+    balance_change = BalanceChange(
+        tx_index=2, post_balance=(1000).to_bytes(16, "little")
+    )
     nonce_change = NonceChange(tx_index=3, new_nonce=5)
     code_change = CodeChange(tx_index=4, new_code=b"\x60\x80")
 
@@ -117,7 +118,7 @@ def test_complex_block_access_list_serialization():
     )
 
     bal = BlockAccessList(account_changes=[account])
-    result = serialize(bal)
+    result = bal.serialize()
     assert isinstance(result, bytes)
     assert len(result) > 0
 
@@ -129,7 +130,7 @@ def test_fixture_data_serialization():
         normalized_data = normalize_to_bytes(data)
 
         bal = BlockAccessList(**normalized_data)
-        result = serialize(bal)
+        result = bal.serialize()
 
         assert isinstance(result, bytes)
         assert len(result) > 0
@@ -141,37 +142,37 @@ def test_fixture_ssz_validation():
     fixtures_dir = Path(__file__).parent.parent / "fixtures"
     json_path = fixtures_dir / "22615532.json"
     ssz_path = fixtures_dir / "22615532.ssz"
-    
+
     # Load and parse JSON fixture
     with open(json_path) as f:
         data = json.load(f)
         normalized_data = normalize_to_bytes(data)
         bal = BlockAccessList(**normalized_data)
-    
+
     # Serialize using our implementation
-    serialized_result = serialize(bal)
-    
+    serialized_result = bal.serialize()
+
     # Read expected SSZ file
     with open(ssz_path, "rb") as f:
         expected_ssz = f.read()
-    
+
     # Validate that our serialization matches expected output
     assert isinstance(serialized_result, bytes), "Serialized result should be bytes"
     assert isinstance(expected_ssz, bytes), "Expected SSZ should be bytes"
     assert len(serialized_result) > 0, "Serialized result should not be empty"
     assert len(expected_ssz) > 0, "Expected SSZ should not be empty"
-    
+
     # Debug: Find first difference
     for i, (a, b) in enumerate(zip(serialized_result, expected_ssz)):
         if a != b:
             print(f"First difference at byte {i}: got {hex(a)} expected {hex(b)}")
             print(f"Context around byte {i}:")
-            start = max(0, i-10)
-            end = min(len(serialized_result), i+10)
+            start = max(0, i - 10)
+            end = min(len(serialized_result), i + 10)
             print(f"Got:      {serialized_result[start:end].hex()}")
             print(f"Expected: {expected_ssz[start:end].hex()}")
             break
-    
+
     # The main validation: our serialization should match the fixture
     assert serialized_result == expected_ssz, (
         f"Serialized SSZ doesn't match fixture. "
