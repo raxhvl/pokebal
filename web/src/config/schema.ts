@@ -128,7 +128,7 @@ function convertJsonSchemaToContainer(schema: any): SchemaContainer {
 function convertPropertyToContainer(name: string, prop: any, schema: any): SchemaContainer {
   if (prop.type === "array" && prop.items?.$ref) {
     const refName = prop.items.$ref.split("/").pop();
-    const refDef = schema.$defs[refName];
+    const refDef = (schema.$defs as any)[refName];
     
     return {
       name,
@@ -183,8 +183,8 @@ function convertDefinitionToContainer(
         refName = fieldDef.items.$ref.split("/").pop();
       }
       
-      if (refName && balSchema.$defs[refName] && !addedContainers.has(refName)) {
-        children.push(convertDefinitionToContainer(balSchema.$defs[refName], refName));
+      if (refName && (balSchema.$defs as any)[refName] && !addedContainers.has(refName)) {
+        children.push(convertDefinitionToContainer((balSchema.$defs as any)[refName], refName));
         addedContainers.add(refName);
       }
     });
