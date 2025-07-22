@@ -120,20 +120,30 @@ function convertJsonSchemaToContainer(schema: any): SchemaContainer {
     type: "Container",
     description: schema.description,
     children: Object.entries(schema.properties).map(
-      ([name, prop]: [string, any]) => ({
-        name,
-        type: getTypeFromProperty(prop),
-        description: prop.description,
-        constraints: prop.maxItems ? `Max ${prop.maxItems} items` : undefined,
-        children: prop.items?.$ref
-          ? [
-              convertDefinitionToContainer(
-                schema.$defs[prop.items.$ref.split("/").pop()]
-              ),
-            ]
-          : undefined,
-      })
+      ([name, prop]: [string, any]) => convertPropertyToContainer(name, prop, schema)
     ),
+  };
+}
+
+function convertPropertyToContainer(name: string, prop: any, schema: any): SchemaContainer {
+  if (prop.type === "array" && prop.items?.$ref) {
+    const refName = prop.items.$ref.split("/").pop();
+    const refDef = schema.$defs[refName];
+    
+    return {
+      name,
+      type: `List[${refName}]`,
+      description: prop.description,
+      constraints: prop.maxItems ? `Max ${prop.maxItems.toLocaleString()} items` : undefined,
+      children: refDef ? [convertDefinitionToContainer(refDef, refName)] : undefined,
+    };
+  }
+  
+  return {
+    name,
+    type: prop.type,
+    description: prop.description,
+    constraints: getFieldConstraints(prop),
   };
 }
 
@@ -141,41 +151,77 @@ function convertDefinitionToContainer(
   def: any,
   name?: string
 ): SchemaContainer {
-  return {
+  const container: SchemaContainer = {
     name: name || def.title || "Unknown",
     type: "Container",
     description: def.description,
-    fields: def.required?.map((fieldName: string) => ({
-      name: fieldName,
-      type: getFieldType(def.properties[fieldName]),
-      description: def.properties[fieldName].description,
-      constraints: getFieldConstraints(def.properties[fieldName]),
-      example: def.properties[fieldName].examples?.[0],
-    })),
   };
-}
 
-function getTypeFromProperty(prop: any): string {
-  if (prop.type === "array") {
-    const itemType = prop.items?.$ref?.split("/").pop() || "Unknown";
-    return `List[${itemType}, ${prop.maxItems || "unlimited"}]`;
+  if (def.properties) {
+    const fields: SchemaField[] = [];
+    const children: SchemaContainer[] = [];
+
+    const addedContainers = new Set<string>();
+
+    Object.entries(def.properties).forEach(([fieldName, fieldDef]: [string, any]) => {
+      const isRequired = def.required && def.required.includes(fieldName);
+      
+      // Add field info
+      fields.push({
+        name: fieldName,
+        type: getFieldType(fieldDef),
+        description: fieldDef.description,
+        constraints: getFieldConstraints(fieldDef, isRequired),
+        example: fieldDef.examples?.[0],
+      });
+
+      // Add nested containers for complex types (avoid duplicates)
+      let refName: string | undefined;
+      if (fieldDef.$ref) {
+        refName = fieldDef.$ref.split("/").pop();
+      } else if (fieldDef.type === "array" && fieldDef.items?.$ref) {
+        refName = fieldDef.items.$ref.split("/").pop();
+      }
+      
+      if (refName && balSchema.$defs[refName] && !addedContainers.has(refName)) {
+        children.push(convertDefinitionToContainer(balSchema.$defs[refName], refName));
+        addedContainers.add(refName);
+      }
+    });
+
+    if (fields.length > 0) container.fields = fields;
+    if (children.length > 0) container.children = children;
   }
-  return prop.type;
+
+  return container;
 }
 
 function getFieldType(prop: any): string {
   if (prop.$ref) {
     return prop.$ref.split("/").pop() || "Unknown";
   }
+  if (prop.type === "array") {
+    const itemType = prop.items?.$ref?.split("/").pop() || prop.items?.type || "Unknown";
+    return `List[${itemType}]`;
+  }
   return prop.type;
 }
 
-function getFieldConstraints(prop: any): string | undefined {
+function getFieldConstraints(prop: any, isRequired: boolean = false): string | undefined {
   const constraints = [];
+  
+  if (isRequired) {
+    constraints.push("Required");
+  } else if (prop.default !== undefined) {
+    constraints.push(`Default: ${JSON.stringify(prop.default)}`);
+  }
+  
   if (prop.minimum !== undefined) constraints.push(`>= ${prop.minimum}`);
   if (prop.maximum !== undefined) constraints.push(`<= ${prop.maximum}`);
   if (prop.pattern) constraints.push(`Pattern: ${prop.pattern}`);
   if (prop.maxLength) constraints.push(`Max length: ${prop.maxLength}`);
+  if (prop.maxItems) constraints.push(`Max ${prop.maxItems.toLocaleString()} items`);
+  
   return constraints.length > 0 ? constraints.join(", ") : undefined;
 }
 

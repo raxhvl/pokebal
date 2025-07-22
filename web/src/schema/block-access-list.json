@@ -266,17 +266,27 @@
     "MAX_CODE_SIZE": {
       "value": 24576,
       "description": "Maximum contract bytecode size in bytes (EIP-170)",
-      "source": "main.py"
+      "source": "basic.py"
     },
     "MAX_TXS": {
       "value": 30000,
       "description": "Maximum number of transactions per block",
-      "source": "main.py"
+      "source": "basic.py"
     },
     "MAX_ACCOUNTS": {
       "value": 300000,
       "description": "Maximum number of accounts in access lists",
-      "source": "main.py"
+      "source": "basic.py"
+    },
+    "MAX_SLOTS": {
+      "value": 300000,
+      "description": "Maximum number of storage slots per account",
+      "source": "basic.py"
+    },
+    "MAX_CODE_CHANGES": {
+      "value": 1,
+      "description": "Maximum number of code changes per account (only one deployment per account per block)",
+      "source": "basic.py"
     }
   },
   "x-implementation-notes": {
