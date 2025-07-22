@@ -14,6 +14,7 @@ from .basic import (
     MAX_CODE_SIZE,
     MAX_SLOTS,
     MAX_TXS,
+    MAX_CODE_CHANGES,
     AccountChanges,
     BalanceChange,
     CodeChange,
@@ -111,7 +112,7 @@ def to_ssz(bal) -> bytes:
             List(_storage_key, MAX_SLOTS),
             List(_balance_change, MAX_TXS),
             List(_nonce_change, MAX_TXS),
-            List(_code_change, MAX_TXS),
+            List(_code_change, MAX_CODE_CHANGES),
         ]
     )
 

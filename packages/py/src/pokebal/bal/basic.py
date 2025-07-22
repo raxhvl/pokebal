@@ -21,6 +21,7 @@ MAX_TXS = 30_000
 MAX_SLOTS = 300_000
 MAX_ACCOUNTS = 300_000
 MAX_CODE_SIZE = 24_576  # 24 KiB
+MAX_CODE_CHANGES = 1
 
 
 class StorageChange(BaseModel):
@@ -68,4 +69,4 @@ class AccountChanges(BaseModel):
     storage_reads: List[StorageKey] = Field(default=[], max_length=MAX_SLOTS)
     balance_changes: List[BalanceChange] = Field(default=[], max_length=MAX_TXS)
     nonce_changes: List[NonceChange] = Field(default=[], max_length=MAX_TXS)
-    code_changes: List[CodeChange] = Field(default=[], max_length=MAX_TXS)
+    code_changes: List[CodeChange] = Field(default=[], max_length=MAX_CODE_CHANGES)
