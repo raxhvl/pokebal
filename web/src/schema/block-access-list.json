@@ -2,50 +2,20 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ethereum.org/schemas/bal/block-access-list.json",
   "title": "Block Access List (BAL)",
-  "description": "Ethereum Block Access List specification for EIP-7928. Contains all state access patterns, balance changes, code deployments, and nonce values for efficient state transition verification.",
+  "description": "Ethereum Block Access List specification for EIP-7928. Contains all account changes including storage accesses, balance changes, code deployments, and nonce values for efficient state transition verification.",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "account_accesses",
-    "balance_diffs",
-    "code_diffs",
-    "nonce_diffs"
+    "account_changes"
   ],
   "properties": {
-    "account_accesses": {
-      "title": "Account Access List",
-      "description": "Storage access patterns for each account. Critical for state proof generation and parallel execution optimization.",
+    "account_changes": {
+      "title": "Account Changes",
+      "description": "All changes for each account including storage, balance, nonce, and code changes.",
       "type": "array",
       "maxItems": 300000,
       "items": {
-        "$ref": "#/$defs/AccountAccess"
-      }
-    },
-    "balance_diffs": {
-      "title": "Balance Differences",
-      "description": "Balance changes for efficient state transition verification. Only accounts with balance changes are included.",
-      "type": "array",
-      "maxItems": 300000,
-      "items": {
-        "$ref": "#/$defs/AccountBalanceDiff"
-      }
-    },
-    "code_diffs": {
-      "title": "Code Differences",
-      "description": "Contract bytecode for newly deployed contracts. Essential for recreating exact state after block execution.",
-      "type": "array",
-      "maxItems": 300000,
-      "items": {
-        "$ref": "#/$defs/AccountCodeDiff"
-      }
-    },
-    "nonce_diffs": {
-      "title": "Nonce Differences",
-      "description": "Account nonce values before any transactions in the block. Needed for proper transaction replay and state reconstruction.",
-      "type": "array",
-      "maxItems": 300000,
-      "items": {
-        "$ref": "#/$defs/AccountNonce"
+        "$ref": "#/$defs/AccountChanges"
       }
     }
   },
@@ -75,12 +45,12 @@
         "0x0000000000000000000000000000000000000000000000000000000000000020"
       ]
     },
-    "BalanceDelta": {
-      "title": "Balance Delta",
-      "description": "12-byte balance change in two's complement format. Handles negative balances and full ETH supply range efficiently.",
+    "Balance": {
+      "title": "Balance",
+      "description": "16-byte balance value in hexadecimal format",
       "type": "string",
-      "pattern": "^0x[a-fA-F0-9]{24}$",
-      "examples": ["0x0de0b6b3a7640000", "0xf21f494c589c0000"]
+      "pattern": "^0x[a-fA-F0-9]{32}$",
+      "examples": ["0x0de0b6b3a7640000000000000000000"]
     },
     "TxIndex": {
       "title": "Transaction Index",
@@ -104,113 +74,88 @@
       "maxLength": 49154,
       "examples": ["0x608060405234801561001057600080fd5b50"]
     },
-    "PerTxAccess": {
-      "title": "Per-Transaction Access",
-      "description": "Single transaction access record showing the storage value after transaction execution",
+    "StorageChange": {
+      "title": "Storage Change",
+      "description": "Storage change for a specific transaction",
       "type": "object",
       "additionalProperties": false,
-      "required": ["tx_index", "value_after"],
+      "required": ["tx_index", "new_value"],
       "properties": {
         "tx_index": {
           "$ref": "#/$defs/TxIndex",
-          "description": "Transaction index that accessed this storage slot"
+          "description": "Transaction index that changed this storage slot"
         },
-        "value_after": {
+        "new_value": {
           "$ref": "#/$defs/StorageValue",
-          "description": "Storage value after this transaction executed"
+          "description": "New storage value after this transaction"
         }
       }
     },
-    "SlotAccess": {
-      "title": "Storage Slot Access",
-      "description": "Access pattern for a single storage slot across multiple transactions",
+    "SlotChanges": {
+      "title": "Storage Slot Changes",
+      "description": "Changes to a single storage slot across multiple transactions",
       "type": "object",
       "additionalProperties": false,
-      "required": ["slot", "accesses"],
+      "required": ["slot", "changes"],
       "properties": {
         "slot": {
           "$ref": "#/$defs/StorageKey",
           "description": "Storage slot identifier"
         },
-        "accesses": {
-          "description": "List of transaction accesses to this slot",
+        "changes": {
+          "description": "List of changes to this slot",
           "type": "array",
           "maxItems": 30000,
           "items": {
-            "$ref": "#/$defs/PerTxAccess"
-          }
-        }
-      }
-    },
-    "AccountAccess": {
-      "title": "Account Access Pattern",
-      "description": "Complete access pattern for a single account including all storage slot accesses",
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["address", "accesses"],
-      "properties": {
-        "address": {
-          "$ref": "#/$defs/Address",
-          "description": "Account address being accessed"
-        },
-        "accesses": {
-          "description": "Storage slot access patterns for this account",
-          "type": "array",
-          "maxItems": 30000,
-          "items": {
-            "$ref": "#/$defs/SlotAccess"
+            "$ref": "#/$defs/StorageChange"
           }
         }
       }
     },
     "BalanceChange": {
-      "title": "Balance Change Record",
-      "description": "Records a balance change caused by a specific transaction",
+      "title": "Balance Change",
+      "description": "Balance change for a specific transaction",
       "type": "object",
       "additionalProperties": false,
-      "required": ["tx_index", "delta"],
+      "required": ["tx_index", "post_balance"],
       "properties": {
         "tx_index": {
           "$ref": "#/$defs/TxIndex",
           "description": "Transaction index that caused this balance change"
         },
-        "delta": {
-          "$ref": "#/$defs/BalanceDelta",
-          "description": "Amount of balance change (positive or negative)"
+        "post_balance": {
+          "$ref": "#/$defs/Balance",
+          "description": "Balance after this transaction"
         }
       }
     },
-    "AccountBalanceDiff": {
-      "title": "Account Balance Changes",
-      "description": "All balance changes for a single account within the block",
+    "NonceChange": {
+      "title": "Nonce Change",
+      "description": "Nonce change for a specific transaction",
       "type": "object",
       "additionalProperties": false,
-      "required": ["address", "changes"],
+      "required": ["tx_index", "new_nonce"],
       "properties": {
-        "address": {
-          "$ref": "#/$defs/Address",
-          "description": "Account whose balance changed"
+        "tx_index": {
+          "$ref": "#/$defs/TxIndex",
+          "description": "Transaction index that changed this nonce"
         },
-        "changes": {
-          "description": "List of balance changes for this account",
-          "type": "array",
-          "maxItems": 30000,
-          "items": {
-            "$ref": "#/$defs/BalanceChange"
-          }
+        "new_nonce": {
+          "$ref": "#/$defs/Nonce",
+          "description": "New nonce value after this transaction"
         }
       }
     },
-    "AccountCodeDiff": {
-      "title": "Account Code Deployment",
-      "description": "Contract bytecode deployment record",
+    "CodeChange": {
+      "title": "Code Change",
+      "description": "Code change for a specific transaction",
       "type": "object",
       "additionalProperties": false,
-      "required": ["address", "new_code"],
+      "required": ["tx_index", "new_code"],
       "properties": {
-        "address": {
-          "$ref": "#/$defs/Address",
-          "description": "Address where contract was deployed"
+        "tx_index": {
+          "$ref": "#/$defs/TxIndex",
+          "description": "Transaction index that deployed this code"
         },
         "new_code": {
           "$ref": "#/$defs/CodeData",
@@ -218,59 +163,101 @@
         }
       }
     },
-    "AccountNonce": {
-      "title": "Account Nonce Record",
-      "description": "Account nonce value before any transactions in the block",
+    "AccountChanges": {
+      "title": "Account Changes",
+      "description": "All changes for a single account within the block",
       "type": "object",
       "additionalProperties": false,
-      "required": ["address", "nonce"],
+      "required": ["address"],
       "properties": {
         "address": {
           "$ref": "#/$defs/Address",
           "description": "Account address"
         },
-        "nonce": {
-          "$ref": "#/$defs/Nonce",
-          "description": "Nonce value before first transaction in block"
+        "storage_changes": {
+          "description": "Storage slot changes for this account",
+          "type": "array",
+          "maxItems": 300000,
+          "items": {
+            "$ref": "#/$defs/SlotChanges"
+          },
+          "default": []
+        },
+        "storage_reads": {
+          "description": "Storage slots that were read but not modified",
+          "type": "array",
+          "maxItems": 300000,
+          "items": {
+            "$ref": "#/$defs/StorageKey"
+          },
+          "default": []
+        },
+        "balance_changes": {
+          "description": "Balance changes for this account",
+          "type": "array",
+          "maxItems": 30000,
+          "items": {
+            "$ref": "#/$defs/BalanceChange"
+          },
+          "default": []
+        },
+        "nonce_changes": {
+          "description": "Nonce changes for this account",
+          "type": "array",
+          "maxItems": 30000,
+          "items": {
+            "$ref": "#/$defs/NonceChange"
+          },
+          "default": []
+        },
+        "code_changes": {
+          "description": "Code changes for this account",
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/CodeChange"
+          },
+          "default": []
         }
       }
     }
   },
   "examples": [
     {
-      "title": "Simple Storage Access",
-      "description": "Basic example showing storage slot access across transactions",
-      "account_accesses": [
+      "title": "Simple Account Changes",
+      "description": "Basic example showing account changes across transactions",
+      "account_changes": [
         {
           "address": "0x1234567890abcdef1234567890abcdef12345678",
-          "accesses": [
+          "storage_changes": [
             {
               "slot": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-              "accesses": [
+              "changes": [
                 {
                   "tx_index": 0,
-                  "value_after": "0x0000000000000000000000000000000000000000000000000000000000000020"
+                  "new_value": "0x0000000000000000000000000000000000000000000000000000000000000020"
                 },
                 {
                   "tx_index": 1,
-                  "value_after": "0x0000000000000000000000000000000000000000000000000000000000000030"
+                  "new_value": "0x0000000000000000000000000000000000000000000000000000000000000030"
                 }
               ]
             }
-          ]
-        }
-      ],
-      "balance_diffs": [
-        {
-          "address": "0x1234567890abcdef1234567890abcdef12345678",
-          "changes": [{ "tx_index": 0, "delta": "0x0de0b6b3a7640000" }]
-        }
-      ],
-      "code_diffs": [],
-      "nonce_diffs": [
-        {
-          "address": "0x1234567890abcdef1234567890abcdef12345678",
-          "nonce": 42
+          ],
+          "storage_reads": [],
+          "balance_changes": [
+            {
+              "tx_index": 0,
+              "post_balance": "0x0de0b6b3a7640000000000000000000"
+            }
+          ],
+          "nonce_changes": [
+            {
+              "tx_index": 0,
+              "new_nonce": 42
+            }
+          ],
+          "code_changes": []
         }
       ]
     }
