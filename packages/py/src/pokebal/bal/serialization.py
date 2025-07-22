@@ -1,3 +1,4 @@
+import ssz
 from ssz.sedes import (
     ByteList,
     ByteVector,
@@ -19,13 +20,57 @@ from pokebal.bal.types import (
     CodeChange,
     NonceChange,
     SlotChanges,
-    SlotRead,
     StorageChange,
 )
 
 
-def get_bal_ssz_sedes():
-    """Build SSZ sedes for BlockAccessList serialization following EIP-7928."""
+def _transform_storage_change(change: StorageChange) -> tuple[int, bytes]:
+    """Transform StorageChange to SSZ-compatible tuple."""
+    return (change.tx_index, change.new_value)
+
+
+def _transform_balance_change(change: BalanceChange) -> tuple[int, int]:
+    """Transform BalanceChange to SSZ-compatible tuple."""
+    balance_int = int.from_bytes(change.post_balance, byteorder="little")
+    return (change.tx_index, balance_int)
+
+
+def _transform_nonce_change(change: NonceChange) -> tuple[int, int]:
+    """Transform NonceChange to SSZ-compatible tuple."""
+    return (change.tx_index, change.new_nonce)
+
+
+def _transform_code_change(change: CodeChange) -> tuple[int, bytes]:
+    """Transform CodeChange to SSZ-compatible tuple."""
+    return (change.tx_index, change.new_code)
+
+
+def _transform_slot_changes(
+    slot_changes: SlotChanges,
+) -> tuple[bytes, list[tuple[int, bytes]]]:
+    """Transform SlotChanges to SSZ-compatible tuple."""
+    changes_tuples = [
+        _transform_storage_change(change) for change in slot_changes.changes
+    ]
+    return (slot_changes.slot, changes_tuples)
+
+
+def _transform_account_changes(
+    account: AccountChanges,
+) -> tuple[bytes, list, list[bytes], list, list, list]:
+    """Transform AccountChanges to SSZ-compatible tuple."""
+    return (
+        account.address,
+        [_transform_slot_changes(sc) for sc in account.storage_changes],
+        account.storage_reads,
+        [_transform_balance_change(bc) for bc in account.balance_changes],
+        [_transform_nonce_change(nc) for nc in account.nonce_changes],
+        [_transform_code_change(cc) for cc in account.code_changes],
+    )
+
+
+def serialize(bal: BlockAccessList) -> bytes:
+    """Serialize BlockAccessList to SSZ format."""
 
     # Basic types
     _address = ByteVector(20)
@@ -72,85 +117,12 @@ def get_bal_ssz_sedes():
     )
 
     # BlockAccessList sedes
-    return Container(field_sedes=[List(_account_changes, MAX_ACCOUNTS)])
+    _block_access_list = Container(field_sedes=[List(_account_changes, MAX_ACCOUNTS)])
 
+    # Transform BlockAccessList to SSZ
+    account_tuples = [
+        _transform_account_changes(account) for account in bal.account_changes
+    ]
 
-def serialize(bal: BlockAccessList) -> bytes:
-    """Serialize a BlockAccessList to SSZ format."""
-    ssz_sedes = get_bal_ssz_sedes()
-    return ssz_sedes.serialize(bal)
-
-
-def _convert_ssz_to_bal(ssz_data) -> BlockAccessList:
-    """Convert SSZ-deserialized data to BlockAccessList."""
-
-    account_changes = []
-    for ssz_account in ssz_data[0]:  # First field is List[AccountChanges]
-        address = bytes(ssz_account[0])
-
-        # Storage changes
-        storage_changes = []
-        for ssz_slot_changes in ssz_account[1]:
-            slot = bytes(ssz_slot_changes[0])
-            changes = []
-            for ssz_change in ssz_slot_changes[1]:
-                changes.append(
-                    StorageChange(
-                        tx_index=int(ssz_change[0]), new_value=bytes(ssz_change[1])
-                    )
-                )
-            storage_changes.append(SlotChanges(slot=slot, changes=changes))
-
-        # Storage reads
-        storage_reads = []
-        for ssz_slot_read in ssz_account[2]:
-            storage_reads.append(SlotRead(slot=bytes(ssz_slot_read)))
-
-        # Balance changes
-        balance_changes = []
-        for ssz_balance_change in ssz_account[3]:
-            balance_changes.append(
-                BalanceChange(
-                    tx_index=int(ssz_balance_change[0]),
-                    post_balance=int(ssz_balance_change[1]),
-                )
-            )
-
-        # Nonce changes
-        nonce_changes = []
-        for ssz_nonce_change in ssz_account[4]:
-            nonce_changes.append(
-                NonceChange(
-                    tx_index=int(ssz_nonce_change[0]),
-                    new_nonce=int(ssz_nonce_change[1]),
-                )
-            )
-
-        # Code changes
-        code_changes = []
-        for ssz_code_change in ssz_account[5]:
-            code_changes.append(
-                CodeChange(
-                    tx_index=int(ssz_code_change[0]), new_code=bytes(ssz_code_change[1])
-                )
-            )
-
-        account_changes.append(
-            AccountChanges(
-                address=address,
-                storage_changes=storage_changes,
-                storage_reads=storage_reads,
-                balance_changes=balance_changes,
-                nonce_changes=nonce_changes,
-                code_changes=code_changes,
-            )
-        )
-
-    return BlockAccessList(account_changes=account_changes)
-
-
-def deserialize(data: bytes) -> BlockAccessList:
-    """Deserialize bytes to a BlockAccessList."""
-    ssz_sedes = get_bal_ssz_sedes()
-    ssz_data = ssz_sedes.deserialize(data)
-    return _convert_ssz_to_bal(ssz_data)
+    # Encode using SSZ
+    return ssz.encode((account_tuples,), _block_access_list)

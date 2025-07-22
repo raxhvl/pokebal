@@ -11,7 +11,7 @@ StorageKey = bytes
 StorageValue = bytes
 Bytecode = bytes
 # Numeric types
-Balance = int
+Balance = bytes
 TxIndex = int
 Nonce = int
 
@@ -37,7 +37,7 @@ class BalanceChange(BaseModel):
     """Balance change for a specific transaction."""
 
     tx_index: TxIndex
-    post_balance: Balance = 0
+    post_balance: Balance = b"\x00" * 16
 
 
 class NonceChange(BaseModel):
@@ -63,18 +63,12 @@ class SlotChanges(BaseModel):
     changes: List[StorageChange] = Field(default=[], max_length=MAX_TXS)
 
 
-class SlotRead(BaseModel):
-    """Storage slot read information."""
-
-    slot: StorageKey
-
-
 class AccountChanges(BaseModel):
     """Account changes information per EIP-7928."""
 
     address: Address
     storage_changes: List[SlotChanges] = Field(default=[], max_length=MAX_SLOTS)
-    storage_reads: List[SlotRead] = Field(default=[], max_length=MAX_SLOTS)
+    storage_reads: List[StorageKey] = Field(default=[], max_length=MAX_SLOTS)
     balance_changes: List[BalanceChange] = Field(default=[], max_length=MAX_TXS)
     nonce_changes: List[NonceChange] = Field(default=[], max_length=MAX_TXS)
     code_changes: List[CodeChange] = Field(default=[], max_length=MAX_TXS)
@@ -119,13 +113,6 @@ class BlockAccessList(BaseModel):
         new_change = StorageChange(tx_index=tx_index)
         slot_changes.changes.append(new_change)
         return new_change
-
-    def _slot_already_read(self, account: AccountChanges, slot: StorageKey) -> bool:
-        """Ensure slot read entry exists for given slot."""
-        for slot_read in account.storage_reads:
-            if slot_read.slot == slot:
-                return True
-        return False
 
     def _get_balance_change_for_tx(
         self, account: AccountChanges, tx_index: TxIndex
@@ -190,8 +177,8 @@ class BlockAccessList(BaseModel):
     ):
         """Add a storage read by a block."""
         account = self._get_account(address)
-        if not self._slot_already_read(account, slot):
-            account.storage_reads.append(SlotRead(slot=slot))
+        if slot not in account.storage_reads:
+            account.storage_reads.append(slot)
 
     def add_balance_change(
         self,
@@ -233,5 +220,14 @@ class BlockAccessList(BaseModel):
         code_change.new_code = new_code
 
     def serialize(self) -> bytes:
-        """Encode BlockAccessList to SSZ format."""
-        return b"TODO"
+        """Encode BlockAccessList to SSZ format.
+
+        Note: To avoid circular imports, use the serialize function
+        from pokebal.bal.serialization directly:
+
+        from pokebal.bal.serialization import serialize
+        serialized = serialize(block_access_list)
+        """
+        raise NotImplementedError(
+            "Use pokebal.bal.serialization.serialize(self) to avoid circular imports"
+        )
