@@ -4,7 +4,6 @@ from ssz.sedes import (
     ByteVector,
     Container,
     List,
-    uint128,
     uint64,
     uint16,
 )

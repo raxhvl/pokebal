@@ -17,33 +17,8 @@ from pokebal.bal.serialization import (
     _transform_slot_changes,
     _transform_account_changes,
 )
-from typing import Any
 from pokebal.common.hex_utils import encode_balance
-
-
-def normalize_to_bytes(data: Any) -> Any:
-    if isinstance(data, dict):
-        return {k: normalize_to_bytes(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [normalize_to_bytes(elem) for elem in data]
-    elif isinstance(data, str):
-        original_string = data
-        hex_part = original_string
-
-        if original_string.lower().startswith("0x"):
-            hex_part = original_string[2:]
-
-        if not all(c in "0123456789abcdefABCDEF" for c in hex_part):
-            return original_string
-
-        try:
-            if len(hex_part) % 2 != 0:
-                hex_part = "0" + hex_part
-            return bytes.fromhex(hex_part)
-        except ValueError:
-            return original_string
-    else:
-        return data
+from pokebal.common.test_utils import normalize_to_bytes
 
 
 def test_transform_storage_change():
@@ -123,7 +98,7 @@ def test_complex_block_access_list_serialization():
 
 
 def test_fixture_data_serialization():
-    fixtures_path = Path(__file__).parent.parent / "fixtures" / "22615532.json"
+    fixtures_path = Path(__file__).parent.parent / "fixtures" / "bal" / "22615532.json"
     with open(fixtures_path) as f:
         data = json.load(f)
         normalized_data = normalize_to_bytes(data)
@@ -139,8 +114,8 @@ def test_fixture_data_serialization():
 def test_fixture_ssz_validation():
     """Test that our serialized SSZ matches the expected .ssz fixture file."""
     fixtures_dir = Path(__file__).parent.parent / "fixtures"
-    json_path = fixtures_dir / "22615532.json"
-    ssz_path = fixtures_dir / "22615532.ssz"
+    json_path = fixtures_dir / "bal" / "22615532.json"
+    ssz_path = fixtures_dir / "bal" / "22615532.ssz"
 
     # Load and parse JSON fixture
     with open(json_path) as f:

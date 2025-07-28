@@ -66,7 +66,7 @@ class TestTransactionTrace:
     def sample_trace_data(self):
         """Load sample trace data from fixtures."""
         fixtures_path = (
-            Path(__file__).parent.parent / "fixtures" / "trace_22739638.json"
+            Path(__file__).parent.parent / "fixtures" / "trace" / "22739638.json"
         )
         with open(fixtures_path) as f:
             data = json.load(f)
@@ -115,7 +115,7 @@ class TestBlockDebugTraceResult:
     def sample_block_data(self):
         """Load complete sample block data."""
         fixtures_path = (
-            Path(__file__).parent.parent / "fixtures" / "trace_22739638.json"
+            Path(__file__).parent.parent / "fixtures" / "trace" / "22739638.json"
         )
         with open(fixtures_path) as f:
             return json.load(f)

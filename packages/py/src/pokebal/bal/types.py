@@ -1,6 +1,6 @@
 """Types for Block Level Access Lists (EIP-7928)."""
 
-from typing import List
+from typing import List, Callable, Optional
 from pydantic import BaseModel, Field
 from .basic import (
     MAX_ACCOUNTS,
@@ -229,12 +229,18 @@ class BlockAccessList(BaseModel):
         # Return new sorted instance
         return BlockAccessList(account_changes=new_accounts)
 
-    def serialize(self, sort: bool = True) -> bytes:
-        """Serialize the BlockAccessList to SSZ bytes.
+    def serialize(
+        self, 
+        sort: bool = True, 
+        serializer: Optional[Callable[["BlockAccessList"], bytes]] = None
+    ) -> bytes:
+        """Serialize the BlockAccessList to bytes.
 
         Args:
             sort: Whether to sort the data according to EIP-7928 requirements before serialization.
                  Defaults to True.
+            serializer: Optional serializer function. If None, uses default SSZ serialization.
         """
         bal_to_serialize = self.sort() if sort else self
-        return to_ssz(bal_to_serialize)
+        serializer_func = serializer or to_ssz
+        return serializer_func(bal_to_serialize)
