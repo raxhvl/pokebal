@@ -5,12 +5,11 @@ import json
 import time
 import sys
 from pathlib import Path
-from typing import Callable, Dict, Any
 from statistics import mean, stdev
-
+from snappy import compress
 
 from pokebal.bal.types import BlockAccessList
-from pokebal.bal.serialization_v2 import to_ssz_v2
+from pokebal.bal.serialization_v2 import to_ssz_group_by_tx
 from pokebal.common.test_utils import normalize_to_bytes
 
 
@@ -30,8 +29,11 @@ def benchmark_single_file(fixture_path: Path):
 
         # Define serializers
         serializers = [
-            (lambda b: b.serialize(), "Default (to_ssz)"),
-            (lambda b: b.serialize(serializer=to_ssz_v2), "V2 (to_ssz_v2)"),
+            (lambda b: b.serialize(), "Baseline"),
+            (
+                lambda b: b.serialize(serializer=to_ssz_group_by_tx),
+                "Group by transaction",
+            ),
         ]
 
         # Single execution timing
@@ -49,6 +51,7 @@ def benchmark_single_file(fixture_path: Path):
                     "serializer": name,
                     "execution_time_ms": round(execution_time, 4),
                     "output_size_bytes": len(result),
+                    "compressed_size_bytes": len(compress(result)),
                 }
                 results.append(metrics)
 
@@ -74,20 +77,32 @@ def print_summary(all_results: list):
     for result in all_results:
         serializer = result["serializer"]
         if serializer not in serializer_stats:
-            serializer_stats[serializer] = {"sizes": [], "times": []}
+            serializer_stats[serializer] = {
+                "sizes": [],
+                "times": [],
+                "compressed_sizes": [],
+            }
         serializer_stats[serializer]["sizes"].append(result["output_size_bytes"])
+        serializer_stats[serializer]["compressed_sizes"].append(
+            result["compressed_size_bytes"]
+        )
         serializer_stats[serializer]["times"].append(result["execution_time_ms"])
 
     print("\n" + "=" * 60)
     print("📊 SERIALIZATION COMPARISON")
     print("=" * 60)
-    print(f"{'Serializer':<20} {'Avg Size (KB)':<15} {'Avg Time (ms)':<15}")
+    print(
+        f"{'Serializer':<20} {'Avg Size (KB)':<15} {'Compressed Avg Size (KB)':<15} {'Avg Time (ms)':<15}"
+    )
     print("-" * 60)
 
     for serializer, stats in serializer_stats.items():
         avg_size_kb = mean(stats["sizes"]) / 1024
+        avg_compressed_size_kb = mean(stats["compressed_sizes"]) / 1024
         avg_time_ms = mean(stats["times"])
-        print(f"{serializer:<20} {avg_size_kb:<15.2f} {avg_time_ms:<15.4f}")
+        print(
+            f"{serializer:<20} {avg_size_kb:<15.2f}  {avg_compressed_size_kb:<15.2f} {avg_time_ms:<15.4f}"
+        )
 
 
 def main():
