@@ -29,10 +29,9 @@ def _transform_storage_change(change: StorageChange) -> tuple[int, bytes]:
     return (change.tx_index, change.new_value)
 
 
-def _transform_balance_change(change: BalanceChange) -> tuple[int, int]:
+def _transform_balance_change(change: BalanceChange) -> tuple[int, bytes]:
     """Transform BalanceChange to SSZ-compatible tuple."""
-    balance_int = int.from_bytes(change.post_balance, byteorder="little")
-    return (change.tx_index, balance_int)
+    return (change.tx_index, change.post_balance)
 
 
 def _transform_nonce_change(change: NonceChange) -> tuple[int, int]:
@@ -79,7 +78,7 @@ def to_ssz(bal) -> bytes:
     _code_data = ByteList(MAX_CODE_SIZE)
     _tx_index = uint16
     _nonce = uint64
-    _balance = uint128
+    _balance = ByteVector(16)
 
     # StorageChange sedes
     _storage_change = Container(field_sedes=[_tx_index, _storage_value])

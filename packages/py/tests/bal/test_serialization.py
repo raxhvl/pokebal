@@ -18,6 +18,7 @@ from pokebal.bal.serialization import (
     _transform_account_changes,
 )
 from typing import Any
+from pokebal.common.hex_utils import encode_balance
 
 
 def normalize_to_bytes(data: Any) -> Any:
@@ -52,10 +53,10 @@ def test_transform_storage_change():
 
 
 def test_transform_balance_change():
-    balance_bytes = (123456).to_bytes(16, byteorder="little")
+    balance_bytes = encode_balance(123456)
     change = BalanceChange(tx_index=42, post_balance=balance_bytes)
     result = _transform_balance_change(change)
-    assert result == (42, 123456)
+    assert result == (42, balance_bytes)
 
 
 def test_transform_nonce_change():
@@ -102,9 +103,7 @@ def test_complex_block_access_list_serialization():
     storage_change = StorageChange(tx_index=1, new_value=b"\xaa" * 32)
     slot_changes = SlotChanges(slot=b"\xbb" * 32, changes=[storage_change])
 
-    balance_change = BalanceChange(
-        tx_index=2, post_balance=(1000).to_bytes(16, "little")
-    )
+    balance_change = BalanceChange(tx_index=2, post_balance=encode_balance(1000))
     nonce_change = NonceChange(tx_index=3, new_nonce=5)
     code_change = CodeChange(tx_index=4, new_code=b"\x60\x80")
 

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from pokebal.common.types import EVM_ZERO_WORD
 from typing import List
+from pokebal.common.hex_utils import encode_balance
 
 # Type aliases for bytes - keeping semantic meaning
 Address = bytes
@@ -35,7 +36,7 @@ class BalanceChange(BaseModel):
     """Balance change for a specific transaction."""
 
     tx_index: TxIndex
-    post_balance: Balance = b"\x00" * 16
+    post_balance: Balance = encode_balance(0)
 
 
 class NonceChange(BaseModel):
