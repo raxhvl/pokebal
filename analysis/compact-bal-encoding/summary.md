@@ -16,7 +16,7 @@ This overhead is especially noticeable in read‑only operations such as `EXTCOD
 
 For the analyzed block range about **68%** transactions accessed only 1 field.
 
-| Fields touched in header | Share of transactions |
+| Number of fields touched | Share of transactions |
 | ------------------------ | --------------------- |
 | 1 field                  | **68.4 %**            |
 | 2 fields                 | **31.5 %**            |
