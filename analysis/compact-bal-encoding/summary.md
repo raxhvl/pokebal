@@ -1,7 +1,7 @@
 # A compact BAL encoding
 
 TODO: stat
-TLDR: A compact BAL encoding cuts size by **≈ 40 %** with no loss of information.
+TLDR: A compact BAL encoding cuts size by **≈ X %** with no loss of information.
 
 ## Introduction
 
@@ -12,6 +12,8 @@ The current schema suffers from two main inefficiencies:
 2. **Null overhead** – Most transactions do not touch every account field, so empty change‑sets add unnecessary bytes.
 
 This overhead is especially noticeable in read‑only operations such as `EXTCODEHASH`, which populate none of the account fields.
+
+![Inefficiencies](./possible-bal-optimization.jpg)
 
 For the analyzed block range about **68%** transactions accessed only 1 field.
 
@@ -122,8 +124,8 @@ XX blocks were analyzed to compare between the baseline schema with the proposed
 
 TODO:
 
-- Block range X – Y processed with benchmark.py.
-- Generated both formats from the same state traces.
+- Blocks: `range(20615532, 20616032, 10)`: Total 50 blocks, with an interval of 10.
+- Baseline ssz generated using [eth-bal-analysis](https://github.com/nerolation/eth-bal-analysis/tree/5840b380b0764b3005dcc61937ef2bc4ae4f4f98) tool.
 - Compressed each BAL with Snappy; measured byte size; recorded CSV.
 - Scripts and raw data live in analysis/ for reproducibility.
 
