@@ -1,6 +1,5 @@
 # A compact BAL encoding
 
-TODO: stat
 TLDR: A compact BAL encoding cuts size by **≈ 27%** with no loss of information.
 
 ## Introduction
@@ -139,8 +138,6 @@ BlockAccessList = Container[
 |     **Compact**     | 56.82 | 34.44 | 39.4% |
 
 ## Methodology
-
-TODO:
 
 - Blocks: `range(20615532, 20616032, 10)`: Total 50 blocks, with an interval of 10.
 - Baseline ssz generated using [eth-bal-analysis](https://github.com/nerolation/eth-bal-analysis/tree/5840b380b0764b3005dcc61937ef2bc4ae4f4f98) tool.
