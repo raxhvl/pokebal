@@ -118,7 +118,25 @@ BlockAccessList = Container[
 
 ## Analysis
 
-XX blocks were analyzed to compare between the baseline schema with the proposed one.
+### Average Size
+
+| **Baseline** | **Baseline (🗜️Compressed)** | **Compact** | **Compact (🗜️Compressed)** | **% Savings (Compressed)** |
+| :---------------: | :-------------------------------: | :--------------: | :------------------------------: | :--------------------------: |
+|                   |                                   |                  |                                  |                              |
+
+## Size distribution
+
+|   **Format**  | **Min (KB)** | **P25 (KB)** | **Median (KB)** | **P75 (KB)** | **Max (KB)** |
+| :-----------: | :----------: | :----------: | :-------------: | :----------: | :----------: |
+|  **Baseline** |              |     |         |     |      |
+|  **Compact** |              |     |         |     |      |
+
+## Compression efficiency
+
+|     **Version**     | **Uncompressed (KB)** | **Compressed (🗜️) (KB)** | **Compression Efficiency (%)** |
+| :-----------------: | :-------------------: | :-----------------------: | :----------------------------: |
+|     **Baseline**    |                       |                           |                                |
+|     **Compact**     |                       |                           |                                |
 
 ## Methodology
 
@@ -126,8 +144,8 @@ TODO:
 
 - Blocks: `range(20615532, 20616032, 10)`: Total 50 blocks, with an interval of 10.
 - Baseline ssz generated using [eth-bal-analysis](https://github.com/nerolation/eth-bal-analysis/tree/5840b380b0764b3005dcc61937ef2bc4ae4f4f98) tool.
-- Compressed each BAL with Snappy; measured byte size; recorded CSV.
-- Scripts and raw data live in analysis/ for reproducibility.
+- Compression format: Snappy.
+- See [Readme](./README.md) for instructions to run the benchmarks.
 
 ## Recommendation: Version and compression bytes
 
