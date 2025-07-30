@@ -9,9 +9,18 @@ The current schema suffers from two main inefficiencies:
 
 1. **Duplicate transaction indices** – the transaction index is repeated for every field of every touched account.
 
-2. **Null overhead** – most transactions do not touch every account field, so empty change‑sets add unnecessary bytes.
+2. **Null overhead** – Most transactions do not touch every account field, so empty change‑sets add unnecessary bytes.
 
 This overhead is especially noticeable in read‑only operations such as `EXTCODEHASH`, which populate none of the account fields.
+
+For the analyzed block range about **68%** transactions accessed only 1 field.
+
+| Fields touched in header | Share of transactions |
+| ------------------------ | --------------------- |
+| 1 field                  | **68.4 %**            |
+| 2 fields                 | **31.5 %**            |
+| 3 fields                 | **0.1 %**             |
+| All 4 fields             | **0.0 %**             |
 
 ## A compact BAL schema
 
@@ -39,7 +48,7 @@ Each `Interaction` captures side-effects of a transaction:
 ```
 
 - `NonceUpdate`, `BalanceUpdate`, `CodeUpdate`, and `StorageUpdate` interactions store the post-state values.
-StorageRead explicitly lists accessed slots without `value` updates.
+  StorageRead explicitly lists accessed slots without `value` updates.
 - `AccountDelete` flags account removal, clearly distinguishing deletion from field resets.
 
 These interactions are first grouped by transactions, then by account, and finally aggregated at block level:
@@ -65,7 +74,7 @@ MAX_INTERACTIONS = 6 # Maximum kind of interaction for an account as defined by 
 
 # --- Base Type ---
 Address = Bytes20  # 20-byte Ethereum address
-StorageKey = Bytes32  # 32-byte storage slot key  
+StorageKey = Bytes32  # 32-byte storage slot key
 StorageValue = Bytes32  # 32-byte storage value
 Bytecode = List[byte, MAX_CODE_SIZE]  # Variable-length contract bytecode
 TxIndex = uint16  # Transaction index within block (max 65,535)
@@ -91,12 +100,12 @@ Interaction = Union[
 ]
 
 TransactionInteractions = Container[
-    TxIndex,                             
+    TxIndex,
     List[Interaction, MAX_INTERACTIONS]
 ]
 
 TouchedAccount = Container[
-    Address,                           
+    Address,
     List[TransactionInteractions, MAX_TXS]
 ]
 
@@ -133,9 +142,9 @@ This can also be extended further to encode compression information byte
 VERSION_BYTE || COMPRESSION_BYTE || ssz(BlockAccessList)
 ```
 
-| Byte                  | Value | Meaning           |
-| --------------------- | ----- | ----------------- |
-| **VERSION\_BYTE**     | 0x00  | Draft (this spec) |
-|                       | 0x01  | Initial release   |
-| **COMPRESSION\_BYTE** | 0x00  | Uncompressed      |
-|                       | 0x01  | Snappy‑compressed |
+| Byte                 | Value | Meaning           |
+| -------------------- | ----- | ----------------- |
+| **VERSION_BYTE**     | 0x00  | Draft (this spec) |
+|                      | 0x01  | Initial release   |
+| **COMPRESSION_BYTE** | 0x00  | Uncompressed      |
+|                      | 0x01  | Snappy‑compressed |
