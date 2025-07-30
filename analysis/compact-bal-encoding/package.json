@@ -1,0 +1,20 @@
+{
+  "name": "compact-bal-encoding",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "benchmark": "tsx src/benchmark.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@chainsafe/ssz": "^1.2.1",
+    "@types/node": "^24.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
