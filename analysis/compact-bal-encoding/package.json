@@ -13,6 +13,7 @@
   "dependencies": {
     "@chainsafe/ssz": "^1.2.1",
     "@types/node": "^24.1.0",
+    "snappy": "^7.3.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"

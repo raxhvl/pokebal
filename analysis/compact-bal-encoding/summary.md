@@ -1,7 +1,7 @@
 # A compact BAL encoding
 
 TODO: stat
-TLDR: A compact BAL encoding cuts size by **≈ X %** with no loss of information.
+TLDR: A compact BAL encoding cuts size by **≈ 27%** with no loss of information.
 
 ## Introduction
 
@@ -121,22 +121,22 @@ BlockAccessList = Container[
 ### Average Size
 
 | **Baseline** | **Baseline (🗜️Compressed)** | **Compact** | **Compact (🗜️Compressed)** | **% Savings (Compressed)** |
-| :---------------: | :-------------------------------: | :--------------: | :------------------------------: | :--------------------------: |
-|                   |                                   |                  |                                  |                              |
+| :----------: | :---------------------------: | :---------: | :-------------------------: | :-------------------------: |
+| 78.33 KiB | 47.62 KiB | 56.82 KiB | 34.44 KiB | **27.7%** |
 
-## Size distribution
+### Size Distribution
 
-|   **Format**  | **Min (KB)** | **P25 (KB)** | **Median (KB)** | **P75 (KB)** | **Max (KB)** |
-| :-----------: | :----------: | :----------: | :-------------: | :----------: | :----------: |
-|  **Baseline** |              |     |         |     |      |
-|  **Compact** |              |     |         |     |      |
+|   **Format**  | **Min (KiB)** | **P25 (KiB)** | **Median (KiB)** | **P75 (KiB)** | **Max (KiB)** |
+| :-----------: | :-----------: | :-----------: | :--------------: | :-----------: | :-----------: |
+|  **Baseline** | 0.00 | 54.42 | 76.16 | 90.77 | 173.35 |
+|  **Compact**  | 0.00 | 40.05 | 51.63 | 65.43 | 157.53 |
 
-## Compression efficiency
+### Compression Efficiency
 
-|     **Version**     | **Uncompressed (KB)** | **Compressed (🗜️) (KB)** | **Compression Efficiency (%)** |
-| :-----------------: | :-------------------: | :-----------------------: | :----------------------------: |
-|     **Baseline**    |                       |                           |                                |
-|     **Compact**     |                       |                           |                                |
+|     **Version**     | **Uncompressed (KiB)** | **Compressed (🗜️) (KiB)** | **Compression Efficiency (%)** |
+| :-----------------: | :--------------------: | :-----------------------: | :----------------------------: |
+|     **Baseline**    | 78.33 | 47.62 | 39.2% |
+|     **Compact**     | 56.82 | 34.44 | 39.4% |
 
 ## Methodology
 
