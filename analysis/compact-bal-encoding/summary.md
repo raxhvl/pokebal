@@ -77,10 +77,10 @@ MAX_INTERACTIONS = 6 # Maximum kind of interaction for an account as defined by 
 Address = Bytes20  # 20-byte Ethereum address
 StorageKey = Bytes32  # 32-byte storage slot key
 StorageValue = Bytes32  # 32-byte storage value
-Bytecode = List[byte, MAX_CODE_SIZE]  # Variable-length contract bytecode
+BytecodeUpdate = List[byte, MAX_CODE_SIZE]  # Variable-length contract bytecode
 TxIndex = uint16  # Transaction index within block (max 65,535)
-Balance = uint128  # Post-transaction balance in wei (16 bytes, sufficient for total ETH supply)
-Nonce = uint64  # Account nonce
+BalanceUpdate = uint128  # Post-transaction balance in wei (16 bytes, sufficient for total ETH supply)
+NonceUpdate = uint64  # Account nonce
 AccountDeleted = Boolean
 
 StorageWrite = Container[
@@ -92,12 +92,12 @@ StorageUpdates = List[StorageWrite, MAX_SLOTS]
 StorageReads   = List[StorageKey, MAX_SLOTS]
 
 Interaction = Union[
-    Nonce,                 # Nonce Update
-    Balance,               # Balance Update
-    Bytecode,              # Code Update
-    StorageUpdates,        # Storage Update
-    StorageReadList,       # Storage Read
-    AccountDeleted         # Account Deletion
+    NonceUpdate,                 # Nonce Update
+    BalanceUpdate,               # Balance Update
+    BytecodeUpdate,              # Code Update
+    StorageUpdates,              # Storage Update
+    StorageRead,                 # Storage Read
+    AccountDeleted               # Account Deletion
 ]
 
 TransactionInteractions = Container[
