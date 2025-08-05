@@ -4,6 +4,7 @@ TLDR: A compact BAL encoding cuts size by **≈ 27%** with no loss of inform
 
 ## Introduction
 
+
 The current schema suffers from two main inefficiencies:
 
 1. **Duplicate transaction indices** – the transaction index is repeated for every field of every touched account.
@@ -24,6 +25,8 @@ For the analyzed block range about **68%** transactions accessed only 1 field.
 | All 4 fields             | **0.0 %**             |
 
 ## A compact BAL schema
+
+The foundation of this optimization is built on a simple premise: Pack all account interactions (read / writes) in an ssz union type.
 
 > A Block Access List as a **structured collection** of all account interactions—reads, state updates, and deletions—performed by transactions in a block.
 
