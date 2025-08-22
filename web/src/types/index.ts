@@ -2,7 +2,7 @@ export interface Test {
   id: string;
   name: string;
   description: string;
-  category: string;
+  results: Record<string, "pass" | "fail" | "not_implemented">;
 }
 
 export interface Client {
@@ -11,11 +11,12 @@ export interface Client {
   language: string;
   website: string;
   logo?: string;
-  testResults: Record<string, "pass" | "fail" | "not_implemented">;
 }
 
-export interface ClientsData {
+export interface TestResults {
   spec: string;
+  lastUpdated: string;
   tests: Test[];
-  clients: Client[];
 }
+
+export type Clients = Client[];

@@ -1,0 +1,90 @@
+{
+  "spec": "Block Access Lists (BAL) - EIP-7928",
+  "lastUpdated": "2025-08-15T10:30:00Z",
+  "tests": [
+    {
+      "id": "bal_nonce_changes",
+      "name": "BAL Nonce Changes",
+      "description": "Ensure BAL captures changes to nonce",
+      "results": {
+        "geth": "pass",
+        "nethermind": "not_implemented",
+        "besu": "pass",
+        "erigon": "pass",
+        "reth": "fail"
+      }
+    },
+    {
+      "id": "bal_balance_changes",
+      "name": "BAL Balance Changes",
+      "description": "Ensure BAL captures changes to balance",
+      "results": {
+        "geth": "pass",
+        "nethermind": "not_implemented",
+        "besu": "pass",
+        "erigon": "pass",
+        "reth": "pass"
+      }
+    },
+    {
+      "id": "bal_storage_writes",
+      "name": "BAL Storage Writes",
+      "description": "Ensure BAL captures storage writes",
+      "results": {
+        "geth": "fail",
+        "nethermind": "not_implemented",
+        "besu": "pass",
+        "erigon": "pass",
+        "reth": "pass"
+      }
+    },
+    {
+      "id": "bal_storage_reads",
+      "name": "BAL Storage Reads",
+      "description": "Ensure BAL captures storage reads",
+      "results": {
+        "geth": "pass",
+        "nethermind": "not_implemented",
+        "besu": "fail",
+        "erigon": "pass",
+        "reth": "pass"
+      }
+    },
+    {
+      "id": "bal_code_changes",
+      "name": "BAL Code Changes",
+      "description": "Ensure BAL captures changes to account code",
+      "results": {
+        "geth": "fail",
+        "nethermind": "not_implemented",
+        "besu": "pass",
+        "erigon": "fail",
+        "reth": "pass"
+      }
+    },
+    {
+      "id": "bal_2930_slot_listed_but_untouched",
+      "name": "EIP-2930 Slot Listed But Untouched",
+      "description": "Ensure 2930 access list alone doesn't appear in BAL",
+      "results": {
+        "geth": "pass",
+        "nethermind": "not_implemented",
+        "besu": "fail",
+        "erigon": "pass",
+        "reth": "pass"
+      }
+    },
+    {
+      "id": "bal_2930_slot_listed_and_modified",
+      "name": "EIP-2930 Slot Listed And Modified",
+      "description": "Ensure BAL records writes only because the slot is touched",
+      "results": {
+        "geth": "pass",
+        "nethermind": "not_implemented",
+        "besu": "pass",
+        "erigon": "fail",
+        "reth": "pass"
+      }
+    }
+  ]
+}

@@ -5,9 +5,10 @@ interface MobileTestCardProps {
   test: Test;
   clients: Client[];
   testIndex: number;
+  lastUpdated?: string;
 }
 
-export default function MobileTestCard({ test, clients, testIndex }: MobileTestCardProps) {
+export default function MobileTestCard({ test, clients, testIndex, lastUpdated }: MobileTestCardProps) {
   return (
     <div
       className="rounded-xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-xl p-4"
@@ -31,7 +32,7 @@ export default function MobileTestCard({ test, clients, testIndex }: MobileTestC
               {client.name}
             </span>
             <div className="flex justify-center">
-              <StatusIcon status={client.testResults[test.id]} size="small" />
+              <StatusIcon status={test.results[client.id]} size="small" />
             </div>
           </div>
         ))}

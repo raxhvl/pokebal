@@ -1,24 +1,35 @@
 import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
 import { Test, Client } from "../types";
+import { formatDate } from "../utils/dateFormat";
 
 interface TestResultsTableProps {
   tests: Test[];
   clients: Client[];
+  lastUpdated: string;
 }
 
-export default function TestResultsTable({ tests, clients }: TestResultsTableProps) {
+export default function TestResultsTable({
+  tests,
+  clients,
+  lastUpdated,
+}: TestResultsTableProps) {
   return (
-    <div className="hidden lg:block overflow-x-auto">
+    <div className="hidden lg:block overflow-x-auto max-w-full">
       <div className="rounded-2xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-2xl">
-        <div className="overflow-hidden rounded-2xl">
-          <table className="w-full border-collapse">
+        <div className="overflow-x-auto overflow-y-auto max-h-[70vh] rounded-2xl">
+          <table className="w-full border-collapse min-w-full">
             <thead>
               <tr className="bg-white/10 dark:bg-gray-800/15 border-b border-white/30 dark:border-gray-500/40">
                 <th className="p-4 text-left font-mono text-sm">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mb-1">
                     <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse shadow-sm"></div>
-                    <span className="font-bold text-gray-800 dark:text-gray-100">Test Suite</span>
+                    <span className="font-bold text-gray-800 dark:text-gray-100">
+                      Test Cases
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                    Updated {formatDate(lastUpdated)}
                   </div>
                 </th>
                 {clients.map((client, index) => (
@@ -30,8 +41,14 @@ export default function TestResultsTable({ tests, clients }: TestResultsTablePro
                     <div className="transform transition-all duration-300 group-hover:scale-105">
                       <div className="bg-white/25 dark:bg-gray-800/35 backdrop-blur-md px-3 py-1 rounded-lg border border-white/40 dark:border-gray-500/50 shadow-lg">
                         <div className="flex items-center space-x-2">
-                          <ClientLogo logo={client.logo} name={client.name} size="small" />
-                          <span className="font-bold text-gray-800 dark:text-gray-100">{client.name}</span>
+                          <ClientLogo
+                            logo={client.logo}
+                            name={client.name}
+                            size="small"
+                          />
+                          <span className="font-bold text-gray-800 dark:text-gray-100">
+                            {client.name}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -62,7 +79,10 @@ export default function TestResultsTable({ tests, clients }: TestResultsTablePro
                       className="p-4 text-center border-l border-white/15 dark:border-gray-500/25"
                     >
                       <div className="flex justify-center">
-                        <StatusIcon status={client.testResults[test.id]} size="large" />
+                        <StatusIcon
+                          status={test.results[client.id]}
+                          size="large"
+                        />
                       </div>
                     </td>
                   ))}

@@ -1,4 +1,5 @@
 import StatusIcon from "./StatusIcon";
+import { Github } from "lucide-react";
 
 interface LegendItemProps {
   status: "pass" | "fail" | "not_implemented";
@@ -21,22 +22,37 @@ function LegendItem({ status, label, hoverColor }: LegendItemProps) {
 
 export default function Legend() {
   return (
-    <div className="mt-8 flex flex-wrap justify-center items-center gap-4 sm:gap-8">
-      <LegendItem 
-        status="pass" 
-        label="Passing" 
-        hoverColor="group-hover:text-green-600 dark:group-hover:text-green-400" 
-      />
-      <LegendItem 
-        status="fail" 
-        label="Failing" 
-        hoverColor="group-hover:text-red-600 dark:group-hover:text-red-400" 
-      />
-      <LegendItem 
-        status="not_implemented" 
-        label="Not Implemented" 
-        hoverColor="group-hover:text-gray-600 dark:group-hover:text-gray-400" 
-      />
+    <div className="mt-8 space-y-6">
+      <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8">
+        <LegendItem 
+          status="pass" 
+          label="Passing" 
+          hoverColor="group-hover:text-green-600 dark:group-hover:text-green-400" 
+        />
+        <LegendItem 
+          status="fail" 
+          label="Failing" 
+          hoverColor="group-hover:text-red-600 dark:group-hover:text-red-400" 
+        />
+        <LegendItem 
+          status="not_implemented" 
+          label="Not Implemented" 
+          hoverColor="group-hover:text-gray-600 dark:group-hover:text-gray-400" 
+        />
+      </div>
+      
+      {/* Contribute link */}
+      <div className="flex justify-center">
+        <a 
+          href="https://github.com/raxhvl/pokebal"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-white/10 dark:bg-gray-800/20 border border-white/30 dark:border-gray-500/40 text-lime-500 hover:text-lime-400 hover:bg-white/15 dark:hover:bg-gray-800/30 transition-all duration-200 backdrop-blur-md group"
+        >
+          <Github size={16} className="group-hover:scale-110 transition-transform duration-200" />
+          <span className="font-mono text-sm">Add more test cases</span>
+        </a>
+      </div>
     </div>
   );
 }
