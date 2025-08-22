@@ -6,6 +6,7 @@ import { TestResults, Clients } from "../types";
 import testResultsData from "../data/test_results.json";
 import clientsData from "../data/clients.json";
 import { formatDate } from "../utils/dateFormat";
+import { Github } from "lucide-react";
 
 export default function Home() {
   const { tests, lastUpdated } = testResultsData as TestResults;
@@ -48,6 +49,8 @@ export default function Home() {
           </p>
         </div>
 
+        <Legend />
+
         <TestResultsTable
           tests={tests}
           clients={clients}
@@ -77,8 +80,21 @@ export default function Home() {
             ))}
           </div>
         </div>
-
-        <Legend />
+        {/* Contribute link */}
+        <div className="flex justify-center m-6">
+          <a
+            href="https://github.com/raxhvl/pokebal"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-white/10 dark:bg-gray-800/20 border border-white/30 dark:border-gray-500/40 text-lime-500 hover:text-lime-400 hover:bg-white/15 dark:hover:bg-gray-800/30 transition-all duration-200 backdrop-blur-md group"
+          >
+            <Github
+              size={16}
+              className="group-hover:scale-110 transition-transform duration-200"
+            />
+            <span className="font-mono text-sm">Add more test cases</span>
+          </a>
+        </div>
       </div>
     </div>
   );
