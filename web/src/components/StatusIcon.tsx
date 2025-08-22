@@ -1,5 +1,5 @@
 interface StatusIconProps {
-  status: "pass" | "fail" | "not_implemented";
+  status: "pass" | "fail" | "pending";
   size?: "small" | "large";
 }
 
@@ -29,7 +29,16 @@ export default function StatusIcon({ status, size = "large" }: StatusIconProps) 
             </svg>
           )
         };
-      case "not_implemented":
+      case "pending":
+        return {
+          containerClass: `${containerSize} bg-gradient-to-br from-gray-300/80 to-gray-500/80 backdrop-blur-sm rounded-full flex items-center justify-center ${shadowClass} border border-white/30 transform transition-all duration-300 hover:scale-110`,
+          icon: (
+            <svg className={`${iconSize} text-white`} fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+            </svg>
+          )
+        };
+      default:
         return {
           containerClass: `${containerSize} bg-gradient-to-br from-gray-300/80 to-gray-500/80 backdrop-blur-sm rounded-full flex items-center justify-center ${shadowClass} border border-white/30 transform transition-all duration-300 hover:scale-110`,
           icon: (

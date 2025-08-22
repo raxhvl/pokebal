@@ -16,7 +16,7 @@ export default function MobileTestCard({ test, clients, testIndex, lastUpdated }
     >
       <div className="mb-4">
         <div className="font-mono text-sm font-medium text-gray-800 dark:text-gray-100 mb-1">
-          {test.name}
+          {test.id}
         </div>
         <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
           {test.description}

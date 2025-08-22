@@ -1,8 +1,10 @@
 export interface Test {
   id: string;
-  name: string;
   description: string;
-  results: Record<string, "pass" | "fail" | "not_implemented">;
+  setup: string;
+  expectation: string;
+  status: "completed" | "planned";
+  results: Record<string, "pass" | "fail" | "pending">;
 }
 
 export interface Client {
