@@ -1,17 +1,6 @@
 import StatusIcon from "./StatusIcon";
-
-interface Test {
-  id: string;
-  name: string;
-  description: string;
-}
-
-interface Client {
-  id: string;
-  name: string;
-  language: string;
-  testResults: Record<string, "pass" | "fail" | "not_implemented">;
-}
+import ClientLogo from "./ClientLogo";
+import { Test, Client } from "../types";
 
 interface TestResultsTableProps {
   tests: Test[];
@@ -40,7 +29,10 @@ export default function TestResultsTable({ tests, clients }: TestResultsTablePro
                   >
                     <div className="transform transition-all duration-300 group-hover:scale-105">
                       <div className="bg-white/25 dark:bg-gray-800/35 backdrop-blur-md px-3 py-1 rounded-lg border border-white/40 dark:border-gray-500/50 shadow-lg">
-                        <span className="font-bold text-gray-800 dark:text-gray-100">{client.name}</span>
+                        <div className="flex items-center space-x-2">
+                          <ClientLogo logo={client.logo} name={client.name} size="small" />
+                          <span className="font-bold text-gray-800 dark:text-gray-100">{client.name}</span>
+                        </div>
                       </div>
                     </div>
                   </th>

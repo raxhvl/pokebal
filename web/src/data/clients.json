@@ -8,21 +8,21 @@
       "category": "state_changes"
     },
     {
-      "id": "bal_balance_changes", 
+      "id": "bal_balance_changes",
       "name": "BAL Balance Changes",
       "description": "Ensure BAL captures changes to balance",
       "category": "state_changes"
     },
     {
       "id": "bal_storage_writes",
-      "name": "BAL Storage Writes", 
+      "name": "BAL Storage Writes",
       "description": "Ensure BAL captures storage writes",
       "category": "storage"
     },
     {
       "id": "bal_storage_reads",
       "name": "BAL Storage Reads",
-      "description": "Ensure BAL captures storage reads", 
+      "description": "Ensure BAL captures storage reads",
       "category": "storage"
     },
     {
@@ -38,7 +38,7 @@
       "category": "access_lists"
     },
     {
-      "id": "bal_2930_slot_listed_and_modified", 
+      "id": "bal_2930_slot_listed_and_modified",
       "name": "EIP-2930 Slot Listed And Modified",
       "description": "Ensure BAL records writes only because the slot is touched",
       "category": "access_lists"
@@ -50,9 +50,10 @@
       "name": "Geth",
       "language": "Go",
       "website": "https://geth.ethereum.org",
+      "logo": "/img/logos/geth.svg",
       "testResults": {
         "bal_nonce_changes": "pass",
-        "bal_balance_changes": "pass", 
+        "bal_balance_changes": "pass",
         "bal_storage_writes": "fail",
         "bal_storage_reads": "pass",
         "bal_code_changes": "fail",
@@ -62,13 +63,14 @@
     },
     {
       "id": "nethermind",
-      "name": "Nethermind", 
+      "name": "Nethermind",
       "language": "C#",
       "website": "https://nethermind.io",
+      "logo": "/img/logos/nethermind.svg",
       "testResults": {
         "bal_nonce_changes": "not_implemented",
         "bal_balance_changes": "not_implemented",
-        "bal_storage_writes": "not_implemented", 
+        "bal_storage_writes": "not_implemented",
         "bal_storage_reads": "not_implemented",
         "bal_code_changes": "not_implemented",
         "bal_2930_slot_listed_but_untouched": "not_implemented",
@@ -78,14 +80,15 @@
     {
       "id": "besu",
       "name": "Besu",
-      "language": "Java", 
+      "language": "Java",
       "website": "https://besu.hyperledger.org",
+      "logo": "/img/logos/besu.svg",
       "testResults": {
         "bal_nonce_changes": "pass",
         "bal_balance_changes": "pass",
         "bal_storage_writes": "pass",
         "bal_storage_reads": "fail",
-        "bal_code_changes": "pass", 
+        "bal_code_changes": "pass",
         "bal_2930_slot_listed_but_untouched": "fail",
         "bal_2930_slot_listed_and_modified": "pass"
       }
@@ -95,10 +98,11 @@
       "name": "Erigon",
       "language": "Go",
       "website": "https://erigon.tech",
+      "logo": "/img/logos/erigon.svg",
       "testResults": {
         "bal_nonce_changes": "pass",
         "bal_balance_changes": "pass",
-        "bal_storage_writes": "pass", 
+        "bal_storage_writes": "pass",
         "bal_storage_reads": "pass",
         "bal_code_changes": "fail",
         "bal_2930_slot_listed_but_untouched": "pass",
@@ -106,17 +110,18 @@
       }
     },
     {
-      "id": "reth", 
+      "id": "reth",
       "name": "Reth",
       "language": "Rust",
       "website": "https://reth.rs",
+      "logo": "/img/logos/reth.svg",
       "testResults": {
         "bal_nonce_changes": "fail",
         "bal_balance_changes": "pass",
         "bal_storage_writes": "pass",
         "bal_storage_reads": "pass",
         "bal_code_changes": "pass",
-        "bal_2930_slot_listed_but_untouched": "pass", 
+        "bal_2930_slot_listed_but_untouched": "pass",
         "bal_2930_slot_listed_and_modified": "pass"
       }
     }

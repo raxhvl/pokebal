@@ -1,17 +1,5 @@
 import StatusIcon from "./StatusIcon";
-
-interface Test {
-  id: string;
-  name: string;
-  description: string;
-}
-
-interface Client {
-  id: string;
-  name: string;
-  language: string;
-  testResults: Record<string, "pass" | "fail" | "not_implemented">;
-}
+import { Test, Client } from "../types";
 
 interface MobileTestCardProps {
   test: Test;

@@ -2,10 +2,11 @@ import DotGrid from "../components/DotGrid";
 import TestResultsTable from "../components/TestResultsTable";
 import MobileTestCard from "../components/MobileTestCard";
 import Legend from "../components/Legend";
+import { ClientsData } from "../types";
 import clientsData from "../data/clients.json";
 
 export default function Home() {
-  const { tests, clients } = clientsData;
+  const { tests, clients } = clientsData as ClientsData;
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 font-mono relative">
