@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "gsap": "^3.13.0",
     "lucide-react": "^0.517.0",
     "next": "15.3.3",
     "react": "^19.0.0",
