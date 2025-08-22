@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import DotGrid from "../components/DotGrid";
 import TestResultsTable from "../components/TestResultsTable";
 import MobileTestCard from "../components/MobileTestCard";
+import TestCaseDetailModal from "../components/TestCaseDetailModal";
 import Legend from "../components/Legend";
-import { TestResults, Clients } from "../types";
+import { TestResults, Clients, Test } from "../types";
 import testResultsData from "../data/test_results.json";
 import clientsData from "../data/clients.json";
 import { formatDate } from "../utils/dateFormat";
@@ -12,6 +16,19 @@ import { config } from "../config/app";
 export default function Home() {
   const { tests, lastUpdated } = testResultsData as TestResults;
   const clients = clientsData as Clients;
+
+  const [selectedTest, setSelectedTest] = useState<Test | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleTestClick = (test: Test) => {
+    setSelectedTest(test);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedTest(null);
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 font-mono relative">
@@ -56,6 +73,7 @@ export default function Home() {
           tests={tests}
           clients={clients}
           lastUpdated={lastUpdated}
+          onTestClick={handleTestClick}
         />
 
         <div className="lg:hidden">
@@ -77,10 +95,18 @@ export default function Home() {
                 test={test}
                 clients={clients}
                 testIndex={testIndex}
+                onTestClick={handleTestClick}
               />
             ))}
           </div>
         </div>
+
+        <TestCaseDetailModal
+          test={selectedTest}
+          clients={clients}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+        />
         {/* Contribute link */}
         <div className="flex justify-center m-6">
           <a

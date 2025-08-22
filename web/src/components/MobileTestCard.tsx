@@ -1,25 +1,35 @@
 import StatusIcon from "./StatusIcon";
 import { Test, Client } from "../types";
+import { Eye } from "lucide-react";
 
 interface MobileTestCardProps {
   test: Test;
   clients: Client[];
   testIndex: number;
   lastUpdated?: string;
+  onTestClick: (test: Test) => void;
 }
 
-export default function MobileTestCard({ test, clients, testIndex, lastUpdated }: MobileTestCardProps) {
+export default function MobileTestCard({ test, clients, testIndex, lastUpdated, onTestClick }: MobileTestCardProps) {
   return (
     <div
-      className="rounded-xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-xl p-4"
+      className="group rounded-xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-xl p-4 cursor-pointer transition-all duration-300 hover:bg-white/20 dark:hover:bg-gray-900/30 hover:border-lime-500/30"
       style={{ animationDelay: `${testIndex * 50}ms` }}
+      onClick={() => onTestClick(test)}
     >
-      <div className="mb-4">
-        <div className="font-mono text-sm font-medium text-gray-800 dark:text-gray-100 mb-1">
-          {test.id}
-        </div>
-        <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-          {test.description}
+      <div className="mb-4 relative">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="font-mono text-sm font-medium text-gray-800 dark:text-gray-100 mb-1">
+              {test.id}
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+              {test.description}
+            </div>
+          </div>
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+            <Eye className="w-4 h-4 text-lime-500" />
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

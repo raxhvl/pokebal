@@ -2,17 +2,20 @@ import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
 import { Test, Client } from "../types";
 import { formatDate } from "../utils/dateFormat";
+import { Eye } from "lucide-react";
 
 interface TestResultsTableProps {
   tests: Test[];
   clients: Client[];
   lastUpdated: string;
+  onTestClick: (test: Test) => void;
 }
 
 export default function TestResultsTable({
   tests,
   clients,
   lastUpdated,
+  onTestClick,
 }: TestResultsTableProps) {
   return (
     <div className="hidden lg:block overflow-x-auto w-full">
@@ -60,16 +63,24 @@ export default function TestResultsTable({
               {tests.map((test, testIndex) => (
                 <tr
                   key={test.id}
-                  className="group hover:bg-white/5 dark:hover:bg-gray-800/10 transition-all duration-300 border-b border-white/20 dark:border-gray-500/30 last:border-b-0"
+                  className="group hover:bg-white/10 dark:hover:bg-gray-800/20 transition-all duration-300 border-b border-white/20 dark:border-gray-500/30 last:border-b-0 cursor-pointer"
                   style={{ animationDelay: `${testIndex * 50}ms` }}
+                  onClick={() => onTestClick(test)}
                 >
                   <td className="p-2 border-r border-white/25 dark:border-gray-500/35">
-                    <div className="transform transition-all duration-300 group-hover:translate-x-1">
-                      <div className="font-mono text-xs font-medium text-gray-800 dark:text-gray-100 mb-1">
-                        {test.id}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight">
-                        {test.description}
+                    <div className="transform transition-all duration-300 group-hover:translate-x-1 relative">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="font-mono text-xs font-medium text-gray-800 dark:text-gray-100 mb-1">
+                            {test.id}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight">
+                            {test.description}
+                          </div>
+                        </div>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+                          <Eye className="w-4 h-4 text-lime-500" />
+                        </div>
                       </div>
                     </div>
                   </td>
