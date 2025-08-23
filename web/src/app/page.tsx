@@ -9,7 +9,7 @@ import Legend from "../components/Legend";
 import { TestResults, Clients, Test } from "../types";
 import testResultsData from "../data/test_results.json";
 import clientsData from "../data/clients.json";
-import { formatDate } from "../utils/dateFormat";
+import { formatDate } from "../lib/utils";
 import { Github } from "lucide-react";
 import { config } from "../config/app";
 

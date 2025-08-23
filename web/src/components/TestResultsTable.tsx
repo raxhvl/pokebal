@@ -1,7 +1,7 @@
 import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
 import { Test, Client } from "../types";
-import { formatDate } from "../utils/dateFormat";
+import { formatDate, formatTestId } from "../lib/utils";
 import { Eye } from "lucide-react";
 
 interface TestResultsTableProps {
@@ -72,7 +72,7 @@ export default function TestResultsTable({
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="font-mono text-xs font-medium text-gray-800 dark:text-gray-100 mb-1">
-                            {test.id}
+                            {formatTestId(test.id)}
                           </div>
                           <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight">
                             {test.description}
