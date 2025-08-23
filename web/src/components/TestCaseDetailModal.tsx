@@ -2,6 +2,7 @@ import { Test, Client } from "../types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
+import { formatTestId } from "../lib/utils";
 
 interface TestCaseDetailModalProps {
   test: Test | null;
@@ -26,7 +27,7 @@ export default function TestCaseDetailModal({
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle className="text-xl font-mono text-gray-800 dark:text-gray-100 mb-1">
-                  {test.id}
+                  {formatTestId(test.id)}
                 </DialogTitle>
                 <div className="flex items-center space-x-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
