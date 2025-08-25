@@ -20,9 +20,9 @@ export default function TestResultsTable({
   return (
     <div className="hidden lg:block overflow-x-auto w-full">
       <div className="rounded-2xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-2xl">
-        <div className="overflow-x-auto overflow-y-auto max-h-[70vh] rounded-2xl">
+        <div className="overflow-x-auto rounded-2xl">
           <table className="w-full border-collapse min-w-full">
-            <thead className="sticky top-0 z-10">
+            <thead>
               <tr className="bg-white dark:bg-gray-800 border-b border-white/30 dark:border-gray-500/40">
                 <th className="p-2 text-left font-mono text-sm">
                   <div className="flex items-center space-x-2 mb-1">
