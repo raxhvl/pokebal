@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# testing
+.hive
+
 # claude
 CLAUDE.md
 instruction.md

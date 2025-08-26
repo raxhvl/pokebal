@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync-tests": "tsx scripts/sync-test-cases.ts"
+    "sync": "tsx scripts/sync-test-cases.ts",
+    "test": "tsx scripts/run-integration-tests.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
