@@ -10,6 +10,7 @@ export interface Test {
 export interface Client {
   id: string;
   name: string;
+  hiveName: string;
   language: string;
   website: string;
   logo?: string;

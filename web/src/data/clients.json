@@ -2,6 +2,7 @@
   {
     "id": "geth",
     "name": "Geth",
+    "hiveName": "go-ethereum",
     "language": "Go",
     "website": "https://geth.ethereum.org",
     "logo": "/img/logos/geth.svg"
@@ -9,6 +10,7 @@
   {
     "id": "nethermind",
     "name": "Nethermind",
+    "hiveName": "nethermind",
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg"
@@ -16,6 +18,7 @@
   {
     "id": "besu",
     "name": "Besu",
+    "hiveName": "besu",
     "language": "Java",
     "website": "https://besu.hyperledger.org",
     "logo": "/img/logos/besu.svg"
@@ -23,6 +26,7 @@
   {
     "id": "erigon",
     "name": "Erigon",
+    "hiveName": "erigon",
     "language": "Go",
     "website": "https://erigon.tech",
     "logo": "/img/logos/erigon.svg"
@@ -30,6 +34,7 @@
   {
     "id": "reth",
     "name": "Reth",
+    "hiveName": "reth",
     "language": "Rust",
     "website": "https://reth.rs",
     "logo": "/img/logos/reth.svg"

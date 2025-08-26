@@ -1,3 +1,5 @@
+import clientsData from "../data/clients.json";
+
 export const config = {
   baseGithubUrl:
     "https://github.com/ethereum/execution-spec-tests/blob/feat/eip-7928/checklist/tests/unscheduled/eip7928_block_level_access_lists/checklist.md",
@@ -11,7 +13,9 @@ export const config = {
   },
   hive: {
     // See: https://eest.ethereum.org/main/running_tests/hive/common_options/
-    clients: ["go-ethereum"],
+    get clients() {
+      return clientsData.map(client => client.hiveName);
+    },
     buildArgs: {
       fixtures: "stable@v4.5.0",
       branch: "v4.5.0",

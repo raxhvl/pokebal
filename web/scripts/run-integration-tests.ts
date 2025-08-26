@@ -29,13 +29,13 @@ async function verifyHiveInstallation() {
  */
 async function clearHiveDirectory() {
   const hiveResultsPath = path.join(__dirname, "../.hive");
-  
+
   console.log("🧹 Clearing hive results directory...");
-  
+
   if (fs.existsSync(hiveResultsPath)) {
     fs.rmSync(hiveResultsPath, { recursive: true, force: true });
   }
-  
+
   fs.mkdirSync(hiveResultsPath, { recursive: true });
 }
 
@@ -53,6 +53,7 @@ async function runHiveSimulations() {
     "--docker.output",
     `--results-root ${hiveResultsPath}`,
     `--sim.limit "${config.hive.testFilter}"`,
+    "2>/dev/null", // Redirect output to prevent maxBuffer overflow
   ].join(" \\\n  ");
 
   console.log("🚀 Running Hive simulation...");
