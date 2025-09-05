@@ -2,7 +2,7 @@ import clientsData from "../data/clients.json";
 
 export const config = {
   baseGithubUrl:
-    "https://github.com/ethereum/execution-spec-tests/blob/feat/eip-7928/checklist/tests/unscheduled/eip7928_block_level_access_lists/checklist.md",
+    "https://github.com/ethereum/execution-spec-tests/blob/main/tests/amsterdam/eip7928_block_level_access_lists/test_cases.md",
   get checklistRawUrl() {
     return this.baseGithubUrl
       .replace("github.com", "raw.githubusercontent.com")
@@ -21,6 +21,6 @@ export const config = {
       branch: "v4.5.0",
     },
     // TODO: Replace with BAL tests once PRs are merged
-    testFilter: "id:tests/shanghai/eip3855_push0/test_push0.py",
+    testFilter: "id:tests/amsterdam/eip7928_block_level_access_lists/test_block_access_lists",
   },
 };
