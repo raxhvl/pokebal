@@ -14,6 +14,7 @@ export interface Client {
   language: string;
   website: string;
   logo?: string;
+  repo?: string;
 }
 
 export interface TestResults {
