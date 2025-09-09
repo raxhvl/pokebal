@@ -9,7 +9,7 @@ import { config } from '../src/config/app';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CHECKLIST_URL = config.checklistUrl;
+const CHECKLIST_URL = config.checklistRawUrl;
 const TEST_RESULTS_PATH = path.join(__dirname, '../src/data/test_results.json');
 
 function fetchMarkdown(url: string): Promise<string> {
