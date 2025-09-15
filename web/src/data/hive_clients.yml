@@ -1,0 +1,10 @@
+- client: go-ethereum
+  dockerfile: git
+  build_args:
+    github: jwasinger/go-ethereum
+    tag: bal-execution
+- client: nethermind
+  dockerfile: git
+  build_args:
+    github: NethermindEth/Nethermind
+    tag: feature/block-level-access-lists

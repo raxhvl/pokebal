@@ -40,19 +40,21 @@ async function clearHiveDirectory() {
 }
 
 /**
- * Runs Hive simulations with ethereum/eest/consume-engine using configured clients and test filters
+ * Runs Hive simulations with configured clients and test filters
  * Results are output to the .hive directory in the web folder
  */
 async function runHiveSimulations() {
   const hiveResultsPath = path.join(__dirname, "../.hive");
+  const hiveClientsPath = path.join(__dirname, "../src/data/hive_clients.yml");
   const hiveCommand = [
-    "./hive --sim ethereum/eest/consume-engine",
-    `--client ${config.hive.clients.join(",")}`,
+    `./hive --sim ${config.hive.simulation}`,
+    `--client-file=${hiveClientsPath}`,
     `--sim.buildarg fixtures=${config.hive.buildArgs.fixtures}`,
     `--sim.buildarg branch=${config.hive.buildArgs.branch}`,
     "--docker.output",
     `--results-root ${hiveResultsPath}`,
     `--sim.limit "${config.hive.testFilter}"`,
+    `--sim.parallelism ${config.hive.parallelism}`,
     "2>/dev/null", // Redirect output to prevent maxBuffer overflow
   ].join(" \\\n  ");
 

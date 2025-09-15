@@ -13,14 +13,13 @@ export const config = {
   },
   hive: {
     // See: https://eest.ethereum.org/main/running_tests/hive/common_options/
-    get clients() {
-      return clientsData.map(client => client.hiveName);
-    },
+    simulation: "ethereum/eest/consume-rlp",
+    parallelism: 4,
     buildArgs: {
-      fixtures: "stable@v4.5.0",
-      branch: "v4.5.0",
+      fixtures: "bal@v1.0.1",
+      branch: "main",
     },
-    // TODO: Replace with BAL tests once PRs are merged
-    testFilter: "id:tests/amsterdam/eip7928_block_level_access_lists/test_block_access_lists",
+    testFilter: "id:tests/amsterdam/eip7928_block_level_access_lists",
+    clientConfig : "src/data/hive_config.yml"
   },
 };

@@ -5,8 +5,7 @@
     "hiveName": "go-ethereum",
     "language": "Go",
     "website": "https://geth.ethereum.org",
-    "logo": "/img/logos/geth.svg",
-    "repo": "https://github.com/jwasinger/go-ethereum/tree/bal-execution"
+    "logo": "/img/logos/geth.svg"
   },
   {
     "id": "nethermind",
@@ -14,8 +13,7 @@
     "hiveName": "nethermind",
     "language": "C#",
     "website": "https://nethermind.io",
-    "logo": "/img/logos/nethermind.svg",
-    "repo": "https://github.com/NethermindEth/nethermind/tree/feature/block-level-access-lists"
+    "logo": "/img/logos/nethermind.svg"
   },
   {
     "id": "besu",
@@ -39,7 +37,6 @@
     "hiveName": "reth",
     "language": "Rust",
     "website": "https://reth.rs",
-    "logo": "/img/logos/reth.svg",
-    "repo": "https://github.com/Rimeeeeee/reth/tree/test-ci"
+    "logo": "/img/logos/reth.svg"
   }
 ]
