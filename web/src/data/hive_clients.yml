@@ -6,5 +6,5 @@
 - client: nethermind
   dockerfile: git
   build_args:
-    github: NethermindEth/Nethermind
+    github: NethermindEth/nethermind
     tag: feature/block-level-access-lists

@@ -111,26 +111,40 @@ export default function TestCaseDetailModal({
                         </div>
                       </div>
 
-                      {/* Individual Simulation Results */}
-                      <div className="space-y-1">
+                      {/* Individual Simulation Results - CI Style Labels */}
+                      <div className="flex flex-wrap gap-1.5 mt-2">
                         {Object.values(Simulation).map((simulationType) => {
                           const simulationResult = clientResults.find(r => r.simulation === simulationType);
                           const status = simulationResult?.status || "pending";
 
+                          const getStatusStyles = () => {
+                            switch (status) {
+                              case "pass":
+                                return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700/50";
+                              case "fail":
+                                return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700/50";
+                              case "pending":
+                              default:
+                                return "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700/30 dark:text-gray-400 dark:border-gray-600/50";
+                            }
+                          };
+
+
                           return (
                             <div
                               key={simulationType}
-                              className="flex items-center justify-between py-1 px-2 bg-white/10 dark:bg-gray-700/10 rounded text-xs"
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-colors ${getStatusStyles()}`}
+                              title={`${simulationType}: ${status}`}
                             >
-                              <span className="text-gray-700 dark:text-gray-300 font-mono">
-                                {simulationType}
-                              </span>
-                              <div className="scale-75">
+                              <div className="scale-75 -ml-0.5">
                                 <StatusIcon
                                   status={status}
                                   size="small"
                                 />
                               </div>
+                              <span className="font-mono text-[10px]">
+                                {simulationType}
+                              </span>
                             </div>
                           );
                         })}

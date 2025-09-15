@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-09-15T12:27:57.001Z",
+  "lastUpdated": "2025-09-15T13:34:38.261Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -22,11 +22,11 @@
         "nethermind": [
           {
             "simulation": "consume-rlp",
-            "status": "pending"
+            "status": "fail"
           },
           {
             "simulation": "consume-engine",
-            "status": "pending"
+            "status": "fail"
           }
         ],
         "besu": [
@@ -81,11 +81,11 @@
         "nethermind": [
           {
             "simulation": "consume-rlp",
-            "status": "pending"
+            "status": "fail"
           },
           {
             "simulation": "consume-engine",
-            "status": "pending"
+            "status": "fail"
           }
         ],
         "besu": [
@@ -140,11 +140,11 @@
         "nethermind": [
           {
             "simulation": "consume-rlp",
-            "status": "pending"
+            "status": "fail"
           },
           {
             "simulation": "consume-engine",
-            "status": "pending"
+            "status": "fail"
           }
         ],
         "besu": [
@@ -199,11 +199,11 @@
         "nethermind": [
           {
             "simulation": "consume-rlp",
-            "status": "pending"
+            "status": "fail"
           },
           {
             "simulation": "consume-engine",
-            "status": "pending"
+            "status": "fail"
           }
         ],
         "besu": [
@@ -258,11 +258,11 @@
         "nethermind": [
           {
             "simulation": "consume-rlp",
-            "status": "pending"
+            "status": "fail"
           },
           {
             "simulation": "consume-engine",
-            "status": "pending"
+            "status": "fail"
           }
         ],
         "besu": [
