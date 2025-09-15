@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-08-22T12:04:41.741Z",
+  "lastUpdated": "2025-09-15T10:23:54.991Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -9,7 +9,7 @@
       "expectation": "BAL MUST include changes to Alice's nonce.",
       "status": "completed",
       "results": {
-        "geth": "pending",
+        "geth": "fail",
         "nethermind": "pending",
         "besu": "pending",
         "erigon": "pending",
@@ -23,7 +23,7 @@
       "expectation": "BAL MUST include balance change for Alice, Bob, and Coinbase",
       "status": "completed",
       "results": {
-        "geth": "pending",
+        "geth": "fail",
         "nethermind": "pending",
         "besu": "pending",
         "erigon": "pending",
@@ -37,7 +37,7 @@
       "expectation": "BAL MUST include storage changes with correct slot and value",
       "status": "completed",
       "results": {
-        "geth": "pending",
+        "geth": "fail",
         "nethermind": "pending",
         "besu": "pending",
         "erigon": "pending",
@@ -51,7 +51,7 @@
       "expectation": "BAL MUST include storage access for the read operation",
       "status": "completed",
       "results": {
-        "geth": "pending",
+        "geth": "fail",
         "nethermind": "pending",
         "besu": "pending",
         "erigon": "pending",
@@ -65,7 +65,7 @@
       "expectation": "BAL MUST include code changes for newly deployed contract",
       "status": "completed",
       "results": {
-        "geth": "pending",
+        "geth": "fail",
         "nethermind": "pending",
         "besu": "pending",
         "erigon": "pending",

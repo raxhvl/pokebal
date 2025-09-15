@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { Client, Test, TestResults } from '../src/types/index';
 
 interface HiveTestCase {
   name: string;
@@ -34,29 +35,22 @@ interface HiveResults {
   testCases: Record<string, HiveTestCase>;
 }
 
-interface TestResult {
-  id: string;
-  description: string;
-  setup: string;
-  expectation: string;
-  status: string;
-  results: Record<string, string>;
+
+
+function loadClientMappings(): Record<string, string> {
+  const clientsPath = path.join(process.cwd(), 'src', 'data', 'clients.json');
+  const clientsRaw = fs.readFileSync(clientsPath, 'utf8');
+  const clients: Client[] = JSON.parse(clientsRaw);
+
+  const mappings: Record<string, string> = {};
+  clients.forEach(client => {
+    mappings[client.hiveName] = client.id;
+  });
+
+  return mappings;
 }
 
-interface TestResultsJson {
-  spec: string;
-  lastUpdated: string;
-  tests: TestResult[];
-}
-
-// Map Hive client names to our client names
-const CLIENT_MAPPINGS = {
-  'go-ethereum': 'geth',
-  'nethermind': 'nethermind',
-  'besu': 'besu',
-  'erigon': 'erigon',
-  'reth': 'reth'
-} as const;
+const CLIENT_MAPPINGS = loadClientMappings();
 
 function findHiveResultsFile(hiveDir: string): string | null {
   try {
@@ -75,35 +69,36 @@ function findHiveResultsFile(hiveDir: string): string | null {
   }
 }
 
-function parseClientFromTestName(testName: string): string | null {
-  // Test names end with "-{client}"
-  const match = testName.match(/-([^-]+)$/);
-  if (!match) return null;
-  
-  const hiveClient = match[1];
-  return CLIENT_MAPPINGS[hiveClient as keyof typeof CLIENT_MAPPINGS] || null;
-}
 
 function extractTestInfo(testName: string): { baseTest: string; client: string } | null {
-  // Extract client from end
-  const clientMatch = testName.match(/-([^-]+)$/);
+  // Build regex from client mappings
+  const hiveClientNames = Object.keys(CLIENT_MAPPINGS).join('|');
+  const clientRegex = new RegExp(`-(${hiveClientNames})$`);
+
+  const clientMatch = testName.match(clientRegex);
   if (!clientMatch) return null;
-  
+
   const hiveClient = clientMatch[1];
-  const client = CLIENT_MAPPINGS[hiveClient as keyof typeof CLIENT_MAPPINGS];
+  const client = CLIENT_MAPPINGS[hiveClient];
   if (!client) return null;
-  
+
   // Remove client suffix to get base test name
-  const baseTest = testName.replace(`-${hiveClient}`, '');
-  
+  const baseTestWithParams = testName.replace(`-${hiveClient}`, '');
+
+  // Extract the actual test function name from the path
+  // Format: tests/amsterdam/eip7928_block_level_access_lists/test_block_access_lists.py::test_bal_nonce_changes[fork_Amsterdam-blockchain_test]
+  const testFunctionMatch = baseTestWithParams.match(/::([^[]+)/);
+  if (!testFunctionMatch) return null;
+
+  const baseTest = testFunctionMatch[1];
+
   return { baseTest, client };
 }
 
 function mapHiveResultToTestResult(
   hiveResults: HiveResults,
-  existingTestResults: TestResultsJson,
-  testMapping: Record<string, string> = {}
-): TestResultsJson {
+  existingTestResults: TestResults
+): TestResults {
   const updatedTests = [...existingTestResults.tests];
   const processedResults: Record<string, Record<string, boolean>> = {};
   
@@ -117,62 +112,31 @@ function mapHiveResultToTestResult(
       console.warn(`Could not parse test info from: ${testCase.name}`);
       return;
     }
-    
+
     const { baseTest, client } = testInfo;
-    
+
     if (!processedResults[baseTest]) {
       processedResults[baseTest] = {};
     }
-    
+
     processedResults[baseTest][client] = testCase.summaryResult.pass;
     console.log(`${baseTest} [${client}]: ${testCase.summaryResult.pass ? 'PASS' : 'FAIL'}`);
   });
   
   console.log(`\nGrouped into ${Object.keys(processedResults).length} unique test groups`);
   
-  // Apply mapping if provided, otherwise try to match existing tests
+  // Match tests by name and update results
   Object.entries(processedResults).forEach(([hiveTestName, clientResults]) => {
-    let matchingTestId: string | null = null;
-    
-    // Check if we have an explicit mapping
-    if (testMapping[hiveTestName]) {
-      matchingTestId = testMapping[hiveTestName];
-    } else {
-      // Try to find a matching test in existing results
-      // Since the current tests are BAL tests and hive has PUSH0 tests,
-      // this will likely not find matches until proper BAL tests are run
-      const matchingTest = updatedTests.find(test => {
-        const testId = test.id.toLowerCase();
-        const hiveName = hiveTestName.toLowerCase();
-        
-        // Try various matching strategies
-        return (
-          testId.includes(hiveName) ||
-          hiveName.includes(testId) ||
-          // Extract test method name and compare
-          (() => {
-            const methodMatch = hiveName.match(/::([^:\[]+)/);
-            return methodMatch && testId.includes(methodMatch[1].toLowerCase());
-          })()
-        );
+    const testIndex = updatedTests.findIndex(test => test.id === hiveTestName);
+
+    if (testIndex !== -1) {
+      // Update results for all clients that have results
+      Object.entries(clientResults).forEach(([client, passed]) => {
+        if (updatedTests[testIndex].results[client] !== undefined) {
+          updatedTests[testIndex].results[client] = passed ? 'pass' : 'fail';
+        }
       });
-      
-      if (matchingTest) {
-        matchingTestId = matchingTest.id;
-      }
-    }
-    
-    if (matchingTestId) {
-      const testIndex = updatedTests.findIndex(test => test.id === matchingTestId);
-      if (testIndex !== -1) {
-        // Update results for all clients that have results
-        Object.entries(clientResults).forEach(([client, passed]) => {
-          if (updatedTests[testIndex].results[client] !== undefined) {
-            updatedTests[testIndex].results[client] = passed ? 'pass' : 'fail';
-          }
-        });
-        console.log(`✓ Updated ${matchingTestId} with results from ${hiveTestName}`);
-      }
+      console.log(`✓ Updated ${hiveTestName}`);
     } else {
       console.log(`⚠ No matching test found for: ${hiveTestName}`);
     }
@@ -185,41 +149,36 @@ function mapHiveResultToTestResult(
   };
 }
 
-// Example test mapping - you would customize this based on your actual test relationships
-const DEFAULT_TEST_MAPPING: Record<string, string> = {
-  // Example: map hive test names to test_results.json test IDs
-  // "tests/shanghai/eip3855_push0/test_push0.py::test_some_function": "test_bal_some_feature",
-};
 
 async function main() {
   const webDir = process.cwd();
   const hiveDir = path.join(webDir, '.hive');
   const testResultsPath = path.join(webDir, 'src', 'data', 'test_results.json');
-  
+
   // Find hive results file
   const hiveResultsPath = findHiveResultsFile(hiveDir);
   if (!hiveResultsPath) {
     console.error('No hive results file found in .hive directory');
     process.exit(1);
   }
-  
+
   console.log(`Found hive results: ${path.basename(hiveResultsPath)}`);
-  
+
   try {
     // Load hive results
     const hiveResultsRaw = fs.readFileSync(hiveResultsPath, 'utf8');
     const hiveResults: HiveResults = JSON.parse(hiveResultsRaw);
-    
+
     // Load existing test results
     const testResultsRaw = fs.readFileSync(testResultsPath, 'utf8');
-    const testResults: TestResultsJson = JSON.parse(testResultsRaw);
-    
+    const testResults: TestResults = JSON.parse(testResultsRaw);
+
     console.log(`Hive test suite: ${hiveResults.name}`);
     console.log(`Hive description: ${hiveResults.description}`);
     console.log(`Current test spec: ${testResults.spec}`);
-    
+
     // Parse and update results
-    const updatedResults = mapHiveResultToTestResult(hiveResults, testResults, DEFAULT_TEST_MAPPING);
+    const updatedResults = mapHiveResultToTestResult(hiveResults, testResults);
     
     // Write updated results
     fs.writeFileSync(
@@ -268,9 +227,8 @@ if (require.main === module) {
   main().catch(console.error);
 }
 
-export { 
-  parseClientFromTestName, 
-  extractTestInfo, 
+export {
+  extractTestInfo,
   mapHiveResultToTestResult,
   findHiveResultsFile
 };
