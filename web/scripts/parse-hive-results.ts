@@ -1,8 +1,7 @@
-#!/usr/bin/env node
-
 import fs from 'fs';
 import path from 'path';
 import { Client, Test, TestResults } from '../src/types/index';
+import { Simulation } from '../src/config/app';
 
 interface HiveTestCase {
   name: string;
@@ -97,7 +96,8 @@ function extractTestInfo(testName: string): { baseTest: string; client: string }
 
 function mapHiveResultToTestResult(
   hiveResults: HiveResults,
-  existingTestResults: TestResults
+  existingTestResults: TestResults,
+  simulationType: Simulation
 ): TestResults {
   const updatedTests = [...existingTestResults.tests];
   const processedResults: Record<string, Record<string, boolean>> = {};
@@ -132,8 +132,14 @@ function mapHiveResultToTestResult(
     if (testIndex !== -1) {
       // Update results for all clients that have results
       Object.entries(clientResults).forEach(([client, passed]) => {
-        if (updatedTests[testIndex].results[client] !== undefined) {
-          updatedTests[testIndex].results[client] = passed ? 'pass' : 'fail';
+        const clientResults = updatedTests[testIndex].results[client];
+        if (clientResults !== undefined) {
+          // Find matching simulation result and update it
+          clientResults.forEach((result) => {
+            if (result.simulation === simulationType) {
+              result.status = passed ? 'pass' : 'fail';
+            }
+          });
         }
       });
       console.log(`✓ Updated ${hiveTestName}`);
@@ -150,7 +156,7 @@ function mapHiveResultToTestResult(
 }
 
 
-async function main() {
+export async function parseHiveResults(simulationType: Simulation) {
   const webDir = process.cwd();
   const hiveDir = path.join(webDir, '.hive');
   const testResultsPath = path.join(webDir, 'src', 'data', 'test_results.json');
@@ -158,8 +164,7 @@ async function main() {
   // Find hive results file
   const hiveResultsPath = findHiveResultsFile(hiveDir);
   if (!hiveResultsPath) {
-    console.error('No hive results file found in .hive directory');
-    process.exit(1);
+    throw new Error('No hive results file found in .hive directory');
   }
 
   console.log(`Found hive results: ${path.basename(hiveResultsPath)}`);
@@ -178,57 +183,48 @@ async function main() {
     console.log(`Current test spec: ${testResults.spec}`);
 
     // Parse and update results
-    const updatedResults = mapHiveResultToTestResult(hiveResults, testResults);
-    
+    const updatedResults = mapHiveResultToTestResult(hiveResults, testResults, simulationType);
+
     // Write updated results
     fs.writeFileSync(
-      testResultsPath, 
+      testResultsPath,
       JSON.stringify(updatedResults, null, 2)
     );
-    
+
     console.log('\n✅ Updated test_results.json successfully');
-    
+
     // Print summary
-    const totalUpdates = updatedResults.tests.reduce((count, test) => {
-      return count + Object.values(test.results).filter(result => result !== 'pending').length;
-    }, 0);
-    
-    console.log(`📊 Total result updates: ${totalUpdates}`);
-    
-    // Show update summary per client
+    let totalUpdates = 0;
     const clientSummary: Record<string, { pass: number; fail: number }> = {};
+
     updatedResults.tests.forEach(test => {
-      Object.entries(test.results).forEach(([client, result]) => {
-        if (result !== 'pending') {
-          if (!clientSummary[client]) {
-            clientSummary[client] = { pass: 0, fail: 0 };
+      Object.entries(test.results).forEach(([client, results]) => {
+        results.forEach(result => {
+          if (result.simulation === simulationType && result.status !== 'pending') {
+            totalUpdates++;
+            if (!clientSummary[client]) {
+              clientSummary[client] = { pass: 0, fail: 0 };
+            }
+            if (result.status === 'pass') {
+              clientSummary[client].pass++;
+            } else {
+              clientSummary[client].fail++;
+            }
           }
-          if (result === 'pass') {
-            clientSummary[client].pass++;
-          } else {
-            clientSummary[client].fail++;
-          }
-        }
+        });
       });
     });
-    
+
+    console.log(`📊 Total result updates for ${simulationType}: ${totalUpdates}`);
+
     console.log('\n📈 Results summary by client:');
     Object.entries(clientSummary).forEach(([client, summary]) => {
       console.log(`  ${client}: ${summary.pass} pass, ${summary.fail} fail`);
     });
-    
+
   } catch (error) {
     console.error('Error processing results:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-if (require.main === module) {
-  main().catch(console.error);
-}
-
-export {
-  extractTestInfo,
-  mapHiveResultToTestResult,
-  findHiveResultsFile
-};

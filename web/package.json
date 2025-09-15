@@ -9,8 +9,7 @@
     "lint": "next lint",
     "test:sync": "tsx scripts/sync-test-cases.ts",
     "test:run": "tsx scripts/run-integration-tests.ts",
-    "test:parse": "tsx scripts/parse-hive-results.ts",
-    "test": "npm run test:sync && npm run test:run && npm run test:parse"
+    "test": "npm run test:sync && npm run test:run"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

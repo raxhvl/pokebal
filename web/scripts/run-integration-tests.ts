@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-import fs from "node:fs";
+import  fs from "node:fs";
 import path from "node:path";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
-import { config } from "../src/config/app.js";
+import { config } from "../src/config/app";
+import { parseHiveResults } from "./parse-hive-results";
+import { Simulation } from "../src/config/app";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const execAsync = promisify(exec);
@@ -39,15 +41,16 @@ async function clearHiveDirectory() {
   fs.mkdirSync(hiveResultsPath, { recursive: true });
 }
 
+
 /**
- * Runs Hive simulations with configured clients and test filters
+ * Runs a single Hive simulation with configured clients and test filters
  * Results are output to the .hive directory in the web folder
  */
-async function runHiveSimulations() {
+async function runHiveSimulation(simulation: Simulation) {
   const hiveResultsPath = path.join(__dirname, "../.hive");
   const hiveClientsPath = path.join(__dirname, "../src/data/hive_clients.yml");
   const hiveCommand = [
-    `./hive --sim ${config.hive.simulation}`,
+    `./hive --sim ethereum/eest/${simulation}`,
     `--client-file=${hiveClientsPath}`,
     `--sim.buildarg fixtures=${config.hive.buildArgs.fixtures}`,
     `--sim.buildarg branch=${config.hive.buildArgs.branch}`,
@@ -58,27 +61,44 @@ async function runHiveSimulations() {
     "2>/dev/null", // Redirect output to prevent maxBuffer overflow
   ].join(" \\\n  ");
 
-  console.log("🚀 Running Hive simulation...");
+  console.log(`🚀 Running Hive simulation: ${simulation}`);
   console.log(`Command: ${hiveCommand}`);
 
   try {
     await execAsync(hiveCommand, { cwd: HIVE_REPO_PATH });
   } catch (error: any) {
-    throw new Error(
-      `❌ Error running Hive Simulations [error: ${error.message}]`,
-    );
+    // throw new Error(
+    //   `❌ Error running Hive Simulation ${simulation} [error: ${error.message}]`,
+    // );
   }
 }
 
 /**
- * Main execution function - verifies Hive installation and runs simulations
+ * Runs all configured Hive simulations sequentially and parses results after each
+ */
+async function runAllSimulations() {
+  for (const simulation of Object.values(Simulation)) {
+    try {
+      console.log(`\n🔄 Starting simulation: ${simulation}`);
+      await clearHiveDirectory();
+      await runHiveSimulation(simulation);
+      await parseHiveResults(simulation);
+      console.log(`✅ Completed simulation: ${simulation}`);
+    } catch (error) {
+      console.error(`Failed to run simulation ${simulation}:`, error);
+      throw error;
+    }
+  }
+}
+
+/**
+ * Main execution function - verifies Hive installation and runs all simulations
  */
 async function main() {
   try {
     console.log("🔄 Starting Hive integration test runner...");
     await verifyHiveInstallation();
-    await clearHiveDirectory();
-    await runHiveSimulations();
+    await runAllSimulations();
     console.log("✅ Integration test runner completed successfully");
   } catch (error: any) {
     console.error(error.message);

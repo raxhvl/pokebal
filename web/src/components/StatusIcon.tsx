@@ -1,5 +1,7 @@
+import { Status } from "../types";
+
 interface StatusIconProps {
-  status: "pass" | "fail" | "pending";
+  status: Status;
   size?: "small" | "large";
 }
 

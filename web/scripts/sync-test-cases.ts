@@ -5,6 +5,8 @@ import path from 'path';
 import https from 'https';
 import { fileURLToPath } from 'url';
 import { config } from '../src/config/app';
+import { Result, Test as TestCase } from '../src/types';
+import { Simulation } from '../src/config/app';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,20 +63,6 @@ function validateMarkdown(content: string): TablePosition {
   return { headerIndex, separatorIndex };
 }
 
-interface TestCase {
-  id: string;
-  description: string;
-  setup: string;
-  expectation: string;
-  status: 'completed' | 'planned';
-  results: {
-    geth: string;
-    nethermind: string;
-    besu: string;
-    erigon: string;
-    reth: string;
-  };
-}
 
 function parseMarkdownTable(content: string): TestCase[] {
   const { headerIndex, separatorIndex } = validateMarkdown(content);
@@ -112,11 +100,11 @@ function parseMarkdownTable(content: string): TestCase[] {
         expectation,
         status: cleanStatus,
         results: {
-          geth: "pending",
-          nethermind: "pending", 
-          besu: "pending",
-          erigon: "pending",
-          reth: "pending"
+          geth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+          nethermind: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+          besu: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+          erigon: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+          reth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const }))
         }
       });
     }
@@ -132,26 +120,10 @@ interface TestResults {
 }
 
 function mergeTestResults(existingData: TestResults, newTestCases: TestCase[]): TestResults {
-  const existingTests = new Map(existingData.tests.map(test => [test.id, test]));
-  
-  const mergedTests = newTestCases.map(newTest => {
-    const existing = existingTests.get(newTest.id);
-    
-    if (existing) {
-      // Preserve existing results but update metadata
-      return {
-        ...newTest,
-        results: existing.results
-      };
-    }
-    
-    return newTest;
-  });
-  
   return {
     ...existingData,
     lastUpdated: new Date().toISOString(),
-    tests: mergedTests
+    tests: newTestCases
   };
 }
 

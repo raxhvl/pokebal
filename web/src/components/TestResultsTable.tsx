@@ -1,7 +1,7 @@
 import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
 import { Test, Client } from "../types";
-import { formatDate, formatTestId } from "../lib/utils";
+import { formatDate, formatTestId, getCombinedTestStatus, getSimulationCounts } from "../lib/utils";
 import { Eye } from "lucide-react";
 
 interface TestResultsTableProps {
@@ -84,19 +84,30 @@ export default function TestResultsTable({
                       </div>
                     </div>
                   </td>
-                  {clients.map((client) => (
-                    <td
-                      key={`${test.id}-${client.id}`}
-                      className="p-2 text-center border-l border-white/15 dark:border-gray-500/25"
-                    >
-                      <div className="flex justify-center">
-                        <StatusIcon
-                          status={test.results[client.id]}
-                          size="small"
-                        />
-                      </div>
-                    </td>
-                  ))}
+                  {clients.map((client) => {
+                    const clientResults = test.results[client.id] || [];
+                    const { passed, total } = getSimulationCounts(clientResults);
+                    const combinedStatus = getCombinedTestStatus(clientResults);
+
+                    return (
+                      <td
+                        key={`${test.id}-${client.id}`}
+                        className="p-2 text-center border-l border-white/15 dark:border-gray-500/25"
+                      >
+                        <div className="flex flex-col items-center space-y-1">
+                          <StatusIcon
+                            status={combinedStatus}
+                            size="small"
+                          />
+                          {total > 0 && (
+                            <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                              {passed}/{total}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>

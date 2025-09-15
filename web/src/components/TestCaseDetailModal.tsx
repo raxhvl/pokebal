@@ -1,8 +1,9 @@
 import { Test, Client } from "../types";
+import { Simulation } from "../config/app";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
-import { formatTestId } from "../lib/utils";
+import { formatTestId, getCombinedTestStatus } from "../lib/utils";
 
 interface TestCaseDetailModalProps {
   test: Test | null;
@@ -71,45 +72,72 @@ export default function TestCaseDetailModal({
               </div>
             </div>
 
-            {/* Client Results - Horizontal Layout */}
+            {/* Client Results - Showing Multiple Simulations */}
             <div>
               <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
                 Implementation Status
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {clients.map((client) => (
-                  <div
-                    key={client.id}
-                    className="flex items-center justify-between p-2 bg-white/15 dark:bg-gray-800/15 rounded border border-white/20 dark:border-gray-500/20"
-                  >
-                    <div className="flex items-center space-x-2 min-w-0">
-                      <ClientLogo
-                        logo={client.logo}
-                        name={client.name}
-                        size="small"
-                      />
-                      <span className="font-medium text-xs text-gray-800 dark:text-gray-100 truncate">
-                        {client.name}
-                      </span>
-                    </div>
-                    <div 
-                      className="relative group"
-                      title={test.results[client.id].charAt(0).toUpperCase() + test.results[client.id].slice(1)}
+              <div className="space-y-3">
+                {clients.map((client) => {
+                  const clientResults = test.results[client.id] || [];
+                  const combinedStatus = getCombinedTestStatus(clientResults);
+
+                  return (
+                    <div
+                      key={client.id}
+                      className="p-3 bg-white/15 dark:bg-gray-800/15 rounded border border-white/20 dark:border-gray-500/20"
                     >
-                      <div className="scale-75">
-                        <StatusIcon
-                          status={test.results[client.id]}
-                          size="small"
-                        />
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <ClientLogo
+                            logo={client.logo}
+                            name={client.name}
+                            size="small"
+                          />
+                          <span className="font-medium text-sm text-gray-800 dark:text-gray-100">
+                            {client.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                            Overall:
+                          </span>
+                          <div className="scale-75">
+                            <StatusIcon
+                              status={combinedStatus}
+                              size="small"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      {/* Tooltip */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                        {test.results[client.id].charAt(0).toUpperCase() + test.results[client.id].slice(1)}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-l-transparent border-r-transparent border-t-gray-900 dark:border-t-gray-100"></div>
+
+                      {/* Individual Simulation Results */}
+                      <div className="space-y-1">
+                        {Object.values(Simulation).map((simulationType) => {
+                          const simulationResult = clientResults.find(r => r.simulation === simulationType);
+                          const status = simulationResult?.status || "pending";
+
+                          return (
+                            <div
+                              key={simulationType}
+                              className="flex items-center justify-between py-1 px-2 bg-white/10 dark:bg-gray-700/10 rounded text-xs"
+                            >
+                              <span className="text-gray-700 dark:text-gray-300 font-mono">
+                                {simulationType}
+                              </span>
+                              <div className="scale-75">
+                                <StatusIcon
+                                  status={status}
+                                  size="small"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

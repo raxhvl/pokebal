@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-09-15T10:23:54.991Z",
+  "lastUpdated": "2025-09-15T12:27:57.001Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -9,11 +9,56 @@
       "expectation": "BAL MUST include changes to Alice's nonce.",
       "status": "completed",
       "results": {
-        "geth": "fail",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "fail"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "fail"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -23,11 +68,56 @@
       "expectation": "BAL MUST include balance change for Alice, Bob, and Coinbase",
       "status": "completed",
       "results": {
-        "geth": "fail",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "fail"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "fail"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -37,11 +127,56 @@
       "expectation": "BAL MUST include storage changes with correct slot and value",
       "status": "completed",
       "results": {
-        "geth": "fail",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "fail"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "fail"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -51,11 +186,56 @@
       "expectation": "BAL MUST include storage access for the read operation",
       "status": "completed",
       "results": {
-        "geth": "fail",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "fail"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "fail"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -65,11 +245,56 @@
       "expectation": "BAL MUST include code changes for newly deployed contract",
       "status": "completed",
       "results": {
-        "geth": "fail",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "fail"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "fail"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -79,11 +304,56 @@
       "expectation": "BAL **MUST NOT** contain any entry for `(KV, S)` — neither reads nor writes — because the slot wasn’t touched.",
       "status": "planned",
       "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -93,11 +363,56 @@
       "expectation": "BAL **MUST** include `storage_changes` for `(KV, S)` (and no separate read record for that slot if implementation deduplicates). Presence in the access list is irrelevant; inclusion is due to the actual write.",
       "status": "planned",
       "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -107,11 +422,56 @@
       "expectation": "BAL MUST include for **Alice**: `code_changes` (delegation indicator), `nonce_changes` (increment from 7702 processing), and `balance_changes` (post-gas). For **Child**: `code_changes` (runtime bytecode) and `nonce_changes = 1`.",
       "status": "planned",
       "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -121,11 +481,56 @@
       "expectation": "BAL MUST include **one** entry for Alice with `balance_changes` reflecting **gas only** (value cancels out) and a nonce change; Coinbase balance updated for fees; no separate recipient row.",
       "status": "planned",
       "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -135,11 +540,56 @@
       "expectation": "BAL MUST include `HISTORY_STORAGE_ADDRESS` (EIP-2935) and `BEACON_ROOTS_ADDRESS` (EIP-4788) with `storage_changes` to ring-buffer slots; each write uses `tx_index = N` (system op).",
       "status": "planned",
       "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -149,11 +599,56 @@
       "expectation": "BAL MUST include the 7002 system contract with `storage_changes` (queue head/tail slots 0–3) using `tx_index = len(txs)` and balance changes for withdrawal recipients.",
       "status": "planned",
       "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     },
     {
@@ -163,25 +658,56 @@
       "expectation": "BAL MUST include the 7251 system contract with `storage_changes` (queue slots 0–3) using `tx_index = len(txs)`.",
       "status": "planned",
       "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
-      }
-    },
-    {
-      "id": "test_bal_noop_storage_write",
-      "description": "BAL includes address with storage read for no-op writes where pre-state equals post-state",
-      "setup": "Contract with pre-existing storage value 0x42 in slot 0x01; transaction executes SSTORE(0x01, 0x42)",
-      "expectation": "BAL MUST include the contract address with `storage_reads` for the slot since it was accessed, but NOT IN `storage_changes`",
-      "status": "planned",
-      "results": {
-        "geth": "pending",
-        "nethermind": "pending",
-        "besu": "pending",
-        "erigon": "pending",
-        "reth": "pending"
+        "geth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "nethermind": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "besu": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "erigon": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ],
+        "reth": [
+          {
+            "simulation": "consume-rlp",
+            "status": "pending"
+          },
+          {
+            "simulation": "consume-engine",
+            "status": "pending"
+          }
+        ]
       }
     }
   ]

@@ -1,4 +1,7 @@
-import clientsData from "../data/clients.json";
+export enum Simulation {
+  ConsumeRLP = "consume-rlp",
+ ConsumeEngine = "consume-engine"
+}
 
 export const config = {
   baseGithubUrl:
@@ -13,7 +16,6 @@ export const config = {
   },
   hive: {
     // See: https://eest.ethereum.org/main/running_tests/hive/common_options/
-    simulation: "ethereum/eest/consume-rlp",
     parallelism: 4,
     buildArgs: {
       fixtures: "bal@v1.0.1",

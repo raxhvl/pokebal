@@ -1,7 +1,7 @@
 import StatusIcon from "./StatusIcon";
 import { Test, Client } from "../types";
 import { Eye } from "lucide-react";
-import { formatTestId } from "../lib/utils";
+import { formatTestId, getCombinedTestStatus, getSimulationCounts } from "../lib/utils";
 
 interface MobileTestCardProps {
   test: Test;
@@ -34,19 +34,30 @@ export default function MobileTestCard({ test, clients, testIndex, lastUpdated, 
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {clients.map((client) => (
-          <div
-            key={`${test.id}-${client.id}`}
-            className="flex flex-col items-center space-y-2 p-3 rounded-lg bg-white/10 dark:bg-gray-800/15 border border-white/20 dark:border-gray-500/30"
-          >
-            <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
-              {client.name}
-            </span>
-            <div className="flex justify-center">
-              <StatusIcon status={test.results[client.id]} size="small" />
+        {clients.map((client) => {
+          const clientResults = test.results[client.id] || [];
+          const { passed, total } = getSimulationCounts(clientResults);
+          const combinedStatus = getCombinedTestStatus(clientResults);
+
+          return (
+            <div
+              key={`${test.id}-${client.id}`}
+              className="flex flex-col items-center space-y-2 p-3 rounded-lg bg-white/10 dark:bg-gray-800/15 border border-white/20 dark:border-gray-500/30"
+            >
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
+                {client.name}
+              </span>
+              <div className="flex flex-col items-center space-y-1">
+                <StatusIcon status={combinedStatus} size="small" />
+                {total > 0 && (
+                  <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                    {passed}/{total}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
