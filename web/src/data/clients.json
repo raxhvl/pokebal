@@ -6,7 +6,7 @@
     "language": "Go",
     "website": "https://geth.ethereum.org",
     "logo": "/img/logos/geth.svg",
-    "version": "Geth/v1.16.4-unstable-81034032-20250915/linux-amd64/go1.23.12",
+    "version": "Geth/v1.16.4-unstable-5771cd84-20250916/linux-amd64/go1.23.12",
     "githubRepo": "https://github.com/jwasinger/go-ethereum/tree/bal-execution"
   },
   {
@@ -16,7 +16,7 @@
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg",
-    "version": "1.34.0-unstable+e7e5ed22",
+    "version": "1.34.0-unstable+ad7d5c89",
     "githubRepo": "https://github.com/NethermindEth/nethermind/tree/feature/block-level-access-lists"
   },
   {

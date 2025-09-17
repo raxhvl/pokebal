@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-09-17T13:16:26.631Z",
+  "lastUpdated": "2025-09-17T15:16:05.688Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
