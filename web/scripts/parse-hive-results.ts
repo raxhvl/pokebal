@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { parse as parseYaml } from 'yaml';
 import { Client, Test, TestResults } from '../src/types/index';
 import { Simulation } from '../src/config/app';
 
@@ -47,6 +48,48 @@ function loadClientMappings(): Record<string, string> {
   });
 
   return mappings;
+}
+
+interface HiveClientConfig {
+  client: string;
+  dockerfile: string;
+  build_args: {
+    github: string;
+    tag: string;
+  };
+}
+
+function loadHiveClientConfigs(): Record<string, string> {
+  const hiveClientsPath = path.join(process.cwd(), 'src', 'data', 'hive_clients.yml');
+  const hiveClientsRaw = fs.readFileSync(hiveClientsPath, 'utf8');
+  const hiveClients = parseYaml(hiveClientsRaw) as HiveClientConfig[];
+
+  const githubRepos: Record<string, string> = {};
+  hiveClients.forEach(config => {
+    githubRepos[config.client] = `https://github.com/${config.build_args.github}/tree/${config.build_args.tag}`;
+  });
+
+  return githubRepos;
+}
+
+function updateClientVersions(clientVersions: Record<string, string>) {
+  const clientsPath = path.join(process.cwd(), 'src', 'data', 'clients.json');
+  const clientsRaw = fs.readFileSync(clientsPath, 'utf8');
+  const clients: Client[] = JSON.parse(clientsRaw);
+
+  // Load GitHub repo information from hive_clients.yml
+  const githubRepos = loadHiveClientConfigs();
+
+  // Update clients with version and GitHub repo information
+  const updatedClients = clients.map(client => ({
+    ...client,
+    version: clientVersions[client.hiveName] || "unknown",
+    githubRepo: githubRepos[client.hiveName]
+  }));
+
+  // Write updated clients back to file
+  fs.writeFileSync(clientsPath, JSON.stringify(updatedClients, null, 2));
+  console.log('✅ Updated clients.json with version and GitHub repository information');
 }
 
 const CLIENT_MAPPINGS = loadClientMappings();
@@ -181,6 +224,9 @@ export async function parseHiveResults(simulationType: Simulation) {
     console.log(`Hive test suite: ${hiveResults.name}`);
     console.log(`Hive description: ${hiveResults.description}`);
     console.log(`Current test spec: ${testResults.spec}`);
+
+    // Update client versions
+    updateClientVersions(hiveResults.clientVersions);
 
     // Parse and update results
     const updatedResults = mapHiveResultToTestResult(hiveResults, testResults, simulationType);

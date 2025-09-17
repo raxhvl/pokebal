@@ -5,7 +5,9 @@
     "hiveName": "go-ethereum",
     "language": "Go",
     "website": "https://geth.ethereum.org",
-    "logo": "/img/logos/geth.svg"
+    "logo": "/img/logos/geth.svg",
+    "version": "Geth/v1.16.4-unstable-81034032-20250915/linux-amd64/go1.23.12",
+    "githubRepo": "https://github.com/jwasinger/go-ethereum/tree/bal-execution"
   },
   {
     "id": "nethermind",
@@ -13,7 +15,9 @@
     "hiveName": "nethermind",
     "language": "C#",
     "website": "https://nethermind.io",
-    "logo": "/img/logos/nethermind.svg"
+    "logo": "/img/logos/nethermind.svg",
+    "version": "1.34.0-unstable+e7e5ed22",
+    "githubRepo": "https://github.com/NethermindEth/nethermind/tree/feature/block-level-access-lists"
   },
   {
     "id": "besu",
@@ -21,7 +25,8 @@
     "hiveName": "besu",
     "language": "Java",
     "website": "https://besu.hyperledger.org",
-    "logo": "/img/logos/besu.svg"
+    "logo": "/img/logos/besu.svg",
+    "version": "unknown"
   },
   {
     "id": "erigon",
@@ -29,7 +34,8 @@
     "hiveName": "erigon",
     "language": "Go",
     "website": "https://erigon.tech",
-    "logo": "/img/logos/erigon.svg"
+    "logo": "/img/logos/erigon.svg",
+    "version": "unknown"
   },
   {
     "id": "reth",
@@ -37,6 +43,7 @@
     "hiveName": "reth",
     "language": "Rust",
     "website": "https://reth.rs",
-    "logo": "/img/logos/reth.svg"
+    "logo": "/img/logos/reth.svg",
+    "version": "unknown"
   }
 ]

@@ -24,6 +24,8 @@ export interface Client {
   website: string;
   logo?: string;
   repo?: string;
+  version: string;
+  githubRepo?: string;
 }
 
 export interface TestResults {
