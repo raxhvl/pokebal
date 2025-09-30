@@ -18,7 +18,7 @@ export const config = {
     // See: https://eest.ethereum.org/main/running_tests/hive/common_options/
     parallelism: 4,
     buildArgs: {
-      fixtures: "bal@v1.0.1",
+      fixtures: "bal@v1.1.0",
       branch: "main",
     },
     testFilter: "id:tests/amsterdam/eip7928_block_level_access_lists",
