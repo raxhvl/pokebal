@@ -92,21 +92,24 @@ function parseMarkdownTable(content: string): TestCase[] {
       
       // Clean up status
       const cleanStatus: 'completed' | 'planned' = status.toLowerCase().includes('completed') || status.includes('✅') ? 'completed' : 'planned';
-      
-      testCases.push({
-        id: functionName.replace(/`/g, ''),
-        description: goal,
-        setup,
-        expectation,
-        status: cleanStatus,
-        results: {
-          geth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
-          nethermind: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
-          besu: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
-          erigon: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
-          reth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const }))
-        }
-      });
+
+      // Only include completed tests
+      if (cleanStatus === 'completed') {
+        testCases.push({
+          id: functionName.replace(/`/g, ''),
+          description: goal,
+          setup,
+          expectation,
+          status: cleanStatus,
+          results: {
+            geth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+            nethermind: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+            besu: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+            erigon: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+            reth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const }))
+          }
+        });
+      }
     }
   }
   
