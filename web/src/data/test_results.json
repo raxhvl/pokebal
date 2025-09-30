@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-09-30T11:39:38.661Z",
+  "lastUpdated": "2025-09-30T17:06:26.964Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -12,11 +12,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -71,11 +71,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -130,11 +130,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -189,11 +189,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -248,11 +248,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -425,11 +425,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -484,11 +484,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -543,11 +543,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -602,11 +602,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
@@ -661,11 +661,11 @@
         "geth": [
           {
             "simulation": "consume-rlp",
-            "status": "fail"
+            "status": "pass"
           },
           {
             "simulation": "consume-engine",
-            "status": "fail"
+            "status": "pass"
           }
         ],
         "nethermind": [
