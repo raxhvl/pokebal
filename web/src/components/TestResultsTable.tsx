@@ -117,7 +117,11 @@ export default function TestResultsTable({
               {tests.map((test, testIndex) => (
                 <tr
                   key={test.id}
-                  className="group hover:bg-white/10 dark:hover:bg-gray-800/20 transition-all duration-300 border-b border-white/20 dark:border-gray-500/30 last:border-b-0 cursor-pointer"
+                  className={`group hover:bg-white/15 dark:hover:bg-gray-700/40 transition-all duration-300 border-b border-white/20 dark:border-gray-500/30 last:border-b-0 cursor-pointer ${
+                    testIndex % 2 === 0
+                      ? 'bg-white/5 dark:bg-gray-800/30'
+                      : 'bg-transparent dark:bg-gray-900/20'
+                  }`}
                   style={{ animationDelay: `${testIndex * 50}ms` }}
                   onClick={() => onTestClick(test)}
                 >
@@ -149,36 +153,60 @@ export default function TestResultsTable({
                         key={`${test.id}-${client.id}`}
                         className="p-2 text-center border-l border-white/15 dark:border-gray-500/25 w-32 min-w-32 max-w-32"
                       >
-                        <div className="flex flex-col items-center space-y-0.5">
-                          {Object.values(Simulation).map((simulation) => {
-                            const { passed, total } = getVariantCountsForSimulation(test, client.id, simulation);
-                            const simulationLabel = getSimulationLabel(simulation);
-                            const allPassed = total > 0 && passed === total;
-                            const anyFailed = total > 0 && passed < total;
+                        <div className="flex flex-col items-center space-y-3">
+                          {/* Overall status icon */}
+                          <div className="flex items-center justify-center">
+                            {(() => {
+                              const rlpCounts = getVariantCountsForSimulation(test, client.id, Simulation.ConsumeRLP);
+                              const engineCounts = getVariantCountsForSimulation(test, client.id, Simulation.ConsumeEngine);
 
-                            return (
-                              <div
-                                key={simulation}
-                                className="flex items-center space-x-1 text-xs"
-                              >
-                                <span className={`${
-                                  allPassed ? 'text-green-600 dark:text-green-400' :
-                                  anyFailed ? 'text-red-600 dark:text-red-400' :
-                                  'text-gray-500 dark:text-gray-400'
-                                }`}>
-                                  {allPassed ? '✓' : anyFailed ? '✗' : '—'}
-                                </span>
-                                <span className="font-mono text-gray-700 dark:text-gray-300">
-                                  {simulationLabel}
-                                </span>
-                                {total > 0 && (
-                                  <span className="font-mono text-gray-600 dark:text-gray-400">
-                                    ({passed}/{total})
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })}
+                              const rlpAllPassed = rlpCounts.total > 0 && rlpCounts.passed === rlpCounts.total;
+                              const rlpAnyFailed = rlpCounts.total > 0 && rlpCounts.passed < rlpCounts.total;
+                              const rlpPending = rlpCounts.total === 0;
+
+                              const engineAllPassed = engineCounts.total > 0 && engineCounts.passed === engineCounts.total;
+                              const engineAnyFailed = engineCounts.total > 0 && engineCounts.passed < engineCounts.total;
+                              const enginePending = engineCounts.total === 0;
+
+                              const bothPass = rlpAllPassed && engineAllPassed;
+                              const anyFail = rlpAnyFailed || engineAnyFailed;
+                              const bothPending = rlpPending && enginePending;
+
+                              let overallStatus: 'pass' | 'fail' | 'pending';
+                              if (bothPass) {
+                                overallStatus = 'pass';
+                              } else if (anyFail) {
+                                overallStatus = 'fail';
+                              } else {
+                                overallStatus = 'pending';
+                              }
+
+                              return (
+                                <StatusIcon
+                                  status={overallStatus}
+                                  size="medium"
+                                />
+                              );
+                            })()}
+                          </div>
+
+                          {/* Counts */}
+                          <div className="flex flex-col items-center space-y-1">
+                            {Object.values(Simulation).map((simulation) => {
+                              const { passed, total } = getVariantCountsForSimulation(test, client.id, simulation);
+                              const simulationLabel = getSimulationLabel(simulation);
+
+                              return (
+                                <div
+                                  key={simulation}
+                                  className="text-xs font-mono text-gray-600 dark:text-gray-400"
+                                  title={`${simulationLabel}: ${passed}/${total} passed`}
+                                >
+                                  {simulationLabel.toLowerCase()} {passed}/{total}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </td>
                     );
