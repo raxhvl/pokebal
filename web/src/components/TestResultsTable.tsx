@@ -134,9 +134,9 @@ export default function TestResultsTable({
                         <div className="flex-1">
                           <div className="font-mono text-xs font-medium text-gray-800 dark:text-gray-100 mb-1">
                             {formatTestId(test.id)}
-                            {test.variants && test.variants.length > 1 && (
+                            {test.variants && (
                               <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                                ({test.variants.length} variants)
+                                ({test.variants.length} {test.variants.length === 1 ? 'variant' : 'variants'})
                               </span>
                             )}
                           </div>

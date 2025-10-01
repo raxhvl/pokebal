@@ -107,7 +107,17 @@ function parseMarkdownTable(content: string): TestCase[] {
             besu: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
             erigon: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
             reth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const }))
-          }
+          },
+          variants: [{
+            id: functionName.replace(/`/g, '') + '_base',
+            results: {
+              geth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+              nethermind: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+              besu: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+              erigon: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const })),
+              reth: Object.values(Simulation).map(sim => ({ simulation: sim, status: "pending" as const }))
+            }
+          }]
         });
       }
     }

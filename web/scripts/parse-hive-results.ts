@@ -319,7 +319,7 @@ function mapHiveResultToTestResult(
             // Find or create result for this simulation
             let result = variant!.results[client].find((r: any) => r.simulation === simType);
             if (!result) {
-              result = { simulation: simType, status: 'pending' };
+              result = { simulation: simType as Simulation, status: 'pending' };
               variant!.results[client].push(result);
             }
 

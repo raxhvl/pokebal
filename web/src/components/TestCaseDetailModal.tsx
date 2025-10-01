@@ -22,8 +22,8 @@ export default function TestCaseDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/30 dark:border-gray-500/40 p-0">
-        <div className="overflow-y-auto max-h-[85vh]">
+      <DialogContent className="max-w-[90vw] lg:min-w-2xl overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/30 dark:border-gray-500/40 p-0">
+        <div className="overflow-y-auto max-h-[80vh]">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/20 dark:border-gray-500/20">
             <div className="flex items-center justify-between">
               <div>
@@ -31,18 +31,20 @@ export default function TestCaseDetailModal({
                   {formatTestId(test.id)}
                 </DialogTitle>
                 <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    test.status === 'completed' 
-                      ? 'bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-400'
-                      : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      test.status === "completed"
+                        ? "bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-400"
+                        : "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                    }`}
+                  >
                     {test.status.charAt(0).toUpperCase() + test.status.slice(1)}
                   </span>
                 </div>
               </div>
             </div>
           </DialogHeader>
-          
+
           <div className="px-6 py-4 space-y-4">
             {/* Description */}
             <div>
@@ -61,7 +63,7 @@ export default function TestCaseDetailModal({
                   {test.setup}
                 </p>
               </div>
-              
+
               <div className="bg-white/20 dark:bg-gray-800/20 rounded-lg p-3 border border-white/30 dark:border-gray-500/20">
                 <h4 className="text-xs font-semibold text-lime-600 dark:text-lime-400 mb-2 uppercase tracking-wide">
                   Expected Result
@@ -72,95 +74,8 @@ export default function TestCaseDetailModal({
               </div>
             </div>
 
-            {/* Aggregated Results Summary */}
-            <div>
-              <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
-                Overall Status
-                {test.variants && test.variants.length > 1 && (
-                  <span className="ml-2 text-gray-500 dark:text-gray-500">
-                    (Aggregated from {test.variants.length} variants)
-                  </span>
-                )}
-              </h4>
-              <div className="space-y-3">
-                {clients.map((client) => {
-                  const clientResults = test.results[client.id] || [];
-                  const combinedStatus = getCombinedTestStatus(clientResults);
-
-                  return (
-                    <div
-                      key={client.id}
-                      className="p-3 bg-white/15 dark:bg-gray-800/15 rounded border border-white/20 dark:border-gray-500/20"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <ClientLogo
-                            logo={client.logo}
-                            name={client.name}
-                            size="small"
-                          />
-                          <span className="font-medium text-sm text-gray-800 dark:text-gray-100">
-                            {client.name}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
-                            Overall:
-                          </span>
-                          <div className="scale-75">
-                            <StatusIcon
-                              status={combinedStatus}
-                              size="small"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Individual Simulation Results - CI Style Labels */}
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {Object.values(Simulation).map((simulationType) => {
-                          const simulationResult = clientResults.find(r => r.simulation === simulationType);
-                          const status = simulationResult?.status || "pending";
-
-                          const getStatusStyles = () => {
-                            switch (status) {
-                              case "pass":
-                                return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700/50";
-                              case "fail":
-                                return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700/50";
-                              case "pending":
-                              default:
-                                return "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700/30 dark:text-gray-400 dark:border-gray-600/50";
-                            }
-                          };
-
-                          return (
-                            <div
-                              key={simulationType}
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-colors ${getStatusStyles()}`}
-                              title={`${simulationType}: ${status}`}
-                            >
-                              <div className="scale-75 -ml-0.5">
-                                <StatusIcon
-                                  status={status}
-                                  size="small"
-                                />
-                              </div>
-                              <span className="font-mono text-[10px]">
-                                {simulationType}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Variants Detail Table */}
-            {test.variants && test.variants.length > 1 && (
+            {/* Test Results Table */}
+            {test.variants && (
               <div>
                 <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
                   Test Variants ({test.variants.length})
@@ -174,7 +89,10 @@ export default function TestCaseDetailModal({
                             Parameters
                           </th>
                           {clients.map((client) => (
-                            <th key={client.id} className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 border-l border-white/20 dark:border-gray-500/20">
+                            <th
+                              key={client.id}
+                              className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 border-l border-white/20 dark:border-gray-500/20"
+                            >
                               {client.name}
                             </th>
                           ))}
@@ -182,63 +100,90 @@ export default function TestCaseDetailModal({
                       </thead>
                       <tbody>
                         {test.variants.map((variant, index) => (
-                          <tr key={variant.id} className={`${index % 2 === 0 ? 'bg-white/5 dark:bg-gray-800/5' : ''} border-b border-white/10 dark:border-gray-500/10 last:border-b-0`}>
+                          <tr
+                            key={variant.id}
+                            className={`${
+                              index % 2 === 0
+                                ? "bg-white/5 dark:bg-gray-800/5"
+                                : ""
+                            } border-b border-white/10 dark:border-gray-500/10 last:border-b-0`}
+                          >
                             <td className="p-3">
                               {variant.parameters ? (
                                 <div className="space-y-1">
-                                  {Object.entries(variant.parameters).map(([key, value]) => (
-                                    <div key={key} className="flex items-center space-x-2">
-                                      <span className="text-gray-600 dark:text-gray-400 font-medium">{key}:</span>
-                                      <span className="px-2 py-0.5 bg-gray-200/30 dark:bg-gray-700/30 rounded text-gray-700 dark:text-gray-300 font-mono">
-                                        {value}
-                                      </span>
-                                    </div>
-                                  ))}
+                                  {Object.entries(variant.parameters).map(
+                                    ([key, value]) => (
+                                      <div
+                                        key={key}
+                                        className="flex items-center space-x-2"
+                                      >
+                                        <span className="text-gray-600 dark:text-gray-400 font-medium">
+                                          {key}:
+                                        </span>
+                                        <span className="px-2 py-0.5 bg-gray-200/30 dark:bg-gray-700/30 rounded text-gray-700 dark:text-gray-300 font-mono">
+                                          {value}
+                                        </span>
+                                      </div>
+                                    )
+                                  )}
                                 </div>
                               ) : (
-                                <span className="text-gray-500 dark:text-gray-400 italic">standalone</span>
+                                <span className="text-gray-500 dark:text-gray-400 italic">
+                                  standalone
+                                </span>
                               )}
                             </td>
                             {clients.map((client) => {
-                              const clientResults = variant.results[client.id] || [];
+                              const clientResults =
+                                variant.results[client.id] || [];
 
                               return (
-                                <td key={`${variant.id}-${client.id}`} className="p-3 text-center border-l border-white/10 dark:border-gray-500/10">
+                                <td
+                                  key={`${variant.id}-${client.id}`}
+                                  className="p-3 text-center border-l border-white/10 dark:border-gray-500/10"
+                                >
                                   <div className="flex flex-col items-center space-y-1">
-                                    {Object.values(Simulation).map((simulationType) => {
-                                      const simulationResult = clientResults.find(r => r.simulation === simulationType);
-                                      const status = simulationResult?.status || "pending";
+                                    {Object.values(Simulation).map(
+                                      (simulationType) => {
+                                        const simulationResult =
+                                          clientResults.find(
+                                            (r) =>
+                                              r.simulation === simulationType
+                                          );
+                                        const status =
+                                          simulationResult?.status || "pending";
 
-                                      const getStatusStyles = () => {
-                                        switch (status) {
-                                          case "pass":
-                                            return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700/50";
-                                          case "fail":
-                                            return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700/50";
-                                          case "pending":
-                                          default:
-                                            return "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700/30 dark:text-gray-400 dark:border-gray-600/50";
-                                        }
-                                      };
+                                        const getStatusStyles = () => {
+                                          switch (status) {
+                                            case "pass":
+                                              return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300";
+                                            case "fail":
+                                              return "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300";
+                                            case "pending":
+                                            default:
+                                              return "bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400";
+                                          }
+                                        };
 
-                                      return (
-                                        <div
-                                          key={simulationType}
-                                          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${getStatusStyles()}`}
-                                          title={`${simulationType}: ${status}`}
-                                        >
-                                          <div className="scale-75">
-                                            <StatusIcon
-                                              status={status}
-                                              size="small"
-                                            />
+                                        const simulationLabel = simulationType === Simulation.ConsumeRLP ? "rlp" : "engine";
+
+                                        return (
+                                          <div
+                                            key={simulationType}
+                                            className={`inline-flex items-center gap-1 text-xs font-mono p-1 rounded ${getStatusStyles()}`}
+                                            title={`${simulationType}: ${status}`}
+                                          >
+                                            <div className="scale-75">
+                                              <StatusIcon
+                                                status={status}
+                                                size="small"
+                                              />
+                                            </div>
+                                            <span>{simulationLabel}</span>
                                           </div>
-                                          <span className="font-mono">
-                                            {simulationType}
-                                          </span>
-                                        </div>
-                                      );
-                                    })}
+                                        );
+                                      }
+                                    )}
                                   </div>
                                 </td>
                               );
