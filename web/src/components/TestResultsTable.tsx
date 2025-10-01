@@ -1,5 +1,6 @@
 import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
+import ClientLogoWithProgress from "./ClientLogoWithProgress";
 import { Test, Client } from "../types";
 import {
   formatDate,
@@ -64,57 +65,7 @@ export default function TestResultsTable({
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="transform transition-all duration-300 group-hover:scale-105">
-                      {client.githubRepo ? (
-                        <a
-                          href={client.githubRepo}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block hover:opacity-80 transition-opacity"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="bg-white/25 dark:bg-gray-800/35 backdrop-blur-md px-3 py-1 rounded-lg border border-white/40 dark:border-gray-500/50 shadow-lg">
-                            <div className="flex flex-col items-center space-y-1">
-                              <div className="flex items-center space-x-2">
-                                <ClientLogo
-                                  logo={client.logo}
-                                  name={client.name}
-                                  size="small"
-                                />
-                                <span className="font-bold text-gray-800 dark:text-gray-100">
-                                  {client.name}
-                                </span>
-                              </div>
-                              <div
-                                className="text-xs text-gray-600 dark:text-gray-400 font-mono truncate w-full px-1"
-                                title={client.version}
-                              >
-                                {client.version}
-                              </div>
-                            </div>
-                          </div>
-                        </a>
-                      ) : (
-                        <div className="bg-white/25 dark:bg-gray-800/35 backdrop-blur-md px-3 py-1 rounded-lg border border-white/40 dark:border-gray-500/50 shadow-lg">
-                          <div className="flex flex-col items-center space-y-1">
-                            <div className="flex items-center space-x-2">
-                              <ClientLogo
-                                logo={client.logo}
-                                name={client.name}
-                                size="small"
-                              />
-                              <span className="font-bold text-gray-800 dark:text-gray-100">
-                                {client.name}
-                              </span>
-                            </div>
-                            <div
-                              className="text-xs text-gray-600 dark:text-gray-400 font-mono truncate w-full px-1"
-                              title={client.version}
-                            >
-                              {client.version}
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      <ClientLogoWithProgress client={client} tests={tests} />
                     </div>
                   </th>
                 ))}

@@ -72,3 +72,19 @@ export function getVariantCountsForSimulation(test: Test, clientId: string, simu
 
   return { passed, total };
 }
+
+export function getClientOverallProgress(tests: Test[], clientId: string): { passed: number; total: number } {
+  let totalPassed = 0;
+  let totalTests = 0;
+
+  tests.forEach(test => {
+    // Count all test executions (including variants) for both simulations
+    Object.values(Simulation).forEach(simulation => {
+      const { passed, total } = getVariantCountsForSimulation(test, clientId, simulation);
+      totalPassed += passed;
+      totalTests += total;
+    });
+  });
+
+  return { passed: totalPassed, total: totalTests };
+}
