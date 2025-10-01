@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { Result, Status } from "../types"
+import { Result, Status, Test } from "../types"
+import { Simulation } from "../config/app"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -36,5 +37,38 @@ export function getCombinedTestStatus(results: Result[]): Status {
 export function getSimulationCounts(results: Result[]): { passed: number; total: number } {
   const total = results.length;
   const passed = results.filter(result => result.status === "pass").length;
+  return { passed, total };
+}
+
+export function getSimulationLabel(simulation: Simulation): string {
+  switch (simulation) {
+    case Simulation.ConsumeRLP:
+      return "rlp";
+    case Simulation.ConsumeEngine:
+      return "eng";
+    default:
+      return simulation;
+  }
+}
+
+export function getVariantCountsForSimulation(test: Test, clientId: string, simulation: Simulation): { passed: number; total: number } {
+  if (!test.variants || test.variants.length === 0) {
+    // For tests without variants, use aggregated results
+    const result = test.results[clientId]?.find(r => r.simulation === simulation);
+    return {
+      passed: result?.status === "pass" ? 1 : 0,
+      total: result ? 1 : 0
+    };
+  }
+
+  // For tests with variants, count how many variants pass/fail for this simulation
+  const variantResults = test.variants.map(variant => {
+    const result = variant.results[clientId]?.find(r => r.simulation === simulation);
+    return result?.status;
+  }).filter(status => status !== undefined);
+
+  const passed = variantResults.filter(status => status === "pass").length;
+  const total = variantResults.length;
+
   return { passed, total };
 }

@@ -1,7 +1,8 @@
 import StatusIcon from "./StatusIcon";
 import { Test, Client } from "../types";
 import { Eye } from "lucide-react";
-import { formatTestId, getCombinedTestStatus, getSimulationCounts } from "../lib/utils";
+import { formatTestId, getCombinedTestStatus, getSimulationCounts, getSimulationLabel, getVariantCountsForSimulation } from "../lib/utils";
+import { Simulation } from "../config/app";
 
 interface MobileTestCardProps {
   test: Test;
@@ -40,10 +41,6 @@ export default function MobileTestCard({ test, clients, testIndex, lastUpdated, 
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {clients.map((client) => {
-          const clientResults = test.results[client.id] || [];
-          const { passed, total } = getSimulationCounts(clientResults);
-          const combinedStatus = getCombinedTestStatus(clientResults);
-
           return (
             <div
               key={`${test.id}-${client.id}`}
@@ -53,12 +50,35 @@ export default function MobileTestCard({ test, clients, testIndex, lastUpdated, 
                 {client.name}
               </span>
               <div className="flex flex-col items-center space-y-1">
-                <StatusIcon status={combinedStatus} size="small" />
-                {total > 0 && (
-                  <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
-                    {passed}/{total}
-                  </div>
-                )}
+                {Object.values(Simulation).map((simulation) => {
+                  const { passed, total } = getVariantCountsForSimulation(test, client.id, simulation);
+                  const simulationLabel = getSimulationLabel(simulation);
+                  const allPassed = total > 0 && passed === total;
+                  const anyFailed = total > 0 && passed < total;
+
+                  return (
+                    <div
+                      key={simulation}
+                      className="flex items-center space-x-1 text-xs"
+                    >
+                      <span className={`${
+                        allPassed ? 'text-green-600 dark:text-green-400' :
+                        anyFailed ? 'text-red-600 dark:text-red-400' :
+                        'text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {allPassed ? '✓' : anyFailed ? '✗' : '—'}
+                      </span>
+                      <span className="font-mono text-gray-700 dark:text-gray-300">
+                        {simulationLabel}
+                      </span>
+                      {total > 0 && (
+                        <span className="font-mono text-gray-600 dark:text-gray-400">
+                          ({passed}/{total})
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
