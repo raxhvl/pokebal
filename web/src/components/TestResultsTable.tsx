@@ -30,17 +30,24 @@ export default function TestResultsTable({
     return total + (test.variants?.length || 1);
   }, 0);
   return (
-    <div className="hidden lg:block overflow-x-auto w-full">
+    <div className="w-full">
+      {/* Scroll hint for mobile */}
+      <div className="lg:hidden text-center text-xs text-gray-500 dark:text-gray-400 mb-2">
+        ← Scroll to see all clients →
+      </div>
       <div className="rounded-2xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-2xl">
-        <div className="overflow-x-auto rounded-2xl">
-          <table className="w-full border-collapse min-w-full">
+        <div
+          className="overflow-x-auto rounded-2xl overscroll-x-contain"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <table className="w-full border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-white dark:bg-gray-800 border-b border-white/30 dark:border-gray-500/40">
                 <th className="p-2 text-left font-mono text-sm">
                   <div className="flex items-center space-x-2 mb-1">
                     <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse shadow-sm"></div>
                     <span className="font-bold text-gray-800 dark:text-gray-100">
-                      Test Cases ({totalExecutions}) 
+                      Test Cases ({totalExecutions})
                     </span>
                     <span className="text-xs text-gray-600 dark:text-gray-400">
                       [including variants]
@@ -117,15 +124,11 @@ export default function TestResultsTable({
               {tests.map((test, testIndex) => (
                 <tr
                   key={test.id}
-                  className={`group hover:bg-white/15 dark:hover:bg-gray-700/40 transition-all duration-300 border-b border-white/20 dark:border-gray-500/30 last:border-b-0 cursor-pointer ${
-                    testIndex % 2 === 0
-                      ? 'bg-white/5 dark:bg-gray-800/30'
-                      : 'bg-transparent dark:bg-gray-900/20'
-                  }`}
+                  className="group hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 border-b border-white/20 dark:border-gray-500/30 last:border-b-0 cursor-pointer"
                   style={{ animationDelay: `${testIndex * 50}ms` }}
                   onClick={() => onTestClick(test)}
                 >
-                  <td className="p-2 border-r border-white/25 dark:border-gray-500/35">
+                  <td className="px-3 py-2 border-r border-white/25 dark:border-gray-500/35">
                     <div className="transform transition-all duration-300 group-hover:translate-x-1 relative">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -151,40 +154,54 @@ export default function TestResultsTable({
                     return (
                       <td
                         key={`${test.id}-${client.id}`}
-                        className="p-2 text-center border-l border-white/15 dark:border-gray-500/25 w-32 min-w-32 max-w-32"
+                        className="px-2 py-2 text-center border-l border-white/15 dark:border-gray-500/25 w-28 min-w-28 max-w-28"
                       >
-                        <div className="flex flex-col items-center space-y-3">
+                        <div className="flex flex-col items-center space-y-2">
                           {/* Overall status icon */}
                           <div className="flex items-center justify-center">
                             {(() => {
-                              const rlpCounts = getVariantCountsForSimulation(test, client.id, Simulation.ConsumeRLP);
-                              const engineCounts = getVariantCountsForSimulation(test, client.id, Simulation.ConsumeEngine);
+                              const rlpCounts = getVariantCountsForSimulation(
+                                test,
+                                client.id,
+                                Simulation.ConsumeRLP
+                              );
+                              const engineCounts =
+                                getVariantCountsForSimulation(
+                                  test,
+                                  client.id,
+                                  Simulation.ConsumeEngine
+                                );
 
-                              const rlpAllPassed = rlpCounts.total > 0 && rlpCounts.passed === rlpCounts.total;
-                              const rlpAnyFailed = rlpCounts.total > 0 && rlpCounts.passed < rlpCounts.total;
-                              const rlpPending = rlpCounts.total === 0;
+                              const rlpAllPassed =
+                                rlpCounts.total > 0 &&
+                                rlpCounts.passed === rlpCounts.total;
+                              const rlpAnyFailed =
+                                rlpCounts.total > 0 &&
+                                rlpCounts.passed < rlpCounts.total;
 
-                              const engineAllPassed = engineCounts.total > 0 && engineCounts.passed === engineCounts.total;
-                              const engineAnyFailed = engineCounts.total > 0 && engineCounts.passed < engineCounts.total;
-                              const enginePending = engineCounts.total === 0;
+                              const engineAllPassed =
+                                engineCounts.total > 0 &&
+                                engineCounts.passed === engineCounts.total;
+                              const engineAnyFailed =
+                                engineCounts.total > 0 &&
+                                engineCounts.passed < engineCounts.total;
 
                               const bothPass = rlpAllPassed && engineAllPassed;
                               const anyFail = rlpAnyFailed || engineAnyFailed;
-                              const bothPending = rlpPending && enginePending;
 
-                              let overallStatus: 'pass' | 'fail' | 'pending';
+                              let overallStatus: "pass" | "fail" | "pending";
                               if (bothPass) {
-                                overallStatus = 'pass';
+                                overallStatus = "pass";
                               } else if (anyFail) {
-                                overallStatus = 'fail';
+                                overallStatus = "fail";
                               } else {
-                                overallStatus = 'pending';
+                                overallStatus = "pending";
                               }
 
                               return (
                                 <StatusIcon
                                   status={overallStatus}
-                                  size="medium"
+                                  size="small"
                                 />
                               );
                             })()}
@@ -193,16 +210,33 @@ export default function TestResultsTable({
                           {/* Counts */}
                           <div className="flex flex-col items-center space-y-1">
                             {Object.values(Simulation).map((simulation) => {
-                              const { passed, total } = getVariantCountsForSimulation(test, client.id, simulation);
-                              const simulationLabel = getSimulationLabel(simulation);
+                              const { passed, total } =
+                                getVariantCountsForSimulation(
+                                  test,
+                                  client.id,
+                                  simulation
+                                );
+                              const simulationLabel =
+                                getSimulationLabel(simulation);
+                              const isAllPassed = total > 0 && passed === total;
+                              const hasFailed = total > 0 && passed < total;
 
                               return (
                                 <div
                                   key={simulation}
-                                  className="text-xs font-mono text-gray-600 dark:text-gray-400"
+                                  className={`text-xs font-mono p-1 rounded ${
+                                    isAllPassed
+                                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                                      : hasFailed
+                                      ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                                      : "bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400"
+                                  }`}
                                   title={`${simulationLabel}: ${passed}/${total} passed`}
                                 >
-                                  {simulationLabel.toLowerCase()} {passed}/{total}
+                                  <span>{simulationLabel.toLowerCase()}</span>{" "}
+                                  <span className="font-bold">
+                                    {passed}/{total}
+                                  </span>
                                 </div>
                               );
                             })}

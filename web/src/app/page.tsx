@@ -3,7 +3,6 @@
 import { useState } from "react";
 import DotGrid from "../components/DotGrid";
 import TestResultsTable from "../components/TestResultsTable";
-import MobileTestCard from "../components/MobileTestCard";
 import TestCaseDetailModal from "../components/TestCaseDetailModal";
 import Legend from "../components/Legend";
 import { TestResults, Clients, Test } from "../types";
@@ -75,31 +74,6 @@ export default function Home() {
           lastUpdated={lastUpdated}
           onTestClick={handleTestClick}
         />
-
-        <div className="lg:hidden">
-          <div className="mb-4 text-center">
-            <div className="flex items-center justify-center space-x-2 mb-1">
-              <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse shadow-sm"></div>
-              <span className="font-bold text-gray-800 dark:text-gray-100 font-mono text-sm">
-                Test Cases
-              </span>
-            </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              Updated {formatDate(lastUpdated)}
-            </div>
-          </div>
-          <div className="space-y-4">
-            {tests.map((test, testIndex) => (
-              <MobileTestCard
-                key={test.id}
-                test={test}
-                clients={clients}
-                testIndex={testIndex}
-                onTestClick={handleTestClick}
-              />
-            ))}
-          </div>
-        </div>
 
         <TestCaseDetailModal
           test={selectedTest}
