@@ -7,13 +7,20 @@ export interface Result {
   status: Status;
 }
 
+export interface TestVariant {
+  id: string;
+  parameters?: Record<string, string>;
+  results: Record<string, Result[]>;
+}
+
 export interface Test {
   id: string;
   description: string;
   setup: string;
   expectation: string;
   status: "completed" | "planned";
-  results: Record<string, Result[]>;
+  results: Record<string, Result[]>; // aggregated from variants
+  variants: TestVariant[];
 }
 
 export interface Client {

@@ -72,10 +72,15 @@ export default function TestCaseDetailModal({
               </div>
             </div>
 
-            {/* Client Results - Showing Multiple Simulations */}
+            {/* Aggregated Results Summary */}
             <div>
               <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
-                Implementation Status
+                Overall Status
+                {test.variants && test.variants.length > 1 && (
+                  <span className="ml-2 text-gray-500 dark:text-gray-500">
+                    (Aggregated from {test.variants.length} variants)
+                  </span>
+                )}
               </h4>
               <div className="space-y-3">
                 {clients.map((client) => {
@@ -129,7 +134,6 @@ export default function TestCaseDetailModal({
                             }
                           };
 
-
                           return (
                             <div
                               key={simulationType}
@@ -154,6 +158,99 @@ export default function TestCaseDetailModal({
                 })}
               </div>
             </div>
+
+            {/* Variants Detail Table */}
+            {test.variants && test.variants.length > 1 && (
+              <div>
+                <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
+                  Test Variants ({test.variants.length})
+                </h4>
+                <div className="bg-white/10 dark:bg-gray-800/10 rounded-lg border border-white/20 dark:border-gray-500/20 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-white/20 dark:bg-gray-800/20 border-b border-white/20 dark:border-gray-500/20">
+                          <th className="text-left p-3 font-medium text-gray-700 dark:text-gray-300">
+                            Parameters
+                          </th>
+                          {clients.map((client) => (
+                            <th key={client.id} className="text-center p-3 font-medium text-gray-700 dark:text-gray-300 border-l border-white/20 dark:border-gray-500/20">
+                              {client.name}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {test.variants.map((variant, index) => (
+                          <tr key={variant.id} className={`${index % 2 === 0 ? 'bg-white/5 dark:bg-gray-800/5' : ''} border-b border-white/10 dark:border-gray-500/10 last:border-b-0`}>
+                            <td className="p-3">
+                              {variant.parameters ? (
+                                <div className="space-y-1">
+                                  {Object.entries(variant.parameters).map(([key, value]) => (
+                                    <div key={key} className="flex items-center space-x-2">
+                                      <span className="text-gray-600 dark:text-gray-400 font-medium">{key}:</span>
+                                      <span className="px-2 py-0.5 bg-gray-200/30 dark:bg-gray-700/30 rounded text-gray-700 dark:text-gray-300 font-mono">
+                                        {value}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-gray-500 dark:text-gray-400 italic">standalone</span>
+                              )}
+                            </td>
+                            {clients.map((client) => {
+                              const clientResults = variant.results[client.id] || [];
+
+                              return (
+                                <td key={`${variant.id}-${client.id}`} className="p-3 text-center border-l border-white/10 dark:border-gray-500/10">
+                                  <div className="flex flex-col items-center space-y-1">
+                                    {Object.values(Simulation).map((simulationType) => {
+                                      const simulationResult = clientResults.find(r => r.simulation === simulationType);
+                                      const status = simulationResult?.status || "pending";
+
+                                      const getStatusStyles = () => {
+                                        switch (status) {
+                                          case "pass":
+                                            return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700/50";
+                                          case "fail":
+                                            return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700/50";
+                                          case "pending":
+                                          default:
+                                            return "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700/30 dark:text-gray-400 dark:border-gray-600/50";
+                                        }
+                                      };
+
+                                      return (
+                                        <div
+                                          key={simulationType}
+                                          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${getStatusStyles()}`}
+                                          title={`${simulationType}: ${status}`}
+                                        >
+                                          <div className="scale-75">
+                                            <StatusIcon
+                                              status={status}
+                                              size="small"
+                                            />
+                                          </div>
+                                          <span className="font-mono">
+                                            {simulationType}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

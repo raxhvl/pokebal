@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-09-30T17:19:26.930Z",
+  "lastUpdated": "2025-10-01T07:24:23.650Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -29,37 +29,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_nonce_changes[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_balance_changes",
@@ -88,37 +91,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_balance_changes[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_storage_writes",
@@ -147,37 +153,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_storage_writes[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_storage_reads",
@@ -206,37 +215,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_storage_reads[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_code_changes",
@@ -265,37 +277,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_code_changes[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_self_destruct",
@@ -324,37 +339,128 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_self_destruct[fork_Amsterdam-type_not_pre_funded-new_tx]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "not_pre_funded-new_tx"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        },
+        {
+          "id": "test_bal_self_destruct[fork_Amsterdam-type_not_pre_funded-same_tx]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "not_pre_funded-same_tx"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        },
+        {
+          "id": "test_bal_self_destruct[fork_Amsterdam-type_pre_funded-new_tx]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "pre_funded-new_tx"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ]
-      }
+        },
+        {
+          "id": "test_bal_self_destruct[fork_Amsterdam-type_pre_funded-same_tx]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "pre_funded-same_tx"
+          },
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "test_bal_account_access_target",
@@ -383,37 +489,244 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_balance]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "balance"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        },
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_callcode]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "callcode"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        },
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_delegatecall]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "delegatecall"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ]
-      }
+        },
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_call]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "call"
+          },
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        },
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_extcodesize]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "extcodesize"
+          },
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        },
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_extcodecopy]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "extcodecopy"
+          },
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        },
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_extcodehash]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "extcodehash"
+          },
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        },
+        {
+          "id": "test_bal_account_access_target[fork_Amsterdam-type_staticcall]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "staticcall"
+          },
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "test_bal_call_with_value_transfer",
@@ -442,37 +755,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_call_with_value_transfer[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_callcode_with_value_transfer",
@@ -501,37 +817,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_callcode_with_value_transfer[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_delegated_storage_writes",
@@ -560,37 +879,70 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_delegated_storage_writes[fork_Amsterdam-type_callcode]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "callcode"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        },
+        {
+          "id": "test_bal_delegated_storage_writes[fork_Amsterdam-type_delegatecall]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "delegatecall"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_delegated_storage_reads",
@@ -619,37 +971,70 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_delegated_storage_reads[fork_Amsterdam-type_callcode]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "callcode"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        },
+        {
+          "id": "test_bal_delegated_storage_reads[fork_Amsterdam-type_delegatecall]",
+          "parameters": {
+            "fork": "Amsterdam",
+            "type": "delegatecall"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     },
     {
       "id": "test_bal_block_rewards",
@@ -678,37 +1063,40 @@
             "status": "fail"
           }
         ],
-        "besu": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
+        "besu": [],
+        "erigon": [],
+        "reth": []
+      },
+      "variants": [
+        {
+          "id": "test_bal_block_rewards[fork_Amsterdam]",
+          "parameters": {
+            "fork": "Amsterdam"
           },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
+          "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
           }
-        ],
-        "erigon": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ],
-        "reth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pending"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pending"
-          }
-        ]
-      }
+        }
+      ]
     }
   ]
 }

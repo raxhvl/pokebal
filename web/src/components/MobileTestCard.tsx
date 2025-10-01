@@ -23,6 +23,11 @@ export default function MobileTestCard({ test, clients, testIndex, lastUpdated, 
           <div className="flex-1">
             <div className="font-mono text-sm font-medium text-gray-800 dark:text-gray-100 mb-1">
               {formatTestId(test.id)}
+              {test.variants && test.variants.length > 1 && (
+                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                  ({test.variants.length} variants)
+                </span>
+              )}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
               {test.description}

@@ -22,6 +22,10 @@ export default function TestResultsTable({
   lastUpdated,
   onTestClick,
 }: TestResultsTableProps) {
+  // Calculate total test executions (including variants)
+  const totalExecutions = tests.reduce((total, test) => {
+    return total + (test.variants?.length || 1);
+  }, 0);
   return (
     <div className="hidden lg:block overflow-x-auto w-full">
       <div className="rounded-2xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-2xl">
@@ -33,7 +37,10 @@ export default function TestResultsTable({
                   <div className="flex items-center space-x-2 mb-1">
                     <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse shadow-sm"></div>
                     <span className="font-bold text-gray-800 dark:text-gray-100">
-                      Test Cases ({tests.length})
+                      Test Cases ({totalExecutions}) 
+                    </span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      [including variants]
                     </span>
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -117,6 +124,11 @@ export default function TestResultsTable({
                         <div className="flex-1">
                           <div className="font-mono text-xs font-medium text-gray-800 dark:text-gray-100 mb-1">
                             {formatTestId(test.id)}
+                            {test.variants && test.variants.length > 1 && (
+                              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                                ({test.variants.length} variants)
+                              </span>
+                            )}
                           </div>
                           <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight">
                             {test.description}
@@ -130,8 +142,7 @@ export default function TestResultsTable({
                   </td>
                   {clients.map((client) => {
                     const clientResults = test.results[client.id] || [];
-                    const { passed, total } =
-                      getSimulationCounts(clientResults);
+                    const { passed, total } = getSimulationCounts(clientResults);
                     const combinedStatus = getCombinedTestStatus(clientResults);
 
                     return (
