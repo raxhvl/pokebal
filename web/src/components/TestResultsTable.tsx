@@ -48,10 +48,10 @@ export default function TestResultsTable({
                   <div className="flex items-center space-x-2 mb-1">
                     <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse shadow-sm"></div>
                     <span className="font-bold text-gray-800 dark:text-gray-100">
-                      Test Cases ({totalExecutions})
+                      Test Cases ({tests.length})
                     </span>
                     <span className="text-xs text-gray-600 dark:text-gray-400">
-                      [including variants]
+                      [{totalExecutions} total variants]
                     </span>
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -87,7 +87,11 @@ export default function TestResultsTable({
                             {formatTestId(test.id)}
                             {test.variants && (
                               <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                                ({test.variants.length} {test.variants.length === 1 ? 'variant' : 'variants'})
+                                ({test.variants.length}{" "}
+                                {test.variants.length === 1
+                                  ? "variant"
+                                  : "variants"}
+                                )
                               </span>
                             )}
                           </div>
