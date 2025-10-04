@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-10-01T07:24:23.650Z",
+  "lastUpdated": "2025-10-04T11:36:09.718Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -8,56 +8,58 @@
       "setup": "Alice sends 100 wei to Bob",
       "expectation": "BAL MUST include changes to Alice's nonce.",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_nonce_changes[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -70,56 +72,58 @@
       "setup": "Alice sends 100 wei to Bob",
       "expectation": "BAL MUST include balance change for Alice, Bob, and Coinbase",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_balance_changes[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -132,56 +136,58 @@
       "setup": "Alice calls contract that writes to storage slot `0x01`",
       "expectation": "BAL MUST include storage changes with correct slot and value",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_storage_writes[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -194,56 +200,58 @@
       "setup": "Alice calls contract that reads from storage slot `0x01`",
       "expectation": "BAL MUST include storage access for the read operation",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_storage_reads[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -256,56 +264,58 @@
       "setup": "Alice deploys factory contract that creates new contract",
       "expectation": "BAL MUST include code changes for newly deployed contract",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_code_changes[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -318,144 +328,58 @@
       "setup": "Parameterized test: Alice interacts with a contract (either existing or created same-tx) that reads from storage slot 0x01, writes to storage slot 0x02, then executes `SELFDESTRUCT` with Bob as recipient. Contract may be pre-funded with 10 wei",
       "expectation": "BAL MUST include Alice's nonce change (increment) and Bob's balance change (100 or 110 depending on pre-funding). For the self-destructing contract: storage_reads=[0x01], empty storage_changes=[], and if pre-funded, balance_changes with post_balance=0; if not pre-funded, no balance change recorded. MUST NOT have code_changes or nonce_changes entries",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_self_destruct[fork_Amsterdam-type_not_pre_funded-new_tx]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "not_pre_funded-new_tx"
-          },
+          "parameters": [],
           "results": {
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_self_destruct[fork_Amsterdam-type_not_pre_funded-same_tx]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "not_pre_funded-same_tx"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
               }
             ],
-            "nethermind": [
+            "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_self_destruct[fork_Amsterdam-type_pre_funded-new_tx]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "pre_funded-new_tx"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
-            "nethermind": [
+            "erigon": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_self_destruct[fork_Amsterdam-type_pre_funded-same_tx]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "pre_funded-same_tx"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
               }
             ],
-            "nethermind": [
+            "reth": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
               }
             ]
           }
@@ -468,260 +392,58 @@
       "setup": "Alice calls `Oracle` contract which uses account access opcodes (`BALANCE`, `EXTCODESIZE`, `EXTCODECOPY`, `EXTCODEHASH`, `CALL`, `CALLCODE`, `DELEGATECALL`, `STATICCALL`) on `TargetContract`.",
       "expectation": "BAL MUST include Alice, `Oracle`, and `TargetContract` with empty changes for `TargetContract` and nonce changes for Alice.",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_balance]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "balance"
-          },
-          "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_callcode]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "callcode"
-          },
+          "parameters": [],
           "results": {
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_delegatecall]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "delegatecall"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
-            "nethermind": [
+            "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_call]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "call"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
-            "nethermind": [
+            "erigon": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_extcodesize]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "extcodesize"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
-            "nethermind": [
+            "reth": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_extcodecopy]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "extcodecopy"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_extcodehash]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "extcodehash"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_account_access_target[fork_Amsterdam-type_staticcall]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "staticcall"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
               }
             ]
           }
@@ -734,56 +456,58 @@
       "setup": "Alice calls `Oracle` contract (200 wei balance) which uses `CALL` opcode to transfer 100 wei to Bob (0 wei balance).",
       "expectation": "BAL MUST include Alice (nonce changes), Oracle (balance change to 100 wei), and Bob (balance change to 100 wei).",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_call_with_value_transfer[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -796,56 +520,58 @@
       "setup": "Alice calls `Oracle` contract (200 wei balance) which uses `CALLCODE` opcode to execute `TargetContract`'s code with 100 wei value transfer to Bob (0 wei balance).",
       "expectation": "BAL MUST include Alice (nonce changes), `Oracle` (balance change to 100 wei), Bob (balance change to 100 wei), and `TargetContract` (empty changes).",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_callcode_with_value_transfer[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -858,86 +584,58 @@
       "setup": "Alice calls `Oracle` contract which uses `DELEGATECALL`/`CALLCODE` to `TargetContract` that writes `0x42` to slot `0x01`.",
       "expectation": "BAL MUST include Alice (nonce changes), `Oracle` (storage changes for slot `0x01` = `0x42`), and `TargetContract` (empty changes).",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_delegated_storage_writes[fork_Amsterdam-type_callcode]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "callcode"
-          },
-          "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_delegated_storage_writes[fork_Amsterdam-type_delegatecall]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "delegatecall"
-          },
+          "parameters": [],
           "results": {
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -950,86 +648,58 @@
       "setup": "Alice calls `Oracle` contract (with slot `0x01` = `0x42`) which uses `DELEGATECALL`/`CALLCODE` to `TargetContract` that reads from slot `0x01`.",
       "expectation": "BAL MUST include Alice (nonce changes), `Oracle` (storage reads for slot `0x01`), and `TargetContract` (empty changes).",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "pass"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "pass"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_delegated_storage_reads[fork_Amsterdam-type_callcode]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "callcode"
-          },
+          "parameters": [],
           "results": {
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "pass"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "id": "test_bal_delegated_storage_reads[fork_Amsterdam-type_delegatecall]",
-          "parameters": {
-            "fork": "Amsterdam",
-            "type": "delegatecall"
-          },
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
+                "status": "pending"
               }
             ],
-            "nethermind": [
+            "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }
@@ -1042,56 +712,314 @@
       "setup": "Alice sends 100 wei to Bob with Charlie as fee recipient",
       "expectation": "BAL MUST include fee recipient Charlie with `balance_changes` reflecting transaction fees collected from the block.",
       "status": "completed",
-      "results": {
-        "geth": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "nethermind": [
-          {
-            "simulation": "consume-rlp",
-            "status": "fail"
-          },
-          {
-            "simulation": "consume-engine",
-            "status": "fail"
-          }
-        ],
-        "besu": [],
-        "erigon": [],
-        "reth": []
-      },
       "variants": [
         {
-          "id": "test_bal_block_rewards[fork_Amsterdam]",
-          "parameters": {
-            "fork": "Amsterdam"
-          },
+          "parameters": [],
           "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
             "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pending"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_2930_account_listed_but_untouched",
+      "description": "Ensure BAL excludes listed but untouched account",
+      "setup": "Alice sends a simple eth transfer tx to Bob with EIP-2930 access list including `Oracle`",
+      "expectation": "BAL MUST NOT include any entry for `Oracle` because it wasn't accessed.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_2930_slot_listed_but_untouched",
+      "description": "Ensure BAL excludes listed but untouched storage slots",
+      "setup": "Alice sends tx with EIP-2930 access list including `(PureCalculator, slot=0x01)`; PureCalculator executes pure arithmetic (adding two numbers) without touching slot `0x01`",
+      "expectation": "BAL MUST NOT include any entry for PureCalculator's slot `0x01` because it doesn't access state",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_2930_slot_listed_and_unlisted_writes",
+      "description": "Ensure BAL includes storage writes regardless of access list presence",
+      "setup": "Alice sends tx with EIP-2930 access list including `(StorageWriter, slot=0x01)`; StorageWriter executes `SSTORE` to slots `0x01` and `0x02`",
+      "expectation": "BAL MUST include `storage_changes` for StorageWriter's slots `0x01` and `0x02`",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_2930_slot_listed_and_unlisted_reads",
+      "description": "Ensure BAL includes storage reads regardless of access list presence",
+      "setup": "Alice sends tx with EIP-2930 access list including `(StorageReader, slot=0x01)`; StorageReader executes `SLOAD` from slots `0x01` and `0x02`",
+      "expectation": "BAL MUST include `storage_reads` for StorageReader's slots `0x01` and `0x02`",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "erigon": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pending"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pending"
               }
             ]
           }

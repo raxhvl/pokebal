@@ -53,12 +53,8 @@ export function getSimulationLabel(simulation: Simulation): string {
 
 export function getVariantCountsForSimulation(test: Test, clientId: string, simulation: Simulation): { passed: number; total: number } {
   if (!test.variants || test.variants.length === 0) {
-    // For tests without variants, use aggregated results
-    const result = test.results[clientId]?.find(r => r.simulation === simulation);
-    return {
-      passed: result?.status === "pass" ? 1 : 0,
-      total: result ? 1 : 0
-    };
+    // For tests without variants, return 0 (no test results available)
+    return { passed: 0, total: 0 };
   }
 
   // For tests with variants, count how many variants pass/fail for this simulation

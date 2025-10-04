@@ -112,7 +112,7 @@ function findHiveResultsFile(hiveDir: string): string | null {
 }
 
 
-function extractTestInfo(testName: string): { baseTest: string; variantId: string; parameters?: Record<string, string>; client: string } | null {
+function extractTestInfo(testName: string): { baseTest: string; parameters?: string[]; client: string } | null {
   // Build regex from client mappings
   const hiveClientNames = Object.keys(CLIENT_MAPPINGS).join('|');
   const clientRegex = new RegExp(`-(${hiveClientNames})$`);
@@ -135,98 +135,24 @@ function extractTestInfo(testName: string): { baseTest: string; variantId: strin
   const baseTest = testFunctionMatch[1];
   const paramString = testFunctionMatch[3];
 
-  // Create variant ID (full test name including parameters if present)
-  const variantId = paramString ? `${baseTest}[${paramString}]` : baseTest;
-
   // Parse parameters if present
-  let parameters: Record<string, string> | undefined;
+  let parameters: string[] | undefined;
   if (paramString) {
-    parameters = {};
-    // Parse parameters like "fork_Amsterdam-blockchain_test_engine"
+    // Split by dash and filter out simulation artifacts
     const parts = paramString.split('-');
-
-    // Extract fork if it starts with "fork_"
-    if (parts[0].startsWith('fork_')) {
-      parameters.fork = parts[0].replace('fork_', '');
-    }
-
-    // Filter out simulation artifacts (blockchain_test, blockchain_test_engine)
-    // and keep only actual parameter variations
-    const filteredParts = parts.slice(1).filter(part =>
+    const filteredParts = parts.filter(part =>
       part !== 'blockchain_test' && part !== 'blockchain_test_engine'
     );
 
-    // Add remaining parts as actual parameter variations
+    // Only include if we have actual parameters
     if (filteredParts.length > 0) {
-      parameters.type = filteredParts.join('-');
-    }
-
-    // If we only have fork and no other parameters, this might be a simple fork variant
-    if (Object.keys(parameters).length === 1 && parameters.fork) {
-      // Keep it simple with just the fork parameter
-    } else if (Object.keys(parameters).length === 0) {
-      // If no actual parameters after filtering, this is likely a simulation artifact only
-      parameters = undefined;
+      parameters = filteredParts;
     }
   }
 
-  return { baseTest, variantId, parameters, client };
+  return { baseTest, parameters, client };
 }
 
-function aggregateVariantResults(variants: any[], clients: string[]): Record<string, any[]> {
-  const aggregatedResults: Record<string, any[]> = {};
-
-  // Initialize aggregated results for each client
-  clients.forEach(client => {
-    aggregatedResults[client] = [];
-  });
-
-  // Get all unique simulations from variants
-  const simulations = new Set<string>();
-  variants.forEach(variant => {
-    clients.forEach(client => {
-      if (variant.results[client]) {
-        variant.results[client].forEach((result: any) => {
-          simulations.add(result.simulation);
-        });
-      }
-    });
-  });
-
-  // Aggregate results for each client and simulation
-  simulations.forEach(simulation => {
-    clients.forEach(client => {
-      const variantResults = variants
-        .map(variant => variant.results[client]?.find((r: any) => r.simulation === simulation))
-        .filter(Boolean);
-
-      if (variantResults.length > 0) {
-        // Aggregate: pass if all pass, fail if any fail, pending if any pending (and none failed)
-        const allPassed = variantResults.every(r => r.status === 'pass');
-        const anyFailed = variantResults.some(r => r.status === 'fail');
-        const anyPending = variantResults.some(r => r.status === 'pending');
-
-        let aggregatedStatus: string;
-        if (anyFailed) {
-          aggregatedStatus = 'fail';
-        } else if (allPassed) {
-          aggregatedStatus = 'pass';
-        } else if (anyPending) {
-          aggregatedStatus = 'pending';
-        } else {
-          aggregatedStatus = 'pending';
-        }
-
-        aggregatedResults[client].push({
-          simulation,
-          status: aggregatedStatus
-        });
-      }
-    });
-  });
-
-  return aggregatedResults;
-}
 
 function mapHiveResultToTestResult(
   hiveResults: HiveResults,
@@ -248,7 +174,7 @@ function mapHiveResultToTestResult(
       return;
     }
 
-    const { baseTest, variantId, parameters, client } = testInfo;
+    const { baseTest, parameters, client } = testInfo;
 
     // Create a variant key based on actual parameters (not simulation artifacts)
     const variantKey = parameters
@@ -261,7 +187,6 @@ function mapHiveResultToTestResult(
     if (!groupedResults[baseTest][variantKey]) {
       groupedResults[baseTest][variantKey] = {
         parameters,
-        variantId: parameters ? `${baseTest}[${Object.entries(parameters).map(([k,v]) => `${k}_${v}`).join('-')}]` : baseTest,
         results: {}
       };
     }
@@ -295,14 +220,15 @@ function mapHiveResultToTestResult(
 
       // Process each variant
       Object.entries(variants).forEach(([variantKey, variantData]: [string, any]) => {
-        const { parameters, variantId, results } = variantData;
+        const { parameters, results } = variantData;
 
-        // Find or create variant
-        let variant = test.variants.find(v => v.id === variantId);
+        // Find or create variant by matching parameters
+        let variant = test.variants.find(v =>
+          JSON.stringify(v.parameters || []) === JSON.stringify(parameters || [])
+        );
         if (!variant) {
           variant = {
-            id: variantId,
-            parameters,
+            parameters: parameters || [],
             results: {}
           };
           test.variants.push(variant);
@@ -327,10 +253,6 @@ function mapHiveResultToTestResult(
           });
         });
       });
-
-      // Aggregate variant results to base test results
-      const clients = Object.keys(CLIENT_MAPPINGS).map(hiveClient => CLIENT_MAPPINGS[hiveClient]);
-      test.results = aggregateVariantResults(test.variants, clients);
 
       console.log(`✓ Updated ${baseTestName} with ${test.variants.length} variants`);
     } else {
@@ -391,19 +313,21 @@ export async function parseHiveResults(simulationType: Simulation) {
     const clientSummary: Record<string, { pass: number; fail: number }> = {};
 
     updatedResults.tests.forEach(test => {
-      Object.entries(test.results).forEach(([client, results]) => {
-        results.forEach(result => {
-          if (result.simulation === simulationType && result.status !== 'pending') {
-            totalUpdates++;
-            if (!clientSummary[client]) {
-              clientSummary[client] = { pass: 0, fail: 0 };
+      test.variants.forEach(variant => {
+        Object.entries(variant.results).forEach(([client, results]) => {
+          results.forEach(result => {
+            if (result.simulation === simulationType && result.status !== 'pending') {
+              totalUpdates++;
+              if (!clientSummary[client]) {
+                clientSummary[client] = { pass: 0, fail: 0 };
+              }
+              if (result.status === 'pass') {
+                clientSummary[client].pass++;
+              } else {
+                clientSummary[client].fail++;
+              }
             }
-            if (result.status === 'pass') {
-              clientSummary[client].pass++;
-            } else {
-              clientSummary[client].fail++;
-            }
-          }
+          });
         });
       });
     });

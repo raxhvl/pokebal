@@ -8,8 +8,7 @@ export interface Result {
 }
 
 export interface TestVariant {
-  id: string;
-  parameters?: Record<string, string>;
+  parameters?: string[];
   results: Record<string, Result[]>;
 }
 
@@ -19,7 +18,6 @@ export interface Test {
   setup: string;
   expectation: string;
   status: "completed" | "planned";
-  results: Record<string, Result[]>; // aggregated from variants
   variants: TestVariant[];
 }
 

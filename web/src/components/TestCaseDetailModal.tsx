@@ -101,7 +101,7 @@ export default function TestCaseDetailModal({
                       <tbody>
                         {test.variants.map((variant, index) => (
                           <tr
-                            key={variant.id}
+                            key={index}
                             className={`${
                               index % 2 === 0
                                 ? "bg-white/5 dark:bg-gray-800/5"
@@ -109,23 +109,16 @@ export default function TestCaseDetailModal({
                             } border-b border-white/10 dark:border-gray-500/10 last:border-b-0`}
                           >
                             <td className="p-3">
-                              {variant.parameters ? (
-                                <div className="space-y-1">
-                                  {Object.entries(variant.parameters).map(
-                                    ([key, value]) => (
-                                      <div
-                                        key={key}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <span className="text-gray-600 dark:text-gray-400 font-medium">
-                                          {key}:
-                                        </span>
-                                        <span className="px-2 py-0.5 bg-gray-200/30 dark:bg-gray-700/30 rounded text-gray-700 dark:text-gray-300 font-mono">
-                                          {value}
-                                        </span>
-                                      </div>
-                                    )
-                                  )}
+                              {variant.parameters && variant.parameters.length > 0 ? (
+                                <div className="flex flex-wrap gap-1">
+                                  {variant.parameters.map((param, paramIndex) => (
+                                    <span
+                                      key={paramIndex}
+                                      className="px-2 py-0.5 bg-gray-200/30 dark:bg-gray-700/30 rounded text-gray-700 dark:text-gray-300 font-mono text-xs"
+                                    >
+                                      {param}
+                                    </span>
+                                  ))}
                                 </div>
                               ) : (
                                 <span className="text-gray-500 dark:text-gray-400 italic">
@@ -139,7 +132,7 @@ export default function TestCaseDetailModal({
 
                               return (
                                 <td
-                                  key={`${variant.id}-${client.id}`}
+                                  key={`${index}-${client.id}`}
                                   className="p-3 text-center border-l border-white/10 dark:border-gray-500/10"
                                 >
                                   <div className="flex flex-col items-center space-y-1">
