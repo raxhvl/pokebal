@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pokebal.io/schemas/test-results.json",
+  "title": "Block Access Lists (BAL) Test Results",
+  "description": "Schema for BAL test execution results across multiple Ethereum clients",
+  "type": "object",
+  "required": ["spec", "lastUpdated", "tests"],
+  "properties": {
+    "spec": {
+      "type": "string",
+      "description": "The specification being tested",
+      "example": "Block Access Lists (BAL) - EIP-7928"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the results were last updated"
+    },
+    "tests": {
+      "type": "array",
+      "description": "Array of test cases",
+      "items": {
+        "$ref": "#/definitions/Test"
+      }
+    }
+  },
+  "definitions": {
+    "Test": {
+      "type": "object",
+      "required": ["id", "description", "setup", "expectation", "status", "variants"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^test_bal_[a-z0-9_]+$",
+          "description": "Unique test identifier following pytest naming convention",
+          "example": "test_bal_nonce_changes"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what the test validates",
+          "example": "Ensure BAL captures changes to nonce"
+        },
+        "setup": {
+          "type": "string",
+          "description": "Description of the test setup and initial conditions",
+          "example": "Alice sends 100 wei to Bob"
+        },
+        "expectation": {
+          "type": "string",
+          "description": "Expected behavior that should be validated",
+          "example": "BAL MUST include changes to Alice's nonce."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["completed", "planned"],
+          "description": "Development status of the test case"
+        },
+        "variants": {
+          "type": "array",
+          "description": "Test variants with different parameter combinations",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/TestVariant"
+          }
+        }
+      }
+    },
+    "TestVariant": {
+      "type": "object",
+      "required": ["results"],
+      "properties": {
+        "parameters": {
+          "type": "array",
+          "description": "Array of parameter labels for this test variant",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "description": "Parameter label (e.g., 'fork_Amsterdam', 'pre_funded', 'same_tx')"
+          },
+          "example": ["fork_Amsterdam", "pre_funded", "same_tx"]
+        },
+        "results": {
+          "type": "object",
+          "description": "Test results for each Ethereum client",
+          "patternProperties": {
+            "^(geth|nethermind|besu|erigon|reth)$": {
+              "type": "array",
+              "description": "Results for this client across different simulations",
+              "items": {
+                "$ref": "#/definitions/Result"
+              },
+              "minItems": 0,
+              "maxItems": 2
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "Result": {
+      "type": "object",
+      "required": ["simulation", "status"],
+      "properties": {
+        "simulation": {
+          "type": "string",
+          "enum": ["consume-rlp", "consume-engine"],
+          "description": "Type of simulation executed"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "pending"],
+          "description": "Execution result status"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "spec": "Block Access Lists (BAL) - EIP-7928",
+      "lastUpdated": "2025-10-04T11:36:09.718Z",
+      "tests": [
+        {
+          "id": "test_bal_nonce_changes",
+          "description": "Ensure BAL captures changes to nonce",
+          "setup": "Alice sends 100 wei to Bob",
+          "expectation": "BAL MUST include changes to Alice's nonce.",
+          "status": "completed",
+          "variants": [
+            {
+              "parameters": ["fork_Amsterdam"],
+              "results": {
+                "geth": [
+                  {
+                    "simulation": "consume-rlp",
+                    "status": "pending"
+                  },
+                  {
+                    "simulation": "consume-engine",
+                    "status": "pending"
+                  }
+                ],
+                "nethermind": [
+                  {
+                    "simulation": "consume-rlp",
+                    "status": "pass"
+                  },
+                  {
+                    "simulation": "consume-engine",
+                    "status": "fail"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
