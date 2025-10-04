@@ -75,18 +75,20 @@ export function getClientOverallProgress(tests: Test[], clientId: string): { pas
 
   tests.forEach(test => {
     if (!test.variants || test.variants.length === 0) {
+      // Count tests without variants in total, but they can't be "passed"
+      totalTests += 1;
       return;
     }
 
     // Count variants - a variant passes only if ALL simulations pass
     test.variants.forEach(variant => {
+      totalTests += 1;
+
       const clientResults = variant.results[clientId] || [];
 
       if (clientResults.length === 0) {
         return;
       }
-
-      totalTests += 1;
 
       // Check if all simulations for this variant passed
       const allSimulationsPassed = Object.values(Simulation).every(simulation => {
