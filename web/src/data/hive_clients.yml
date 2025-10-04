@@ -8,3 +8,8 @@
   build_args:
     github: NethermindEth/nethermind
     tag: feature/block-level-access-lists
+- client: reth
+  dockerfile: git
+  build_args:
+    github: Rimeeeeee/reth
+    tag: bal

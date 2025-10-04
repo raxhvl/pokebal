@@ -16,8 +16,8 @@
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg",
-    "version": "1.34.0-unstable+c046b924",
-    "githubRepo": "https://github.com/NethermindEth/nethermind/tree/feature/block-level-access-lists"
+    "version": "unknown",
+    "githubRepo": "https://github.com/Rimeeeeee/reth/tree/bal"
   },
   {
     "id": "besu",
