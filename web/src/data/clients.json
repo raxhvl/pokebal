@@ -16,7 +16,7 @@
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg",
-    "version": "1.34.0-unstable+c046b924",
+    "version": "1.34.0-unstable+cdcf39be",
     "githubRepo": "https://github.com/NethermindEth/nethermind/tree/feature/block-level-access-lists"
   },
   {
