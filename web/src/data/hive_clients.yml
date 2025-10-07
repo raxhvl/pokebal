@@ -1,8 +1,8 @@
 - client: go-ethereum
   dockerfile: git
   build_args:
-    github: jwasinger/go-ethereum
-    tag: bal-execution
+    github: ethereum/go-ethereum
+    tag: bal-devnet-0
 - client: nethermind
   dockerfile: git
   build_args:
@@ -11,5 +11,5 @@
 - client: reth
   dockerfile: git
   build_args:
-    github: Rimeeeeee/reth
-    tag: bal
+    github: paradigmxyz/reth
+    tag: bal-devnet-0
