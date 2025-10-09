@@ -270,7 +270,7 @@ function mapHiveResultToTestResult(
 
 export async function parseHiveResults(simulationType: Simulation) {
   const webDir = process.cwd();
-  const hiveDir = path.join(webDir, '.hive');
+  const hiveDir = path.join(webDir, '.hive', simulationType);
   const testResultsPath = path.join(webDir, 'src', 'data', 'test_results.json');
 
   // Find hive results file

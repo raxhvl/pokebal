@@ -13,3 +13,8 @@
   build_args:
     github: paradigmxyz/reth
     tag: bal-devnet-0
+- client: besu
+  dockerfile: git
+  build_args:
+    github: hyperledger/besu
+    tag: bal-devnet-0

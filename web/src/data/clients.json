@@ -7,7 +7,7 @@
     "website": "https://geth.ethereum.org",
     "logo": "/img/logos/geth.svg",
     "version": "Geth/v1.16.5-unstable-fe61a7a5-20250929/linux-amd64/go1.24.7",
-    "githubRepo": "https://github.com/jwasinger/go-ethereum/tree/bal-execution"
+    "githubRepo": "https://github.com/ethereum/go-ethereum/tree/bal-devnet-0"
   },
   {
     "id": "nethermind",
@@ -26,7 +26,8 @@
     "language": "Java",
     "website": "https://besu.hyperledger.org",
     "logo": "/img/logos/besu.svg",
-    "version": "unknown"
+    "version": "besu/v25.10-develop-b03bd66/linux-x86_64/openjdk-java-21",
+    "githubRepo": "https://github.com/hyperledger/besu/tree/bal-devnet-0"
   },
   {
     "id": "erigon",
@@ -44,7 +45,7 @@
     "language": "Rust",
     "website": "https://reth.rs",
     "logo": "/img/logos/reth.svg",
-    "version": "reth-ethereum-cli Version: 1.8.2+d0149181",
-    "githubRepo": "https://github.com/Rimeeeeee/reth/tree/bal"
+    "version": "reth-ethereum-cli Version: 1.8.2+2959a297",
+    "githubRepo": "https://github.com/paradigmxyz/reth/tree/bal-devnet-0"
   }
 ]
