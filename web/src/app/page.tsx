@@ -38,14 +38,14 @@ function HomeContent() {
     setSelectedTest(test);
     setIsModalOpen(true);
     // Update URL with test ID
-    router.push(`?test=${test.id}`, { scroll: false });
+    router.replace(`?test=${test.id}`, { scroll: false });
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedTest(null);
     // Remove test parameter from URL
-    router.push("/", { scroll: false });
+    router.replace("/", { scroll: false });
   };
 
   return (
