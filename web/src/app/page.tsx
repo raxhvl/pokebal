@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import DotGrid from "../components/DotGrid";
 import TestResultsTable from "../components/TestResultsTable";
 import TestCaseDetailModal from "../components/TestCaseDetailModal";
@@ -12,21 +13,39 @@ import { formatDate } from "../lib/utils";
 import { Github } from "lucide-react";
 import { config } from "../config/app";
 
-export default function Home() {
+function HomeContent() {
   const { tests, lastUpdated } = testResultsData as TestResults;
   const clients = clientsData as Clients;
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Open modal from URL parameter on mount
+  useEffect(() => {
+    const testId = searchParams.get("test");
+    if (testId) {
+      const test = tests.find((t) => t.id === testId);
+      if (test) {
+        setSelectedTest(test);
+        setIsModalOpen(true);
+      }
+    }
+  }, [searchParams, tests]);
+
   const handleTestClick = (test: Test) => {
     setSelectedTest(test);
     setIsModalOpen(true);
+    // Update URL with test ID
+    router.push(`?test=${test.id}`, { scroll: false });
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedTest(null);
+    // Remove test parameter from URL
+    router.push("/", { scroll: false });
   };
 
   return (
@@ -98,5 +117,13 @@ export default function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white dark:bg-gray-950" />}>
+      <HomeContent />
+    </Suspense>
   );
 }
