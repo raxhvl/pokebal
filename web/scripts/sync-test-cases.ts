@@ -5,8 +5,7 @@ import path from 'path';
 import https from 'https';
 import { fileURLToPath } from 'url';
 import { config } from '../src/config/app';
-import { Result, Test as TestCase } from '../src/types';
-import { Simulation } from '../src/config/app';
+import { Test as TestCase } from '../src/types';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,13 +72,15 @@ function parseMarkdownTable(content: string): TestCase[] {
   // Parse table rows
   for (let i = separatorIndex + 1; i < lines.length; i++) {
     const line = lines[i].trim();
-    
+
     // Stop if we hit an empty line or non-table content
     if (!line || !line.startsWith('|')) {
       break;
     }
-    
-    const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell);
+
+    // Replace escaped pipes with placeholder before splitting
+    const processedLine = line.replace(/\\\|/g, '<!PIPE!>');
+    const cells = processedLine.split('|').map(cell => cell.trim().replace(/<!PIPE!>/g, '|')).filter(cell => cell);
     
     if (cells.length >= 5) {
       const [functionName, goal, setup, expectation, status] = cells;
