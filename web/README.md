@@ -1,6 +1,8 @@
 # PokéBAL
 
-A web application that tracks the adoption and implementation status of Block Access Lists (BAL) across different Ethereum execution clients. It provides a visual dashboard showing which test cases pass, fail, or are still pending for each client.
+A web application that tracks the adoption and implementation status of Block Access Lists (BAL)
+across different Ethereum execution clients. It provides a visual dashboard 
+showing which test cases pass, fail, or are still pending for each client.
 
 ## Tech Stack
 
