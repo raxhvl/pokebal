@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-10-09T13:27:00.644Z",
+  "lastUpdated": "2025-10-10T08:40:22.176Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -27,11 +27,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -73,11 +73,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -126,6 +126,16 @@
             "fork_Amsterdam"
           ],
           "results": {
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
             "geth": [
               {
                 "simulation": "consume-rlp",
@@ -147,16 +157,6 @@
               }
             ],
             "besu": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
-            "nethermind": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -215,11 +215,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -271,11 +271,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -329,11 +329,109 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
+          }
+        },
+        {
+          "parameters": [
+            "fork_Amsterdam",
+            "pre_funded",
+            "new_tx"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
+          }
+        },
+        {
+          "parameters": [
+            "fork_Amsterdam",
+            "pre_funded",
+            "same_tx"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
                 "status": "fail"
               },
               {
                 "simulation": "consume-engine",
                 "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
               }
             ]
           }
@@ -376,104 +474,6 @@
               }
             ],
             "besu": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ]
-          }
-        },
-        {
-          "parameters": [
-            "fork_Amsterdam",
-            "pre_funded",
-            "new_tx"
-          ],
-          "results": {
-            "besu": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
-            "reth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ]
-          }
-        },
-        {
-          "parameters": [
-            "fork_Amsterdam",
-            "pre_funded",
-            "same_tx"
-          ],
-          "results": {
-            "reth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "besu": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "fail"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "fail"
-              }
-            ],
-            "nethermind": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -533,11 +533,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -561,11 +561,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -629,11 +629,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -677,11 +677,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -725,11 +725,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -763,11 +763,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -811,11 +811,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -869,11 +869,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -925,11 +925,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -948,24 +948,14 @@
             "fork_Amsterdam"
           ],
           "results": {
-            "reth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -979,6 +969,16 @@
               }
             ],
             "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "reth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -1015,14 +1015,14 @@
                 "status": "pass"
               }
             ],
-            "besu": [
+            "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "nethermind": [
@@ -1035,7 +1035,7 @@
                 "status": "pass"
               }
             ],
-            "geth": [
+            "besu": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -1053,14 +1053,14 @@
             "delegatecall"
           ],
           "results": {
-            "besu": [
+            "geth": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "nethermind": [
@@ -1073,7 +1073,7 @@
                 "status": "pass"
               }
             ],
-            "reth": [
+            "besu": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -1083,7 +1083,7 @@
                 "status": "pass"
               }
             ],
-            "geth": [
+            "reth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -1113,11 +1113,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -1191,11 +1191,11 @@
             "besu": [
               {
                 "simulation": "consume-rlp",
-                "status": "fail"
+                "status": "pass"
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -1307,6 +1307,30 @@
       "variants": []
     },
     {
+      "id": "test_bal_noop_storage_write",
+      "description": "Ensure BAL includes storage read but not write for no-op writes where pre-state equals post-state",
+      "setup": "Contract with pre-existing storage value `0x42` in slot `0x01`; transaction executes `SSTORE(0x01, 0x42)` (writing same value)",
+      "expectation": "BAL **MUST** include the contract address with `storage_reads` for slot `0x01` since it was accessed, but **MUST NOT** include it in `storage_changes` (no actual state change).",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_fully_unmutated_account",
+      "description": "Ensure BAL captures account that has zero net mutations",
+      "setup": "Alice sends 0 wei to `Oracle` which writes same pre-existing value to storage",
+      "expectation": "BAL MUST include Alice with `nonce_changes` and balance changes (gas), `Oracle` with `storage_reads` for accessed slot but empty `storage_changes`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_net_zero_balance_transfer",
+      "description": "BAL includes accounts with net-zero balance change but excludes them from balance changes",
+      "setup": "Contract receives and sends same amount to recipient using CALL or SELFDESTRUCT",
+      "expectation": "BAL **MUST** include contract in `account_changes` without `balance_changes` (net zero). BAL **MUST** record non-zero `balance_changes` for recipient.",
+      "status": "completed",
+      "variants": []
+    },
+    {
       "id": "test_bal_aborted_storage_access",
       "description": "Ensure BAL captures storage access in aborted transactions correctly",
       "setup": "Alice calls contract that reads storage slot `0x01`, writes to slot `0x02`, then aborts with `REVERT`/`INVALID`",
@@ -1327,14 +1351,6 @@
       "description": "Ensure BAL captures contract access for pure computation calls",
       "setup": "Alice calls `PureContract` that performs pure arithmetic (ADD operation) without storage or balance changes",
       "expectation": "BAL MUST include Alice and `PureContract` in `account_changes`, and `nonce_changes` for Alice.",
-      "status": "completed",
-      "variants": []
-    },
-    {
-      "id": "test_bal_fully_unmutated_account",
-      "description": "Ensure BAL captures account that has zero net mutations",
-      "setup": "Alice sends 0 wei to `Oracle` which writes same pre-existing value to storage",
-      "expectation": "BAL MUST include Alice with `nonce_changes` and balance changes (gas), `Oracle` with `storage_reads` for accessed slot but empty `storage_changes`.",
       "status": "completed",
       "variants": []
     },
@@ -1369,6 +1385,622 @@
       "expectation": "BAL **MUST** include Bob: `nonce_changes`. `Caller`: empty changes (account access). `Alice`: empty changes (account access - delegated account being called). `Oracle`: empty changes (delegation target access).",
       "status": "completed",
       "variants": []
+    },
+    {
+      "id": "test_bal_sstore_and_oog",
+      "description": "Ensure BAL handles OOG during SSTORE execution correctly",
+      "setup": "Alice calls contract that attempts `SSTORE` to cold slot `0x01`. Parameterized: (1) OOG at SSTORE opcode (insufficient gas), (2) Successful SSTORE execution.",
+      "expectation": "For OOG case: BAL **MUST NOT** contain slot `0x01` in `storage_changes` since storage wasn't modified. For success case: BAL **MUST** contain slot `0x01` in `storage_changes`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_sload_and_oog",
+      "description": "Ensure BAL handles OOG during SLOAD execution correctly",
+      "setup": "Alice calls contract that attempts `SLOAD` from cold slot `0x01`. Parameterized: (1) OOG at SLOAD opcode (insufficient gas), (2) Successful SLOAD execution.",
+      "expectation": "For OOG case: BAL **MUST NOT** contain slot `0x01` in `storage_reads` since storage wasn't accessed. For success case: BAL **MUST** contain slot `0x01` in `storage_reads`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_balance_and_oog",
+      "description": "Ensure BAL handles OOG during BALANCE opcode execution correctly",
+      "setup": "Alice calls contract that attempts `BALANCE` opcode on cold target account. Parameterized: (1) OOG at BALANCE opcode (insufficient gas), (2) Successful BALANCE execution.",
+      "expectation": "For OOG case: BAL **MUST NOT** include target account (wasn't accessed). For success case: BAL **MUST** include target account in `account_changes`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_extcodesize_and_oog",
+      "description": "Ensure BAL handles OOG during EXTCODESIZE opcode execution correctly",
+      "setup": "Alice calls contract that attempts `EXTCODESIZE` opcode on cold target contract. Parameterized: (1) OOG at EXTCODESIZE opcode (insufficient gas), (2) Successful EXTCODESIZE execution.",
+      "expectation": "For OOG case: BAL **MUST NOT** include target contract (wasn't accessed). For success case: BAL **MUST** include target contract in `account_changes`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_call_and_oog",
+      "description": "Ensure BAL handles OOG during CALL opcode execution correctly",
+      "setup": "Alice calls contract that attempts `CALL` to cold target contract. Parameterized: (1) OOG at CALL opcode (insufficient gas), (2) Successful CALL execution.",
+      "expectation": "For OOG case: BAL **MUST NOT** include target contract (wasn't accessed). For success case: BAL **MUST** include target contract in `account_changes`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_delegatecall_and_oog",
+      "description": "Ensure BAL handles OOG during DELEGATECALL opcode execution correctly",
+      "setup": "Alice calls contract that attempts `DELEGATECALL` to cold target contract. Parameterized: (1) OOG at DELEGATECALL opcode (insufficient gas), (2) Successful DELEGATECALL execution.",
+      "expectation": "For OOG case: BAL **MUST NOT** include target contract (wasn't accessed). For success case: BAL **MUST** include target contract in `account_changes`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_extcodecopy_and_oog",
+      "description": "Ensure BAL handles OOG during EXTCODECOPY opcode execution correctly",
+      "setup": "Alice calls contract that attempts `EXTCODECOPY` from cold target contract. Parameterized: (1) OOG at EXTCODECOPY opcode (insufficient gas), (2) Successful EXTCODECOPY execution.",
+      "expectation": "For OOG case: BAL **MUST NOT** include target contract (wasn't accessed). For success case: BAL **MUST** include target contract in `account_changes`.",
+      "status": "completed",
+      "variants": []
+    },
+    {
+      "id": "test_bal_invalid_missing_nonce",
+      "description": "Verify clients reject blocks with BAL missing required nonce changes",
+      "setup": "Alice sends transaction to Bob; BAL modifier removes Alice's nonce change entry",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate that all sender accounts have nonce changes recorded.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_nonce_value",
+      "description": "Verify clients reject blocks with incorrect nonce values in BAL",
+      "setup": "Alice sends transaction to Bob; BAL modifier changes Alice's nonce to incorrect value",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate nonce values match actual state transitions.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_storage_value",
+      "description": "Verify clients reject blocks with incorrect storage values in BAL",
+      "setup": "Alice calls contract that writes to storage; BAL modifier changes storage value to incorrect value",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate storage change values match actual state transitions.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_tx_order",
+      "description": "Verify clients reject blocks with incorrect transaction indices in BAL",
+      "setup": "Alice sends transaction; BAL modifier swaps transaction indices incorrectly",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate transaction ordering matches actual block execution order.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_account",
+      "description": "Verify clients reject blocks with incorrect account addresses in BAL",
+      "setup": "Alice sends transaction; BAL modifier includes wrong account address",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate all account addresses in BAL were actually accessed.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_duplicate_account",
+      "description": "Verify clients reject blocks with duplicate account entries in BAL",
+      "setup": "Alice sends transaction; BAL modifier duplicates Alice's account entry",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** ensure each account appears at most once in BAL.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_account_order",
+      "description": "Verify clients reject blocks with incorrect account ordering in BAL",
+      "setup": "Alice sends transaction to Bob; BAL modifier reverses account order (BAL requires sorted order)",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate accounts are in canonical sorted order.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_complex_corruption",
+      "description": "Verify clients reject blocks with multiple BAL corruptions",
+      "setup": "Alice calls contract with storage writes; BAL has multiple issues: wrong account, missing nonce, wrong storage value",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** detect any corruption regardless of other issues.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_missing_account",
+      "description": "Verify clients reject blocks with missing required account entries in BAL",
+      "setup": "Alice sends transaction to Bob; BAL modifier removes Bob's account entry (recipient should be included)",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate all accessed accounts are present.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test_bal_invalid_balance_value",
+      "description": "Verify clients reject blocks with incorrect balance values in BAL",
+      "setup": "Alice sends value to Bob; BAL modifier changes balance to incorrect value",
+      "expectation": "Block **MUST** be rejected with `INVALID_BLOCK_ACCESS_LIST` exception. Clients **MUST** validate balance change values match actual state transitions.",
+      "status": "completed",
+      "variants": [
+        {
+          "parameters": [
+            "fork_Amsterdam"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "fail"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "fail"
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }
