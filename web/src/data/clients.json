@@ -6,7 +6,7 @@
     "language": "Go",
     "website": "https://geth.ethereum.org",
     "logo": "/img/logos/geth.svg",
-    "version": "Geth/v1.16.5-unstable-fe61a7a5-20250929/linux-amd64/go1.24.7",
+    "version": "Geth/v1.16.5-unstable-45ab0d6c-20251009/linux-amd64/go1.24.9",
     "githubRepo": "https://github.com/ethereum/go-ethereum/tree/bal-devnet-0"
   },
   {
@@ -26,7 +26,7 @@
     "language": "Java",
     "website": "https://besu.hyperledger.org",
     "logo": "/img/logos/besu.svg",
-    "version": "besu/v25.10-develop-3d32203/linux-x86_64/openjdk-java-21",
+    "version": "besu/v25.10-develop-4b6bfa8/linux-x86_64/openjdk-java-21",
     "githubRepo": "https://github.com/hyperledger/besu/tree/bal-devnet-0"
   },
   {
@@ -45,7 +45,7 @@
     "language": "Rust",
     "website": "https://reth.rs",
     "logo": "/img/logos/reth.svg",
-    "version": "reth-ethereum-cli Version: 1.8.2+2959a297",
+    "version": "reth-ethereum-cli Version: 1.8.2+1e9fb401",
     "githubRepo": "https://github.com/paradigmxyz/reth/tree/bal-devnet-0"
   }
 ]
