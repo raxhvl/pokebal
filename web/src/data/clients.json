@@ -6,7 +6,7 @@
     "language": "Go",
     "website": "https://geth.ethereum.org",
     "logo": "/img/logos/geth.svg",
-    "version": "Geth/v1.16.5-unstable-45ab0d6c-20251009/linux-amd64/go1.24.9",
+    "version": "Geth/v1.16.6-unstable-0de169fd-20251017/linux-amd64/go1.24.9",
     "githubRepo": "https://github.com/ethereum/go-ethereum/tree/bal-devnet-0"
   },
   {
@@ -16,7 +16,7 @@
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg",
-    "version": "1.35.0-unstable+bc43434c",
+    "version": "1.35.0-unstable+c3b9447c",
     "githubRepo": "https://github.com/NethermindEth/nethermind/tree/bal-devnet-0"
   },
   {
@@ -45,7 +45,7 @@
     "language": "Rust",
     "website": "https://reth.rs",
     "logo": "/img/logos/reth.svg",
-    "version": "reth-ethereum-cli Version: 1.8.2+1e9fb401",
+    "version": "reth-ethereum-cli Version: 1.8.2+9bcfcbf0",
     "githubRepo": "https://github.com/paradigmxyz/reth/tree/bal-devnet-0"
   }
 ]
