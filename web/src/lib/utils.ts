@@ -22,24 +22,6 @@ export function formatTestId(id: string): string {
     .replace(/\b\w/g, l => l.toUpperCase());
 }
 
-export function getCombinedTestStatus(results: Result[]): Status {
-  if (results.length === 0) return "pending";
-
-  const hasAnyFail = results.some(result => result.status === "fail");
-  if (hasAnyFail) return "fail";
-
-  const allPass = results.every(result => result.status === "pass");
-  if (allPass) return "pass";
-
-  return "pending";
-}
-
-export function getSimulationCounts(results: Result[]): { passed: number; total: number } {
-  const total = results.length;
-  const passed = results.filter(result => result.status === "pass").length;
-  return { passed, total };
-}
-
 export function getSimulationLabel(simulation: Simulation): string {
   switch (simulation) {
     case Simulation.ConsumeRLP:
@@ -49,6 +31,13 @@ export function getSimulationLabel(simulation: Simulation): string {
     default:
       return simulation;
   }
+}
+
+function hasVariantPassedAllSimulations(clientResults: Result[]): boolean {
+  return Object.values(Simulation).every(simulation => {
+    const result = clientResults.find(r => r.simulation === simulation);
+    return result?.status === "pass";
+  });
 }
 
 export function getVariantCountsForSimulation(test: Test, clientId: string, simulation: Simulation): { passed: number; total: number } {
@@ -91,12 +80,7 @@ export function getClientOverallProgress(tests: Test[], clientId: string): { pas
       }
 
       // Check if all simulations for this variant passed
-      const allSimulationsPassed = Object.values(Simulation).every(simulation => {
-        const result = clientResults.find(r => r.simulation === simulation);
-        return result?.status === "pass";
-      });
-
-      if (allSimulationsPassed) {
+      if (hasVariantPassedAllSimulations(clientResults)) {
         totalPassed += 1;
       }
     });
@@ -152,11 +136,7 @@ export function getOverallAdoptionStats(tests: any[], clients: any[]): OverallAd
         }
 
         // Check if all simulations for this variant passed
-        const allSimulationsPassed = Object.values(Simulation).every(simulation => {
-          const result = clientResults.find((r: any) => r.simulation === simulation);
-          return result?.status === "pass";
-        });
-
+        const allSimulationsPassed = hasVariantPassedAllSimulations(clientResults);
         const anySimulationFailed = clientResults.some((r: any) => r.status === "fail");
 
         if (allSimulationsPassed) {

@@ -5,8 +5,6 @@ import { Test, Client } from "../types";
 import {
   formatDate,
   formatTestId,
-  getCombinedTestStatus,
-  getSimulationCounts,
   getSimulationLabel,
   getVariantCountsForSimulation,
 } from "../lib/utils";

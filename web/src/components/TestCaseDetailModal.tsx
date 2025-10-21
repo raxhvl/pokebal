@@ -3,7 +3,7 @@ import { Simulation } from "../config/app";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import StatusIcon from "./StatusIcon";
 import ClientLogo from "./ClientLogo";
-import { formatTestId, getCombinedTestStatus } from "../lib/utils";
+import { formatTestId } from "../lib/utils";
 
 interface TestCaseDetailModalProps {
   test: Test | null;
