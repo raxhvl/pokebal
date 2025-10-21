@@ -104,3 +104,93 @@ export function getClientOverallProgress(tests: Test[], clientId: string): { pas
 
   return { passed: totalPassed, total: totalTests };
 }
+
+export interface ClientStats {
+  clientId: string;
+  passed: number;
+  failed: number;
+  pending: number;
+  total: number;
+  passRate: number;
+}
+
+export interface OverallAdoptionStats {
+  totalClients: number;
+  totalTests: number;
+  totalVariants: number;
+  overallPassRate: number;
+  clientStats: ClientStats[];
+}
+
+export function getOverallAdoptionStats(tests: any[], clients: any[]): OverallAdoptionStats {
+  // Calculate total variants across all tests
+  const totalVariants = tests.reduce((total, test) => {
+    return total + (test.variants?.length || 0);
+  }, 0);
+
+  // Calculate per-client statistics
+  const clientStats: ClientStats[] = clients.map(client => {
+    let passed = 0;
+    let failed = 0;
+    let pending = 0;
+    let total = 0;
+
+    tests.forEach(test => {
+      if (!test.variants || test.variants.length === 0) {
+        total += 1;
+        pending += 1;
+        return;
+      }
+
+      test.variants.forEach((variant: any) => {
+        total += 1;
+        const clientResults = variant.results[client.id] || [];
+
+        if (clientResults.length === 0) {
+          pending += 1;
+          return;
+        }
+
+        // Check if all simulations for this variant passed
+        const allSimulationsPassed = Object.values(Simulation).every(simulation => {
+          const result = clientResults.find((r: any) => r.simulation === simulation);
+          return result?.status === "pass";
+        });
+
+        const anySimulationFailed = clientResults.some((r: any) => r.status === "fail");
+
+        if (allSimulationsPassed) {
+          passed += 1;
+        } else if (anySimulationFailed) {
+          failed += 1;
+        } else {
+          pending += 1;
+        }
+      });
+    });
+
+    const passRate = total > 0 ? (passed / total) * 100 : 0;
+
+    return {
+      clientId: client.id,
+      passed,
+      failed,
+      pending,
+      total,
+      passRate,
+    };
+  });
+
+  // Calculate overall pass rate across all clients
+  const totalPossibleTests = clientStats.reduce((sum, stat) => sum + stat.total, 0);
+  const totalPassed = clientStats.reduce((sum, stat) => sum + stat.passed, 0);
+  const overallPassRate = totalPossibleTests > 0 ? (totalPassed / totalPossibleTests) * 100 : 0;
+
+  return {
+    totalClients: clients.length,
+    totalTests: tests.length,
+    totalVariants,
+    overallPassRate,
+    clientStats,
+  };
+}

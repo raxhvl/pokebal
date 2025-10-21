@@ -6,6 +6,7 @@ import DotGrid from "../components/DotGrid";
 import TestResultsTable from "../components/TestResultsTable";
 import TestCaseDetailModal from "../components/TestCaseDetailModal";
 import Legend from "../components/Legend";
+import AdoptionSummary from "../components/AdoptionSummary";
 import { TestResults, Clients, Test } from "../types";
 import testResultsData from "../data/test_results.json";
 import clientsData from "../data/clients.json";
@@ -65,25 +66,8 @@ function HomeContent() {
         />
       </div>
       {/* Content overlay */}
-      <div className="relative z-10 max-w-7xl mx-auto p-4">
-        {/* Simple header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-            Poké<span className="text-lime-500">BAL</span>
-          </h1>
-          <p className="text-gray-500 dark:text-gray-600 text-sm italic">
-            &gt; gotta access 'em all!
-          </p>
-          <p className="text-base text-gray-700 dark:text-gray-300 mt-4">
-            <a
-              href="https://eips.ethereum.org/EIPS/eip-7928"
-              className="text-lime-500 hover:text-lime-400 underline underline-offset-2"
-            >
-              EIP-7928 Block Access Lists
-            </a>{" "}
-            adoption tracker
-          </p>
-        </div>
+      <div className="relative z-10 max-w-7xl mx-auto p-4 space-y-6">
+        <AdoptionSummary tests={tests} clients={clients} />
 
         <Legend />
 
