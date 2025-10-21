@@ -10,7 +10,6 @@ import AdoptionSummary from "../components/AdoptionSummary";
 import { TestResults, Clients, Test } from "../types";
 import testResultsData from "../data/test_results.json";
 import clientsData from "../data/clients.json";
-import { formatDate } from "../lib/utils";
 import { Github } from "lucide-react";
 import { config } from "../config/app";
 
@@ -67,14 +66,17 @@ function HomeContent() {
       </div>
       {/* Content overlay */}
       <div className="relative z-10 max-w-7xl mx-auto p-4 space-y-6">
-        <AdoptionSummary tests={tests} clients={clients} />
+        <AdoptionSummary
+          tests={tests}
+          clients={clients}
+          lastUpdated={lastUpdated}
+        />
 
         <Legend />
 
         <TestResultsTable
           tests={tests}
           clients={clients}
-          lastUpdated={lastUpdated}
           onTestClick={handleTestClick}
         />
 
@@ -106,7 +108,9 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white dark:bg-gray-950" />}>
+    <Suspense
+      fallback={<div className="min-h-screen bg-white dark:bg-gray-950" />}
+    >
       <HomeContent />
     </Suspense>
   );

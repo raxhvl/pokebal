@@ -1,16 +1,18 @@
 import { Test, Client } from "../types";
-import { getOverallAdoptionStats } from "../lib/utils";
+import { getOverallAdoptionStats, formatDate } from "../lib/utils";
 import { config } from "../config/app";
 import CountUp from "./ui/CountUp";
 
 interface AdoptionSummaryProps {
   tests: Test[];
   clients: Client[];
+  lastUpdated: string;
 }
 
 export default function AdoptionSummary({
   tests,
   clients,
+  lastUpdated,
 }: AdoptionSummaryProps) {
   // Filter clients to only include those with known versions (active implementations)
   const activeClients = clients.filter((c) => c.version !== "unknown");
@@ -45,7 +47,8 @@ export default function AdoptionSummary({
       {/* Summary Statement */}
       <div className="text-center pt-6 border-t border-white/20 dark:border-gray-500/30">
         <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-          BAL is now adopted by{" "}
+          <span className="w-2 h-2 bg-lime-500 rounded-full animate-pulse shadow-sm"></span>
+          As of {formatDate(lastUpdated)}, BAL is adopted by{" "}
           <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-lime-500/15 border border-lime-500/30 text-lime-600 dark:text-lime-400 font-bold min-w-[2ch]">
             <CountUp
               from={0}
@@ -54,7 +57,8 @@ export default function AdoptionSummary({
               duration={2}
               delay={0.2}
             />
-          </span> of{" "}
+          </span>{" "}
+          of{" "}
           <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-lime-500/15 border border-lime-500/30 text-lime-600 dark:text-lime-400 font-bold min-w-[2ch]">
             <CountUp
               from={0}
@@ -63,9 +67,12 @@ export default function AdoptionSummary({
               duration={2}
               delay={0.4}
             />
-          </span> clients. For test
-          version <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-lime-500/15 border border-lime-500/30 text-lime-600 dark:text-lime-400 font-bold">{testVersion}</span>,
-          the average pass rate is{" "}
+          </span>{" "}
+          clients. For test version{" "}
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-lime-500/15 border border-lime-500/30 text-lime-600 dark:text-lime-400 font-bold">
+            {testVersion}
+          </span>
+          , the average pass rate is{" "}
           <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-lime-500/15 border border-lime-500/30 text-lime-600 dark:text-lime-400 font-bold min-w-[3ch]">
             <CountUp
               from={0}
@@ -73,8 +80,10 @@ export default function AdoptionSummary({
               className="font-bold text-lime-600 dark:text-lime-400"
               duration={2}
               delay={0.6}
-            />%
-          </span>.
+            />
+            %
+          </span>
+          .
         </p>
       </div>
     </div>

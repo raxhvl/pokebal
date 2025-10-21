@@ -1,9 +1,7 @@
 import StatusIcon from "./StatusIcon";
-import ClientLogo from "./ClientLogo";
 import ClientLogoWithProgress from "./ClientLogoWithProgress";
 import { Test, Client } from "../types";
 import {
-  formatDate,
   formatTestId,
   getSimulationLabel,
   getVariantCountsForSimulation,
@@ -14,14 +12,12 @@ import { Eye } from "lucide-react";
 interface TestResultsTableProps {
   tests: Test[];
   clients: Client[];
-  lastUpdated: string;
   onTestClick: (test: Test) => void;
 }
 
 export default function TestResultsTable({
   tests,
   clients,
-  lastUpdated,
   onTestClick,
 }: TestResultsTableProps) {
   // Calculate total test executions (including variants)
@@ -51,9 +47,6 @@ export default function TestResultsTable({
                     <span className="text-xs text-gray-600 dark:text-gray-400">
                       [{totalExecutions} total variants]
                     </span>
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Updated {formatDate(lastUpdated)}
                   </div>
                 </th>
                 {clients.map((client, index) => (
