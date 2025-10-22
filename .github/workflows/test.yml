@@ -5,6 +5,7 @@ on:
     # past midnight every day. See: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
     # * is a special character in YAML so you have to quote this string
     - cron: "15 0 * * *" # 15 minutes past midnight daily
+  workflow_dispatch:
 
 jobs:
   hive-integration-tests:
@@ -74,12 +75,9 @@ jobs:
           git config --local user.name "GitHub Action"
 
           git add web/src/data/test_results.json
+          git add web/src/data/clients.json
 
-          git commit -m "🧪 Update BAL test results from Hive integration tests
-
-          🤖 Generated with GitHub Actions
-
-          Co-Authored-By: GitHub Actions <noreply@github.com>"
+          git commit -m "🧪 Update test results"
 
           git push
 
