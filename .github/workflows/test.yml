@@ -1,0 +1,86 @@
+name: Block Access List Tests
+on:
+  schedule:
+    # To decrease chances of delay, workflow is scheduled 15 mins
+    # past midnight every day. See: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
+    # * is a special character in YAML so you have to quote this string
+    - cron: "15 0 * * *" # 15 minutes past midnight daily
+
+jobs:
+  hive-integration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "web/package-lock.json"
+
+      - name: Install Node.js dependencies
+        working-directory: ./web
+        run: npm ci
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Set up Docker
+        uses: docker/setup-docker@v2
+
+      - name: Install Hive CLI
+        run: |
+          echo "🔄 Installing Hive CLI..."
+          git clone https://github.com/ethereum/hive.git /tmp/hive
+          cd /tmp/hive
+          go build .
+          echo "✅ Hive CLI installed"
+
+          ./hive --cleanup || echo "Warning: Hive CLI may not be properly installed"
+
+      - name: Run integration tests
+        working-directory: ./web
+        env:
+          HIVE_PARALLEL_TX_PROCESSING_DISABLED: true
+          HIVE_AMSTERDAM_TIMESTAMP: 1759250952
+        run: |
+          echo "🚀 Running Hive integration tests..."
+          npm run test
+          echo "✅ Integration tests completed"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet web/src/data/test_results.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "📋 No changes detected in test results"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "📋 Changes detected in test results"
+          fi
+
+      - name: Commit and push results
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add web/src/data/test_results.json
+
+          git commit -m "🧪 Update BAL test results from Hive integration tests
+
+          🤖 Generated with GitHub Actions
+
+          Co-Authored-By: GitHub Actions <noreply@github.com>"
+
+          git push
+
+          echo "✅ Test results committed and pushed"
