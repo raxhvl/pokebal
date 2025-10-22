@@ -53,7 +53,7 @@ async function runHiveSimulation(simulation: Simulation) {
 	fs.mkdirSync(hiveResultsPath, { recursive: true });
 
 	const hiveCommand = [
-		`./hive --sim ethereum/eest/${simulation}`,
+		`./hive --sim ${simulation}`,
 		`--client-file=${hiveClientsPath}`,
 		`--sim.buildarg fixtures=${config.hive.buildArgs.fixtures}`,
 		`--sim.buildarg branch=${config.hive.buildArgs.branch}`,
