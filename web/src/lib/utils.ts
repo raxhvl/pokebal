@@ -174,3 +174,13 @@ export function getOverallAdoptionStats(tests: any[], clients: any[]): OverallAd
     clientStats,
   };
 }
+
+export function isTestFailing(test: Test, clients: { id: string }[]): boolean {
+  // A test is failing if any client has any failing variant for any simulation
+  return clients.some(client => {
+    return Object.values(Simulation).some(simulation => {
+      const { passed, total } = getVariantCountsForSimulation(test, client.id, simulation);
+      return total > 0 && passed < total;
+    });
+  });
+}

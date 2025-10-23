@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import StatusIcon from "./StatusIcon";
 import ClientLogoWithProgress from "./ClientLogoWithProgress";
 import { Test, Client } from "../types";
@@ -5,9 +9,11 @@ import {
   formatTestId,
   getSimulationLabel,
   getVariantCountsForSimulation,
+  isTestFailing,
 } from "../lib/utils";
 import { Simulation } from "../config/app";
-import { Eye } from "lucide-react";
+import { Eye, Filter } from "lucide-react";
+import { Switch } from "./ui/switch";
 
 interface TestResultsTableProps {
   tests: Test[];
@@ -20,14 +26,61 @@ export default function TestResultsTable({
   clients,
   onTestClick,
 }: TestResultsTableProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [showOnlyFailing, setShowOnlyFailing] = useState(false);
+
+  // Read filter state from URL on mount
+  useEffect(() => {
+    const filterParam = searchParams.get("showOnlyFailing");
+    if (filterParam === "true") {
+      setShowOnlyFailing(true);
+    }
+  }, [searchParams]);
+
+  // Filter tests based on switch state
+  const filteredTests = showOnlyFailing
+    ? tests.filter((test) => isTestFailing(test, clients))
+    : tests;
+
+  // Handle switch toggle
+  const handleFilterToggle = (checked: boolean) => {
+    setShowOnlyFailing(checked);
+    const params = new URLSearchParams(searchParams.toString());
+    if (checked) {
+      params.set("showOnlyFailing", "true");
+    } else {
+      params.delete("showOnlyFailing");
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
   // Calculate total test executions (including variants)
-  const totalExecutions = tests.reduce((total, test) => {
+  const totalExecutions = filteredTests.reduce((total, test) => {
     return total + (test.variants?.length || 1);
   }, 0);
   return (
-    <div className="w-full">
+    <div className="w-full space-y-3">
+      {/* Filter Toggle */}
+      <div className="flex justify-end">
+        <div
+          className="flex items-center space-x-3 px-4 py-2 rounded-lg bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl border border-white/30 dark:border-gray-500/40 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-900/30 transition-colors"
+          onClick={() => handleFilterToggle(!showOnlyFailing)}
+        >
+          <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          <span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+            Only failing
+          </span>
+          <Switch
+            checked={showOnlyFailing}
+            onCheckedChange={handleFilterToggle}
+            className="data-[state=checked]:bg-lime-500 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-gray-600 pointer-events-none"
+          />
+        </div>
+      </div>
+
       {/* Scroll hint for mobile */}
-      <div className="lg:hidden text-center text-xs text-gray-500 dark:text-gray-400 mb-2">
+      <div className="lg:hidden text-center text-xs text-gray-500 dark:text-gray-400">
         ← Scroll to see all clients →
       </div>
       <div className="rounded-2xl border border-white/30 dark:border-gray-500/40 bg-white/15 dark:bg-gray-900/20 backdrop-blur-xl shadow-2xl">
@@ -42,7 +95,8 @@ export default function TestResultsTable({
                   <div className="flex items-center space-x-2 mb-1">
                     <div className="w-2 h-2 bg-lime-500 rounded-full animate-pulse shadow-sm"></div>
                     <span className="font-bold text-gray-800 dark:text-gray-100">
-                      Test Cases ({tests.length})
+                      Test Cases ({filteredTests.length}
+                      {showOnlyFailing && ` of ${tests.length}`})
                     </span>
                     <span className="text-xs text-gray-600 dark:text-gray-400">
                       [{totalExecutions} total variants]
@@ -63,7 +117,7 @@ export default function TestResultsTable({
               </tr>
             </thead>
             <tbody>
-              {tests.map((test, testIndex) => (
+              {filteredTests.map((test, testIndex) => (
                 <tr
                   key={test.id}
                   className="group hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 border-b border-white/20 dark:border-gray-500/30 last:border-b-0 cursor-pointer"
