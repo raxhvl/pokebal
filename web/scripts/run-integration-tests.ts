@@ -30,7 +30,7 @@ async function verifyHiveInstallation() {
  * Clears the .hive directory to ensure clean test runs
  */
 async function clearHiveDirectory() {
-	const hiveResultsPath = path.join(__dirname, "../.hive");
+	const hiveResultsPath = path.resolve(__dirname, "../.hive");
 
 	console.log("🧹 Clearing hive results directory...");
 
@@ -46,8 +46,8 @@ async function clearHiveDirectory() {
  * Results are output to the .hive directory in the web folder
  */
 async function runHiveSimulation(simulation: Simulation) {
-	const hiveResultsPath = path.join(__dirname, "../.hive", simulation);
-	const hiveClientsPath = path.join(__dirname, "../src/data/hive_clients.yml");
+	const hiveResultsPath = path.resolve(__dirname, "../.hive", simulation);
+	const hiveClientsPath = path.resolve(__dirname, "../src/data/hive_clients.yml");
 
 	// Create simulation-specific directory
 	fs.mkdirSync(hiveResultsPath, { recursive: true });
@@ -70,9 +70,9 @@ async function runHiveSimulation(simulation: Simulation) {
 	try {
 		await execAsync(hiveCommand, { cwd: HIVE_REPO_PATH });
 	} catch (error: any) {
-		// throw new Error(
-		//   `❌ Error running Hive Simulation ${simulation} [error: ${error.message}]`,
-		// );
+		throw new Error(
+			`❌ Error running Hive Simulation ${simulation} [error: ${error.message}]`,
+		);
 	}
 }
 
