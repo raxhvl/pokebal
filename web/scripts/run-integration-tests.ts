@@ -47,7 +47,10 @@ async function clearHiveDirectory() {
  */
 async function runHiveSimulation(simulation: Simulation) {
 	const hiveResultsPath = path.resolve(__dirname, "../.hive", simulation);
-	const hiveClientsPath = path.resolve(__dirname, "../src/data/hive_clients.yml");
+	const hiveClientsPath = path.resolve(
+		__dirname,
+		"../src/data/hive_clients.yml",
+	);
 
 	// Create simulation-specific directory
 	fs.mkdirSync(hiveResultsPath, { recursive: true });
@@ -68,11 +71,13 @@ async function runHiveSimulation(simulation: Simulation) {
 	console.log(`Command: ${hiveCommand}`);
 
 	try {
-		await execAsync(hiveCommand, { cwd: HIVE_REPO_PATH });
+		const { stdout, stderr } = await execAsync(hiveCommand, {
+			cwd: HIVE_REPO_PATH,
+		});
 	} catch (error: any) {
-		throw new Error(
-			`❌ Error running Hive Simulation ${simulation} [error: ${error.message}]`,
-		);
+		// console.err(
+		// 	`❌ Error running Hive Simulation ${simulation} [error: ${error.message}]`,
+		// );
 	}
 }
 

@@ -19,7 +19,7 @@ export const config = {
 		parallelism: 4,
 		buildArgs: {
 			fixtures: "bal@v1.3.0",
-			branch: "main",
+			branch: "forks/amsterdam",
 		},
 		testFilter: "id:tests/amsterdam/eip7928_block_level_access_lists",
 		clientConfig: "src/data/hive_config.yml",
