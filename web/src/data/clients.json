@@ -16,7 +16,7 @@
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg",
-    "version": "1.35.0-unstable+689f10c6",
+    "version": "1.35.0-unstable+3b928e90",
     "githubRepo": "https://github.com/NethermindEth/nethermind/tree/bal-devnet-0"
   },
   {
@@ -45,7 +45,7 @@
     "language": "Rust",
     "website": "https://reth.rs",
     "logo": "/img/logos/reth.svg",
-    "version": "reth-ethereum-cli Version: 1.8.2+9bcfcbf0",
+    "version": "reth-ethereum-cli Version: 1.8.2+57269e28",
     "githubRepo": "https://github.com/paradigmxyz/reth/tree/bal-devnet-0"
   }
 ]

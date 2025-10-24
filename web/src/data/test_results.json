@@ -1,6 +1,6 @@
 {
   "spec": "Block Access Lists (BAL) - EIP-7928",
-  "lastUpdated": "2025-10-22T07:36:20.313Z",
+  "lastUpdated": "2025-10-24T18:29:09.002Z",
   "tests": [
     {
       "id": "test_bal_nonce_changes",
@@ -1234,7 +1234,7 @@
                 "status": "pass"
               }
             ],
-            "reth": [
+            "besu": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -1244,7 +1244,7 @@
                 "status": "pass"
               }
             ],
-            "besu": [
+            "reth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -2008,55 +2008,6 @@
         {
           "parameters": [
             "fork_Amsterdam",
-            "invalid",
-            "extcodesize"
-          ],
-          "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "reth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "besu": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ]
-          }
-        },
-        {
-          "parameters": [
-            "fork_Amsterdam",
             "revert",
             "extcodehash"
           ],
@@ -2107,7 +2058,7 @@
           "parameters": [
             "fork_Amsterdam",
             "invalid",
-            "staticcall"
+            "extcodesize"
           ],
           "results": {
             "geth": [
@@ -2204,8 +2155,8 @@
         {
           "parameters": [
             "fork_Amsterdam",
-            "revert",
-            "balance"
+            "invalid",
+            "staticcall"
           ],
           "results": {
             "geth": [
@@ -2255,6 +2206,55 @@
             "fork_Amsterdam",
             "revert",
             "staticcall"
+          ],
+          "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
+          }
+        },
+        {
+          "parameters": [
+            "fork_Amsterdam",
+            "revert",
+            "balance"
           ],
           "results": {
             "geth": [
@@ -3450,6 +3450,16 @@
             "oog_at_eip2200_stipend"
           ],
           "results": {
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
             "reth": [
               {
                 "simulation": "consume-rlp",
@@ -3461,16 +3471,6 @@
               }
             ],
             "besu": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "geth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -3498,16 +3498,6 @@
             "oog_at_eip2200_stipend_plus_1"
           ],
           "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
@@ -3518,7 +3508,7 @@
                 "status": "pass"
               }
             ],
-            "reth": [
+            "geth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -3529,6 +3519,16 @@
               }
             ],
             "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "reth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -3546,16 +3546,6 @@
             "oog_at_exact_gas_minus_1"
           ],
           "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
             "nethermind": [
               {
                 "simulation": "consume-rlp",
@@ -3566,7 +3556,7 @@
                 "status": "pass"
               }
             ],
-            "reth": [
+            "geth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -3577,6 +3567,16 @@
               }
             ],
             "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "reth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -3594,16 +3594,6 @@
             "successful_sstore"
           ],
           "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
             "reth": [
               {
                 "simulation": "consume-rlp",
@@ -3615,6 +3605,16 @@
               }
             ],
             "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "geth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -3648,29 +3648,9 @@
         {
           "parameters": [
             "fork_Amsterdam",
-            "successful_sload"
+            "oog_at_sload"
           ],
           "results": {
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
             "reth": [
               {
                 "simulation": "consume-rlp",
@@ -3690,13 +3670,33 @@
                 "simulation": "consume-engine",
                 "status": "pass"
               }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "nethermind": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
             ]
           }
         },
         {
           "parameters": [
             "fork_Amsterdam",
-            "oog_at_sload"
+            "successful_sload"
           ],
           "results": {
             "reth": [
@@ -4014,7 +4014,7 @@
             "successful_call"
           ],
           "results": {
-            "nethermind": [
+            "geth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -4024,7 +4024,7 @@
                 "status": "pass"
               }
             ],
-            "geth": [
+            "nethermind": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -4068,54 +4068,6 @@
         {
           "parameters": [
             "fork_Amsterdam",
-            "oog_at_delegatecall"
-          ],
-          "results": {
-            "nethermind": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "reth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "besu": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ]
-          }
-        },
-        {
-          "parameters": [
-            "fork_Amsterdam",
             "successful_delegatecall"
           ],
           "results": {
@@ -4139,7 +4091,35 @@
                 "status": "pass"
               }
             ],
+            "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
             "besu": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ]
+          }
+        },
+        {
+          "parameters": [
+            "fork_Amsterdam",
+            "oog_at_delegatecall"
+          ],
+          "results": {
+            "nethermind": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -4150,6 +4130,26 @@
               }
             ],
             "reth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "besu": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -4176,7 +4176,17 @@
             "oog_at_extcodecopy"
           ],
           "results": {
-            "nethermind": [
+            "geth": [
+              {
+                "simulation": "consume-rlp",
+                "status": "pass"
+              },
+              {
+                "simulation": "consume-engine",
+                "status": "pass"
+              }
+            ],
+            "reth": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -4196,17 +4206,7 @@
                 "status": "pass"
               }
             ],
-            "geth": [
-              {
-                "simulation": "consume-rlp",
-                "status": "pass"
-              },
-              {
-                "simulation": "consume-engine",
-                "status": "pass"
-              }
-            ],
-            "reth": [
+            "nethermind": [
               {
                 "simulation": "consume-rlp",
                 "status": "pass"
@@ -4317,7 +4317,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4373,7 +4373,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4429,7 +4429,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4485,7 +4485,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4541,7 +4541,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4587,7 +4587,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ],
             "geth": [
@@ -4653,7 +4653,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4709,7 +4709,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4765,7 +4765,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
@@ -4821,7 +4821,7 @@
               },
               {
                 "simulation": "consume-engine",
-                "status": "fail"
+                "status": "pass"
               }
             ]
           }
