@@ -74,7 +74,7 @@ jobs:
           git add web/src/data/test_results.json
           git add web/src/data/clients.json
 
-          git commit -m "🧪 Update test results"
+          git commit -m "🚥 ci: Test results updated"
 
           git push
 
