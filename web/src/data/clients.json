@@ -16,7 +16,7 @@
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg",
-    "version": "1.35.0-unstable+3b928e90",
+    "version": "1.35.0-unstable+80cadecf",
     "githubRepo": "https://github.com/NethermindEth/nethermind/tree/bal-devnet-0"
   },
   {
