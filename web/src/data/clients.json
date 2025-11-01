@@ -16,7 +16,7 @@
     "language": "C#",
     "website": "https://nethermind.io",
     "logo": "/img/logos/nethermind.svg",
-    "version": "1.35.0-unstable+80cadecf",
+    "version": "1.35.0-unstable+23171a38",
     "githubRepo": "https://github.com/NethermindEth/nethermind/tree/bal-devnet-0"
   },
   {
@@ -26,7 +26,7 @@
     "language": "Java",
     "website": "https://besu.hyperledger.org",
     "logo": "/img/logos/besu.svg",
-    "version": "besu/v25.10-develop-4b6bfa8/linux-x86_64/openjdk-java-21",
+    "version": "besu/v25.11-develop-4b6bfa8/linux-x86_64/openjdk-java-21",
     "githubRepo": "https://github.com/hyperledger/besu/tree/bal-devnet-0"
   },
   {
