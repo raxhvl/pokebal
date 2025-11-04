@@ -5,7 +5,7 @@ export enum Simulation {
 
 export const config = {
 	baseGithubUrl:
-		"https://github.com/ethereum/execution-spec-tests/blob/main/tests/amsterdam/eip7928_block_level_access_lists/test_cases.md",
+		"https://github.com/ethereum/execution-specs/blob/eips/amsterdam/eip-7928/tests/amsterdam/eip7928_block_level_access_lists/test_cases.md",
 	get checklistRawUrl() {
 		return this.baseGithubUrl
 			.replace("github.com", "raw.githubusercontent.com")
@@ -19,7 +19,7 @@ export const config = {
 		parallelism: 4,
 		buildArgs: {
 			fixtures: "bal@v1.4.0",
-			branch: "forks/amsterdam",
+			branch: "eips/amsterdam/eip-7928",
 		},
 		testFilter: "id:tests/amsterdam/eip7928_block_level_access_lists",
 		clientConfig: "src/data/hive_config.yml",
