@@ -13,9 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PokéBAL - Gotta access 'em all!",
-  description:
-    "A collection of helpful resources for Block Access Lists (BAL) implementors",
+  title: "PokéBAL - Now part of Butterfly",
+  description: "PokéBAL has been migrated to Butterfly",
 };
 
 export default function RootLayout({
