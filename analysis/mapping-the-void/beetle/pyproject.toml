@@ -1,0 +1,13 @@
+[project]
+name = "beetle"
+version = "0.1.0"
+description = "Verify a geth snapshot and replay export/import cycles across two BAL arms."
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+beetle = "beetle.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
