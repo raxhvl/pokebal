@@ -16,7 +16,7 @@ def cmd_verify(args: argparse.Namespace) -> None:
 
 
 def cmd_replay(args: argparse.Namespace) -> None:
-    replay.run(args.blocks)
+    replay.run(args.blocks, skip_build=args.skip_build, keep_export=args.keep_export)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -33,6 +33,14 @@ def build_parser() -> argparse.ArgumentParser:
         "replay", help="build both arms, then replay the range on each"
     )
     replay_cmd.add_argument("--range", dest="blocks", type=block_range, required=True)
+    replay_cmd.add_argument(
+        "--skip-build", action="store_true", help="reuse the built arm binaries"
+    )
+    replay_cmd.add_argument(
+        "--keep-export",
+        action="store_true",
+        help="keep the exported blocks after the run",
+    )
     replay_cmd.set_defaults(func=cmd_replay)
 
     return parser

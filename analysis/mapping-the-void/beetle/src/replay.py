@@ -16,9 +16,14 @@ def _fail_line(output: str, markers: tuple[str, ...]) -> str:
     )
 
 
-def leg(arm: str, blocks: tuple[int, int]) -> str:
+def leg(
+    arm: str, blocks: tuple[int, int], *, skip_build: bool, keep_export: bool
+) -> str:
     frm, to = blocks
-    geth_bin = geth.build(arm)
+    geth_bin = geth.binary(arm) if skip_build else geth.build(arm)
+    if not geth_bin.exists():
+        raise SystemExit(f"replay {arm}: {geth_bin} not built — drop --skip-build")
+    kept = None
     with snapshot.workspace(f"replay-{arm}") as ws:
         datadir = ws / "datadir"
         rlp = ws / f"blocks-{frm}-{to}.rlp"
@@ -46,13 +51,21 @@ def leg(arm: str, blocks: tuple[int, int]) -> str:
                 f"replay {arm}: import failed, datadir left rewound — "
                 f"{_fail_line(imported.output, _IMPORT_BAD)}"
             )
-    return f"replayed {frm}..{to}"
+
+        if keep_export:
+            kept = snapshot.WORK / f"replay-{arm}-{frm}-{to}.rlp"
+            rlp.rename(kept)
+    return f"replayed {frm}..{to}" + (f" · kept {kept}" if kept else "")
 
 
-def run(blocks: tuple[int, int]) -> None:
+def run(
+    blocks: tuple[int, int], *, skip_build: bool = False, keep_export: bool = False
+) -> None:
     frm, _ = blocks
     if frm < 2:
         raise SystemExit("replay: from must be >= 2 — can't rewind to genesis safely")
     for arm in geth.ARMS:
-        print(f"OK {arm}: {leg(arm, blocks)}")
+        print(
+            f"OK {arm}: {leg(arm, blocks, skip_build=skip_build, keep_export=keep_export)}"
+        )
     print("replay complete for both arms")

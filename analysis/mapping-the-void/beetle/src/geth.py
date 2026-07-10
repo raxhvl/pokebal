@@ -48,7 +48,7 @@ def build(arm: str) -> Path:
 
 
 def flags(datadir: Path) -> list[str]:
-    return ["--datadir", str(datadir)]
+    return ["--datadir", str(datadir), "--state.scheme", "path"]
 
 
 def run(geth_bin: Path, *args: str) -> Result:
@@ -115,7 +115,7 @@ def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
             try:
                 if "result" in _rpc("eth_blockNumber"):
                     break
-            except (OSError, ValueError):
+            except OSError, ValueError:
                 pass
             time.sleep(1)
         else:
