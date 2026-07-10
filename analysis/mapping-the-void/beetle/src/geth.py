@@ -115,7 +115,7 @@ def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
             try:
                 if "result" in _rpc("eth_blockNumber"):
                     break
-            except OSError, ValueError:
+            except (OSError, ValueError):
                 pass
             time.sleep(1)
         else:

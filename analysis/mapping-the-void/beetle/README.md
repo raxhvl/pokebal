@@ -10,6 +10,11 @@ Copy `.env.example` to `.env` and fill in:
 
 - `SNAPSHOT_DIR` — the geth snapshot (datadir) to replay
 - `GETH_REPO_PATH` — the geth repo the two arms are built from
+- `SNAPSHOT_MODE` — how each arm gets a private, disposable view of the snapshot
+  without touching the pristine one:
+  - `reflink` — CoW copy via `cp --reflink` (btrfs / XFS-with-reflink; rootless)
+  - `overlay` — overlayfs mount with the snapshot as read-only lower (ext4 and
+    other non-CoW filesystems; needs root for `mount`)
 
 ## Usage
 
