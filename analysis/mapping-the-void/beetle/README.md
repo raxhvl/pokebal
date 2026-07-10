@@ -14,6 +14,9 @@ Copy `.env.example` to `.env` and fill in:
 ## Usage
 
 ```sh
-uv run beetle verify --range <from..to>   # check the snapshot serves historical state
-uv run beetle run    --range <from..to>   # build arms, replay, compare
+uv run beetle verify --range <from..to>   # precheck: snapshot serves historical state
+uv run beetle replay --range <from..to>   # build arms, replay the range on each
 ```
+
+Run `verify` once as a precheck before `replay` — `replay` skips the historical-state
+check to avoid re-doing that work every run.

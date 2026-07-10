@@ -1,5 +1,6 @@
 import argparse
 
+import replay
 import verify
 
 
@@ -14,8 +15,8 @@ def cmd_verify(args: argparse.Namespace) -> None:
     verify.run(args.blocks)
 
 
-def cmd_run(args: argparse.Namespace) -> None:
-    raise SystemExit("run: not yet implemented")
+def cmd_replay(args: argparse.Namespace) -> None:
+    replay.run(args.blocks)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -28,11 +29,11 @@ def build_parser() -> argparse.ArgumentParser:
     verify_cmd.add_argument("--range", dest="blocks", type=block_range, required=True)
     verify_cmd.set_defaults(func=cmd_verify)
 
-    run_cmd = sub.add_parser(
-        "run", help="build both arms, verify, then replay the range"
+    replay_cmd = sub.add_parser(
+        "replay", help="build both arms, then replay the range on each"
     )
-    run_cmd.add_argument("--range", dest="blocks", type=block_range, required=True)
-    run_cmd.set_defaults(func=cmd_run)
+    replay_cmd.add_argument("--range", dest="blocks", type=block_range, required=True)
+    replay_cmd.set_defaults(func=cmd_replay)
 
     return parser
 

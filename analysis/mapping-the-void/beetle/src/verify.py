@@ -1,10 +1,7 @@
 from pathlib import Path
 
-import config
 import geth
 import snapshot
-
-WORK = Path(__file__).resolve().parent.parent / "work"
 
 _BAD = ("missing trie node", "export error", "fatal")
 
@@ -43,18 +40,11 @@ def resolves(
 
 
 def run(blocks: tuple[int, int]) -> None:
-    snapshot_dir = Path(config.require("SNAPSHOT_DIR"))
-    WORK.mkdir(exist_ok=True)
-
     results = {}
     for arm in geth.ARMS:
-        geth_bin = geth.ensure_arm(arm)
-        copy = snapshot.reflink_copy(snapshot_dir, WORK / f"verify-{arm}")
-        try:
-            results[arm] = resolves(geth_bin, copy, blocks, WORK / f"verify-{arm}.rlp")
-        finally:
-            snapshot.remove(copy)
-            (WORK / f"verify-{arm}.rlp").unlink(missing_ok=True)
+        geth_bin = geth.build(arm)
+        with snapshot.workspace(f"verify-{arm}") as ws:
+            results[arm] = resolves(geth_bin, ws / "datadir", blocks, ws / "export.rlp")
 
     for arm, (ok, detail) in results.items():
         print(f"{'PASS' if ok else 'FAIL'} {arm}: {detail}")

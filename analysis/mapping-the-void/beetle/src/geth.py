@@ -1,5 +1,8 @@
+import json
 import subprocess
 import sys
+import time
+import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,6 +14,12 @@ ARMS = {
     "base": "lab/baseline-bal-replay",
     "empty": "lab/bal-with-empty",
 }
+
+# Offline node booted only to issue debug_setHead, then torn down.
+_RPC = "http://127.0.0.1:8545"
+_HTTP_PORT = "8545"
+_AUTHRPC_PORT = "8551"
+_STARTUP_SECS = 20
 
 
 @dataclass
@@ -27,10 +36,8 @@ def binary(arm: str) -> Path:
     return repo() / "build" / "bin" / f"geth-{arm}"
 
 
-def ensure_arm(arm: str) -> Path:
+def build(arm: str) -> Path:
     path = binary(arm)
-    if path.exists():
-        return path
     branch = ARMS[arm]
     subprocess.run(["git", "-C", str(repo()), "checkout", branch], check=True)
     subprocess.run(["make", "geth"], cwd=repo(), check=True)
@@ -71,6 +78,57 @@ def export_blocks(
 
 def import_blocks(geth_bin: Path, datadir: Path, blocks_file: Path) -> Result:
     return run(geth_bin, *flags(datadir), "import", WITH_BAL, str(blocks_file))
+
+
+def _rpc(method: str, *params: str) -> dict:
+    body = json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": method, "params": list(params)}
+    ).encode()
+    req = urllib.request.Request(
+        _RPC, data=body, headers={"Content-Type": "application/json"}
+    )
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        return json.load(resp)
+
+
+def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
+    node = subprocess.Popen(
+        [
+            str(geth_bin),
+            *flags(datadir),
+            "--http",
+            "--http.port",
+            _HTTP_PORT,
+            "--http.api",
+            "eth,debug",
+            "--authrpc.port",
+            _AUTHRPC_PORT,
+            "--nodiscover",
+            "--maxpeers",
+            "0",
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        for _ in range(_STARTUP_SECS):
+            try:
+                if "result" in _rpc("eth_blockNumber"):
+                    break
+            except (OSError, ValueError):
+                pass
+            time.sleep(1)
+        else:
+            raise SystemExit("rewind: node never answered; can't set head")
+        _rpc("debug_setHead", hex(to_block))
+        return int(_rpc("eth_blockNumber")["result"], 16)
+    finally:
+        node.terminate()
+        try:
+            node.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            node.kill()
+        time.sleep(1)
 
 
 def has_with_bal(geth_bin: Path) -> bool:

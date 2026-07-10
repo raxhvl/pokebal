@@ -1,6 +1,12 @@
 import shutil
 import subprocess
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
+
+import config
+
+WORK = Path(__file__).resolve().parent.parent / "work"
 
 
 def reflink_copy(src: Path, dst: Path) -> Path:
@@ -21,3 +27,15 @@ def reflink_copy(src: Path, dst: Path) -> Path:
 
 def remove(path: Path) -> None:
     shutil.rmtree(path, ignore_errors=True)
+
+
+@contextmanager
+def workspace(name: str) -> Iterator[Path]:
+    root = WORK / name
+    remove(root)
+    root.mkdir(parents=True)
+    reflink_copy(Path(config.require("SNAPSHOT_DIR")), root / "datadir")
+    try:
+        yield root
+    finally:
+        remove(root)
