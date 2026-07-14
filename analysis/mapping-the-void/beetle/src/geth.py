@@ -20,7 +20,7 @@ ARMS = {
 _RPC = "http://127.0.0.1:8545"
 _HTTP_PORT = "8545"
 _AUTHRPC_PORT = "8551"
-_STARTUP_SECS = 20
+_STARTUP_SECS = 120
 
 
 @dataclass
@@ -95,6 +95,8 @@ def _rpc(method: str, *params: str) -> dict:
 
 @contextlib.contextmanager
 def _offline_node(geth_bin: Path, datadir: Path):
+    log_path = datadir.parent / "offline-node.log"
+    log = open(log_path, "wb")
     node = subprocess.Popen(
         [
             str(geth_bin),
@@ -110,8 +112,8 @@ def _offline_node(geth_bin: Path, datadir: Path):
             "--maxpeers",
             "0",
         ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=log,
+        stderr=subprocess.STDOUT,
     )
     try:
         for _ in range(_STARTUP_SECS):
@@ -122,7 +124,10 @@ def _offline_node(geth_bin: Path, datadir: Path):
                 pass
             time.sleep(1)
         else:
-            raise SystemExit("offline node never answered within startup window")
+            tail = "\n".join(log_path.read_text(errors="replace").splitlines()[-20:])
+            raise SystemExit(
+                f"offline node never answered within {_STARTUP_SECS}s — last log lines:\n{tail}"
+            )
         yield
     finally:
         node.terminate()
@@ -130,6 +135,7 @@ def _offline_node(geth_bin: Path, datadir: Path):
             node.wait(timeout=30)
         except subprocess.TimeoutExpired:
             node.kill()
+        log.close()
         time.sleep(1)
 
 
