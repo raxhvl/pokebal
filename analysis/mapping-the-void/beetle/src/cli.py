@@ -1,5 +1,6 @@
 import argparse
 
+import index
 import replay
 import verify
 
@@ -9,6 +10,10 @@ def block_range(text: str) -> tuple[int, int]:
     if not hi:
         raise argparse.ArgumentTypeError("range must look like FROM..TO")
     return int(lo), int(hi)
+
+
+def cmd_index(args: argparse.Namespace) -> None:
+    index.run(skip_build=args.skip_build)
 
 
 def cmd_verify(args: argparse.Namespace) -> None:
@@ -22,6 +27,15 @@ def cmd_replay(args: argparse.Namespace) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="beetle")
     sub = parser.add_subparsers(required=True)
+
+    index_cmd = sub.add_parser(
+        "index",
+        help="one-time: build the state-history index on the snapshot itself",
+    )
+    index_cmd.add_argument(
+        "--skip-build", action="store_true", help="reuse the built arm binaries"
+    )
+    index_cmd.set_defaults(func=cmd_index)
 
     verify_cmd = sub.add_parser(
         "verify", help="check the snapshot can serve historical state"

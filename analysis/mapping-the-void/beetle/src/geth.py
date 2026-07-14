@@ -16,11 +16,11 @@ ARMS = {
     "empty": "lab/bal-with-empty",
 }
 
-# Offline node booted only to issue debug_setHead, then torn down.
+# Offline node booted for heal / debug_setHead, then torn down.
 _RPC = "http://127.0.0.1:8545"
 _HTTP_PORT = "8545"
 _AUTHRPC_PORT = "8551"
-_STARTUP_SECS = 20
+_STARTUP_SECS = 120
 
 
 @dataclass
@@ -72,13 +72,20 @@ def export_blocks(
     geth_bin: Path, datadir: Path, out: Path, blocks: tuple[int, int]
 ) -> Result:
     frm, to = blocks
-    print(
-        f"\n===== HEAL {geth_bin.name}: read-write boot to create missing freezer tables ====="
-    )
-    heal(geth_bin, datadir)
     print(f"\n===== EXPORT {geth_bin.name}: blocks {frm}..{to} (+BAL) =====")
+    # Archive mode constructs the state-history indexer, without which geth
+    # refuses to serve the historical parent states the BAL recompute reads.
+    # `beetle index` must have built the index on the snapshot beforehand.
     return run(
-        geth_bin, *flags(datadir), "export", WITH_BAL, str(out), str(frm), str(to)
+        geth_bin,
+        *flags(datadir),
+        "--gcmode",
+        "archive",
+        "export",
+        WITH_BAL,
+        str(out),
+        str(frm),
+        str(to),
     )
 
 
@@ -98,7 +105,7 @@ def _rpc(method: str, *params: str) -> dict:
 
 
 @contextlib.contextmanager
-def _offline_node(geth_bin: Path, datadir: Path):
+def _offline_node(geth_bin: Path, datadir: Path, *extra: str):
     # No stdout/stderr redirect: geth's log inherits the terminal and streams
     # live, so a failed boot is visible right where it happens.
     node = subprocess.Popen(
@@ -115,6 +122,7 @@ def _offline_node(geth_bin: Path, datadir: Path):
             "--nodiscover",
             "--maxpeers",
             "0",
+            *extra,
         ],
     )
     try:
@@ -122,14 +130,14 @@ def _offline_node(geth_bin: Path, datadir: Path):
             try:
                 if "result" in _rpc("eth_blockNumber"):
                     break
-            except OSError, ValueError:
+            except (OSError, ValueError):
                 pass
             time.sleep(1)
         else:
             raise SystemExit(
                 f"offline node never answered within {_STARTUP_SECS}s (see geth log above)"
             )
-        yield
+        yield node
     finally:
         node.terminate()
         try:
@@ -139,11 +147,31 @@ def _offline_node(geth_bin: Path, datadir: Path):
         time.sleep(1)
 
 
-def heal(geth_bin: Path, datadir: Path) -> None:
-    """Boot read-write once so the freezer creates any table the snapshot
-    predates (a read-only export can't). No chain mutation."""
-    with _offline_node(geth_bin, datadir):
-        pass
+_ZERO_ADDRESS = "0x" + "00" * 20
+_PROBE_DEPTH = 80_000  # comfortably inside the 90k-block state-history retention
+_INDEX_POLL_SECS = 15
+
+
+def index_history(geth_bin: Path, datadir: Path) -> None:
+    """Boot archive mode on the datadir and wait until the state-history
+    indexer can serve historical state, then shut down cleanly. The index
+    lands in the key-value store, so copies of the datadir inherit it. The
+    boot also repairs an unclean tip and creates freezer tables the snapshot
+    predates (what the old heal phase did)."""
+    with _offline_node(geth_bin, datadir, "--gcmode", "archive") as node:
+        head = int(_rpc("eth_blockNumber")["result"], 16)
+        probe = max(head - _PROBE_DEPTH, 1)
+        start = time.monotonic()
+        while True:
+            reply = _rpc("eth_getBalance", _ZERO_ADDRESS, hex(probe))
+            if "result" in reply:
+                print(f"index ready — historical state at block {probe} resolves")
+                return
+            if node.poll() is not None:
+                raise SystemExit("geth exited while indexing (see log above)")
+            error = reply.get("error", {}).get("message", "no error given")
+            print(f"[{int(time.monotonic() - start)}s] block {probe}: {error}")
+            time.sleep(_INDEX_POLL_SECS)
 
 
 def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
