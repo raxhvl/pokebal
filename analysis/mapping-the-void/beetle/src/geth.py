@@ -20,7 +20,7 @@ ARMS = {
 _RPC = "http://127.0.0.1:8545"
 _HTTP_PORT = "8545"
 _AUTHRPC_PORT = "8551"
-_STARTUP_SECS = 120
+_STARTUP_SECS = 20
 
 
 @dataclass
@@ -72,7 +72,11 @@ def export_blocks(
     geth_bin: Path, datadir: Path, out: Path, blocks: tuple[int, int]
 ) -> Result:
     frm, to = blocks
+    print(
+        f"\n===== HEAL {geth_bin.name}: read-write boot to create missing freezer tables ====="
+    )
     heal(geth_bin, datadir)
+    print(f"\n===== EXPORT {geth_bin.name}: blocks {frm}..{to} (+BAL) =====")
     return run(
         geth_bin, *flags(datadir), "export", WITH_BAL, str(out), str(frm), str(to)
     )
@@ -95,8 +99,8 @@ def _rpc(method: str, *params: str) -> dict:
 
 @contextlib.contextmanager
 def _offline_node(geth_bin: Path, datadir: Path):
-    log_path = datadir.parent / "offline-node.log"
-    log = open(log_path, "wb")
+    # No stdout/stderr redirect: geth's log inherits the terminal and streams
+    # live, so a failed boot is visible right where it happens.
     node = subprocess.Popen(
         [
             str(geth_bin),
@@ -112,21 +116,18 @@ def _offline_node(geth_bin: Path, datadir: Path):
             "--maxpeers",
             "0",
         ],
-        stdout=log,
-        stderr=subprocess.STDOUT,
     )
     try:
         for _ in range(_STARTUP_SECS):
             try:
                 if "result" in _rpc("eth_blockNumber"):
                     break
-            except (OSError, ValueError):
+            except OSError, ValueError:
                 pass
             time.sleep(1)
         else:
-            tail = "\n".join(log_path.read_text(errors="replace").splitlines()[-20:])
             raise SystemExit(
-                f"offline node never answered within {_STARTUP_SECS}s — last log lines:\n{tail}"
+                f"offline node never answered within {_STARTUP_SECS}s (see geth log above)"
             )
         yield
     finally:
@@ -135,7 +136,6 @@ def _offline_node(geth_bin: Path, datadir: Path):
             node.wait(timeout=30)
         except subprocess.TimeoutExpired:
             node.kill()
-        log.close()
         time.sleep(1)
 
 
