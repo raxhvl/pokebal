@@ -1,3 +1,4 @@
+import contextlib
 import json
 import subprocess
 import sys
@@ -71,6 +72,7 @@ def export_blocks(
     geth_bin: Path, datadir: Path, out: Path, blocks: tuple[int, int]
 ) -> Result:
     frm, to = blocks
+    heal(geth_bin, datadir)
     return run(
         geth_bin, *flags(datadir), "export", WITH_BAL, str(out), str(frm), str(to)
     )
@@ -91,7 +93,8 @@ def _rpc(method: str, *params: str) -> dict:
         return json.load(resp)
 
 
-def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
+@contextlib.contextmanager
+def _offline_node(geth_bin: Path, datadir: Path):
     node = subprocess.Popen(
         [
             str(geth_bin),
@@ -119,9 +122,8 @@ def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
                 pass
             time.sleep(1)
         else:
-            raise SystemExit("rewind: node never answered; can't set head")
-        _rpc("debug_setHead", hex(to_block))
-        return int(_rpc("eth_blockNumber")["result"], 16)
+            raise SystemExit("offline node never answered within startup window")
+        yield
     finally:
         node.terminate()
         try:
@@ -129,6 +131,19 @@ def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
         except subprocess.TimeoutExpired:
             node.kill()
         time.sleep(1)
+
+
+def heal(geth_bin: Path, datadir: Path) -> None:
+    """Boot read-write once so the freezer creates any table the snapshot
+    predates (a read-only export can't). No chain mutation."""
+    with _offline_node(geth_bin, datadir):
+        pass
+
+
+def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
+    with _offline_node(geth_bin, datadir):
+        _rpc("debug_setHead", hex(to_block))
+        return int(_rpc("eth_blockNumber")["result"], 16)
 
 
 def has_with_bal(geth_bin: Path) -> bool:
