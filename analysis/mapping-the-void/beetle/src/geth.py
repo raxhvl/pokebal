@@ -90,7 +90,15 @@ def export_blocks(
 
 
 def import_blocks(geth_bin: Path, datadir: Path, blocks_file: Path) -> Result:
-    return run(geth_bin, *flags(datadir), "import", WITH_BAL, str(blocks_file))
+    return run(
+        geth_bin,
+        *flags(datadir),
+        "import",
+        WITH_BAL,
+        "--nocompaction",
+        "true",
+        str(blocks_file),
+    )
 
 
 def _rpc(method: str, *params: str) -> dict:
