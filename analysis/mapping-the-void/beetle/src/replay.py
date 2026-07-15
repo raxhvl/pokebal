@@ -2,7 +2,7 @@ import geth
 import snapshot
 
 _EXPORT_BAD = ("missing trie node", "export error", "fatal")
-_IMPORT_BAD = ("import error", "invalid", "fatal")
+_IMPORT_BAD = ("import error", "invalid block", "fatal")
 
 
 def _fail_line(output: str, markers: tuple[str, ...]) -> str:

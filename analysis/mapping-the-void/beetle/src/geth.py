@@ -95,8 +95,7 @@ def import_blocks(geth_bin: Path, datadir: Path, blocks_file: Path) -> Result:
         *flags(datadir),
         "import",
         WITH_BAL,
-        "--nocompaction",
-        "true",
+        "--nocompaction=true",
         str(blocks_file),
     )
 
