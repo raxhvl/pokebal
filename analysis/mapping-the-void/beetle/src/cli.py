@@ -1,7 +1,9 @@
 import argparse
 
+import geth
 import index
 import replay
+import snapshot
 import verify
 
 
@@ -22,6 +24,23 @@ def cmd_verify(args: argparse.Namespace) -> None:
 
 def cmd_replay(args: argparse.Namespace) -> None:
     replay.run(args.blocks, skip_build=args.skip_build, keep_export=args.keep_export)
+
+
+def cmd_metrics(args: argparse.Namespace) -> None:
+    import metrics  # lazy: pulls in matplotlib, unwanted for replay/verify
+
+    frm, to = args.blocks
+    exports = {
+        arm: path
+        for arm in geth.ARMS
+        if (path := snapshot.WORK / f"replay-{arm}-{frm}-{to}.rlp").exists()
+    }
+    if not exports:
+        raise SystemExit(
+            f"no kept exports for {frm}..{to} in {snapshot.WORK} — "
+            "run `beetle replay --range … --keep-export` first"
+        )
+    metrics.run_all(exports, snapshot.WORK / "metrics")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -56,6 +75,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="keep the exported blocks after the run",
     )
     replay_cmd.set_defaults(func=cmd_replay)
+
+    metrics_cmd = sub.add_parser(
+        "metrics", help="run all metrics over a range's kept exports -> work/metrics/"
+    )
+    metrics_cmd.add_argument("--range", dest="blocks", type=block_range, required=True)
+    metrics_cmd.set_defaults(func=cmd_metrics)
 
     return parser
 

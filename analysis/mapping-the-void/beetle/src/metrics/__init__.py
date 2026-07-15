@@ -7,10 +7,11 @@ replay tail calls `run_all`, which runs every metric and returns their artifacts
 
 from pathlib import Path
 
-from . import void_heatmap
+from . import void_heatmap, void_trend
 
 REGISTRY = {
     "void_heatmap": void_heatmap.run,
+    "void_trend": void_trend.run,
 }
 
 
