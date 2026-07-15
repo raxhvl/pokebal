@@ -130,7 +130,7 @@ def _offline_node(geth_bin: Path, datadir: Path, *extra: str):
             try:
                 if "result" in _rpc("eth_blockNumber"):
                     break
-            except (OSError, ValueError):
+            except OSError, ValueError:
                 pass
             time.sleep(1)
         else:
@@ -174,10 +174,39 @@ def index_history(geth_bin: Path, datadir: Path) -> None:
             time.sleep(_INDEX_POLL_SECS)
 
 
+_REWIND_POLL_SECS = 10
+_REWIND_DEADLINE_SECS = 3600
+
+
 def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
-    with _offline_node(geth_bin, datadir):
-        _rpc("debug_setHead", hex(to_block))
-        return int(_rpc("eth_blockNumber")["result"], 16)
+    # debug_setHead applies one reverse diff per rewound block before it
+    # returns, so any fixed HTTP timeout loses on big ranges: fire the call,
+    # shrug off the client-side timeout, and poll the head instead. The
+    # tx-history flag pins the retention to "keep all" so the boot doesn't
+    # spend the whole rewind background-unindexing the fully indexed base.
+    with _offline_node(geth_bin, datadir, "--history.transactions", "0") as node:
+        try:
+            reply = _rpc("debug_setHead", hex(to_block))
+            if "error" in reply:
+                raise SystemExit(f"debug_setHead failed: {reply['error']}")
+        except TimeoutError:
+            print(f"setHead still running after the RPC timeout; polling the head")
+        deadline = time.monotonic() + _REWIND_DEADLINE_SECS
+        while True:
+            try:
+                head = int(_rpc("eth_blockNumber")["result"], 16)
+            except OSError, ValueError:
+                head = None
+            if head == to_block:
+                return head
+            if node.poll() is not None:
+                raise SystemExit("geth exited during rewind (see log above)")
+            if time.monotonic() > deadline:
+                raise SystemExit(
+                    f"rewind to {to_block} still at {head} after {_REWIND_DEADLINE_SECS}s"
+                )
+            print(f"rewinding... head at {head}, target {to_block}")
+            time.sleep(_REWIND_POLL_SECS)
 
 
 def has_with_bal(geth_bin: Path) -> bool:
