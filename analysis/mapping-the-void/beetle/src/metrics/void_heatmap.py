@@ -1,9 +1,10 @@
 """Void bitmap of a single, representative block, drawn.
 
 Two panels — accounts and storage slots. One cell per item the block accessed,
-in BAL order; the cell is red if that item was void at block start (a
-non-existent account / a zero slot — a disk read the BAL could skip) and grey
-if it existed. This is the block's void bitmap made visible.
+in BAL order, read left to right, top to bottom; the cell is red if that item
+was void at block start (a non-existent account / a zero slot — a disk read
+the BAL could skip) and grey if it existed. This is the block's void bitmap
+made visible.
 
 The block shown is the median by total items accessed — a typical-sized block,
 not a cherry-picked spike. collect() decodes the empty arm's export and keeps
@@ -12,20 +13,13 @@ that one block's bitmaps; render() draws them from the stats json.
 
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")  # headless: no display, just write files
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
-from matplotlib.patches import Patch
 
 import sidecar
+from metrics import style
 
-_DPI = 200
-_EXISTS = "#d9d9d9"  # grey: item existed — read still paid
-_VOID = "#d73027"    # red: item was void — the skippable read
-_CMAP = ListedColormap([_EXISTS, _VOID])
+_CMAP = ListedColormap([style.EXISTS, style.VOID])
 
 
 def collect(exports: dict[str, Path], endpoint: str) -> dict:
@@ -53,36 +47,31 @@ def _grid(flags: list[bool]) -> np.ndarray:
 
 def _draw(ax, flags: list[bool], label: str):
     grid = _grid(flags)
-    ax.pcolormesh(grid, cmap=_CMAP, vmin=0, vmax=1, edgecolors="white", linewidth=1.0)
+    ax.pcolormesh(grid, cmap=_CMAP, vmin=0, vmax=1,
+                  edgecolors="white", linewidth=1.4)
     void = sum(flags)
-    ax.set_title(
-        f"{label} — {void} of {len(flags)} void ({void / len(flags):.0%})",
-        loc="left", fontsize=11, fontweight="bold",
-    )
+    ax.set_title(label, loc="left", fontsize=12, fontweight=600, color=style.INK)
+    ax.set_title(f"{void} of {len(flags)} void · {void / len(flags):.0%}",
+                 loc="right", fontsize=10, fontweight=500, color=style.MUTED)
     ax.set_aspect("equal")
+    ax.set_anchor("N")  # hang both grids from the same top line
     ax.invert_yaxis()
     ax.set_xticks([])
     ax.set_yticks([])
-    for spine in ax.spines.values():
-        spine.set_visible(False)
+    ax.spines[:].set_visible(False)
 
 
 def render(data: dict, outdir: Path) -> Path:
-    fig, axes = plt.subplots(1, 2, figsize=(11, 6))
-    _draw(axes[0], data["account_void"], "Accounts")
-    _draw(axes[1], data["slot_void"], "Storage slots")
-
-    fig.suptitle(f"The void — block {data['number']}", x=0.02, ha="left",
-                 fontsize=14, fontweight="bold")
-    fig.legend(
-        handles=[Patch(facecolor=_VOID, label="void (skippable read)"),
-                 Patch(facecolor=_EXISTS, label="existed (read paid)")],
-        loc="lower center", ncol=2, frameon=False, fontsize=10,
+    acct, slots = data["account_void"], data["slot_void"]
+    fig, axes = style.figure(
+        1, 2, (10, 6),
+        f"The void — block {data['number']}",
+        "one cell per item the block accessed, in BAL order, read left to right",
+        width_ratios=[_grid(acct).shape[1], _grid(slots).shape[1]],
     )
-    fig.subplots_adjust(bottom=0.12)
+    _draw(axes[0], acct, "Accounts")
+    _draw(axes[1], slots, "Storage slots")
 
-    out = Path(outdir) / "void-heatmap.png"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, format="png", dpi=_DPI, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    fig.subplots_adjust(top=0.80, bottom=0.10, left=0.04, right=0.96, wspace=0.14)
+    style.caption(fig, "red — void (skippable read)   ·   grey — existed (read paid)")
+    return style.save(fig, outdir, "void-heatmap.png")

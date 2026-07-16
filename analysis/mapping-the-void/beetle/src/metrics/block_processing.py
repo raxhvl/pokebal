@@ -1,73 +1,84 @@
-"""Block execution wall-clock, with the empty-BAL and without.
+"""Block execution wall-clock, with and without the void marker.
 
-Two bars — mean per-block EVM execution on the base arm (no skip) and the empty
-arm (BAL skips the void reads) — and the time the marker shaves off. This is
-geth's own chain/execution timer, i.e. real wall-clock: it cannot exceed the
-block's actual processing time, unlike a sum of per-read latencies (which
-overcounts because the BAL executor reads in parallel).
+One panel, two lines — mean per-block EVM execution over the course of the
+replay, baseline arm in ink, void-marked arm in green, the gap between them
+shaded: that area is the time the marker gives back. Drawn from geth's own
+chain/execution timer (real wall-clock, reported once a second, each report
+covering the blocks imported in that interval), so unlike a sum of per-read
+latencies it cannot overcount parallel reads.
 
-collect() reads it from InfluxDB, tagged host=BAL-base / host=BAL-empty.
+collect() pulls the per-interval series and the range means from InfluxDB,
+tagged host=BAL-base / host=BAL-empty.
 """
 
-import json
-import urllib.parse
-import urllib.request
 from pathlib import Path
 
-import matplotlib
+import numpy as np
 
-matplotlib.use("Agg")  # headless: no display, just write files
-import matplotlib.pyplot as plt
-
-_DPI = 200
-_NO_BAL = "#4575b4"  # blue: base arm, no skip
-_WITH_BAL = "#1a9850"  # green: empty arm, void reads skipped
-_DB = "geth"
+from metrics import influx, style
 
 
-def _exec_ms(endpoint: str, host: str) -> float:
-    q = f'SELECT mean("mean") FROM "geth.chain/execution.timer" WHERE "host"=\'{host}\''
-    url = endpoint + "/query?" + urllib.parse.urlencode({"db": _DB, "q": q})
-    with urllib.request.urlopen(url, timeout=15) as r:
-        series = json.load(r)["results"][0].get("series")
-    ns = series[0]["values"][0][1] if series else None
-    return (ns or 0) / 1e6
+def _arm(endpoint: str, host: str) -> dict:
+    rows = influx.series(endpoint, "chain/execution.timer", host, '"count", "mean"')
+    counts = [r[1] for r in rows]
+    return {
+        "blocks": np.cumsum(counts).tolist(),  # blocks replayed by each report
+        "ms": [r[2] / 1e6 for r in rows],
+    }
 
 
 def collect(exports: dict[str, Path], endpoint: str) -> dict:
-    base = _exec_ms(endpoint, "BAL-base")
-    empty = _exec_ms(endpoint, "BAL-empty")
-    return {"base_ms": base, "empty_ms": empty, "saved_ms": base - empty}
+    base_ms = influx.mean_ns(endpoint, "chain/execution.timer", "BAL-base") / 1e6
+    empty_ms = influx.mean_ns(endpoint, "chain/execution.timer", "BAL-empty") / 1e6
+    return {
+        "base": _arm(endpoint, "BAL-base"),
+        "empty": _arm(endpoint, "BAL-empty"),
+        "base_ms": base_ms,
+        "empty_ms": empty_ms,
+        "saved_ms": base_ms - empty_ms,
+    }
 
 
 def render(data: dict, outdir: Path) -> Path:
-    base, empty, saved = data["base_ms"], data["empty_ms"], data["saved_ms"]
+    base, empty = data["base"], data["empty"]
+    base_ms, empty_ms, saved = data["base_ms"], data["empty_ms"], data["saved_ms"]
+    total = int(max(base["blocks"][-1], empty["blocks"][-1]))
 
-    fig, ax = plt.subplots(figsize=(7, 6))
-    bars = ax.bar(["no BAL", "with BAL"], [base, empty],
-                  color=[_NO_BAL, _WITH_BAL], edgecolor="none")
-    for bar, v in zip(bars, (base, empty)):
-        ax.text(bar.get_x() + bar.get_width() / 2, v, f"{v:.2f} ms",
-                ha="center", va="bottom", fontsize=11, fontweight="bold")
-
-    ax.annotate(
-        "", xy=(0.5, empty), xytext=(0.5, base),
-        arrowprops=dict(arrowstyle="<->", color=_WITH_BAL, lw=2),
+    fig, ax = style.figure(
+        1, 1, (9.5, 5.2),
+        "Block execution time",
+        f"wall-clock per block across the {total}-block replay — "
+        "the shaded gap is what the marker gives back",
     )
-    ax.text(0.58, (base + empty) / 2, f"−{saved:.2f} ms/block\nsaved",
-            color=_WITH_BAL, fontsize=11, fontweight="bold", va="center")
 
-    ax.set_title("Block execution time — wall-clock per block",
-                 loc="left", fontsize=12, fontweight="bold")
-    ax.set_ylabel("execution time per block (ms)")
-    ax.margins(y=0.15)
+    # common grid so the gap between the arms can be shaded
+    grid = np.linspace(1, total, 400)
+    base_i = np.interp(grid, base["blocks"], base["ms"])
+    empty_i = np.interp(grid, empty["blocks"], empty["ms"])
+    ax.fill_between(grid, empty_i, base_i, where=base_i >= empty_i,
+                    color=style.SAVED, alpha=0.14, linewidth=0)
+
+    ax.plot(base["blocks"], base["ms"], color=style.INK, linewidth=1.8)
+    ax.plot(empty["blocks"], empty["ms"], color=style.SAVED, linewidth=1.8)
+
+    for avg, color, label in (
+        (base_ms, style.INK, "baseline BAL"),
+        (empty_ms, style.SAVED, "void-marked BAL"),
+    ):
+        ax.axhline(avg, color=color, linewidth=1.0, linestyle=(0, (2, 3)), alpha=0.6)
+        ax.annotate(f"{label} · avg {avg:.2f} ms", xy=(1.0, avg),
+                    xycoords=("axes fraction", "data"), xytext=(8, 0),
+                    textcoords="offset points", va="center",
+                    fontsize=10, fontweight=600, color=color)
+
+    style.badge(ax, 0.86, 0.90, f"saves {saved:.2f} ms/block · {saved / base_ms:.1%}",
+                style.SAVED, style.SAVED_TINT, fontsize=12.5, transform=ax.transAxes)
+
+    ax.set_xlabel("blocks replayed")
+    ax.set_ylabel("mean execution time (ms)")
+    ax.set_xlim(0, total)
     ax.set_ylim(bottom=0)
-    for spine in ("top", "right"):
-        ax.spines[spine].set_visible(False)
-    fig.tight_layout()
+    style.tidy(ax)
 
-    out = Path(outdir) / "block-processing.png"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, format="png", dpi=_DPI, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    fig.subplots_adjust(top=0.80, bottom=0.13, left=0.07, right=0.82)
+    return style.save(fig, outdir, "block-processing.png")

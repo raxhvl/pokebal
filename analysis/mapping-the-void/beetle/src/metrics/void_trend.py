@@ -1,10 +1,13 @@
-"""Void vs total accessed across the whole block range, as a stacked area.
+"""Void vs total accessed across the whole block range.
 
-Two panels stacked — accounts on top, storage slots below. For each block the
-red band is items that were void (non-existent account / zero slot) at block
-start and the grey band on top is items that existed; together they reach the
-total the block accessed. A dashed line marks the range's average void count,
-so bursts (airdrops, mints) stand out against the baseline.
+Two panels — accounts on top, storage slots below. Per block, the red band is
+items that were void at block start, the grey band on top is items that
+existed; both are smoothed with a rolling mean so the shape reads instead of
+the noise (a faint line traces the raw per-block total). Each band carries its
+own average count and share of reads, labelled in place — a share line was
+tried and dropped: totals are near-constant, so it just re-traced the stack
+boundary. The flatness of the bands is the point: the void is a constant
+feature of the workload, not bursts.
 
 collect() decodes the empty arm's export (the only one carrying the void bits)
 into per-block arrays; render() draws them, so the image regenerates from the
@@ -13,18 +16,12 @@ stats json alone.
 
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")  # headless: no display, just write files
-import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
+import numpy as np
 
 import sidecar
+from metrics import style
 
-_DPI = 200
-_VOID = "#d73027"    # red: void — the skippable reads
-_EXISTS = "#d9d9d9"  # grey: existed — reads still paid
-_MEAN = "#57606a"    # average line
+_WINDOW = 25  # blocks; ~2.5% of the range
 
 
 def collect(exports: dict[str, Path], endpoint: str) -> dict:
@@ -41,40 +38,53 @@ def collect(exports: dict[str, Path], endpoint: str) -> dict:
     }
 
 
+def _smooth(values) -> np.ndarray:
+    kernel = np.ones(_WINDOW) / _WINDOW
+    return np.convolve(values, kernel, mode="valid")
+
+
 def _panel(ax, nums, void, total, title):
-    existing = [t - v for t, v in zip(total, void)]
-    ax.stackplot(nums, void, existing, colors=[_VOID, _EXISTS], edgecolor="none")
-    avg = sum(void) / len(void)
-    ax.axhline(avg, color=_MEAN, linestyle="--", linewidth=1.2)
-    ax.text(nums[-1], avg, f" avg {avg:.0f}", color=_MEAN, va="center",
-            fontsize=9, fontweight="bold")
-    ax.set_title(title, loc="left", fontsize=11, fontweight="bold")
+    nums, void, total = np.asarray(nums), np.asarray(void), np.asarray(total)
+    mid = nums[_WINDOW // 2 : -(_WINDOW // 2)]  # x for the rolling window
+    void_s, total_s = _smooth(void), _smooth(total)
+
+    ax.stackplot(mid, void_s, total_s - void_s,
+                 colors=[style.VOID, style.EXISTS], edgecolor="none")
+    ax.plot(nums, total, color=style.MUTED, linewidth=0.6, alpha=0.45)
+
+    # each band labelled in place: average count plus its share of reads
+    center = nums[0] + (nums[-1] - nums[0]) / 2
+    void_avg, exist_avg = void.mean(), (total - void).mean()
+    pct = void.sum() / total.sum()
+    ax.text(center, void_avg / 2,
+            f"void — avg {void_avg:.0f}/block · {pct:.0%} of reads",
+            ha="center", va="center", fontsize=11, fontweight=700, color="white")
+    if exist_avg > void_avg / 3:  # label the grey band only if it can hold text
+        ax.text(center, void_avg + exist_avg / 2,
+                f"existed — avg {exist_avg:.0f}/block · {1 - pct:.0%}",
+                ha="center", va="center", fontsize=10, fontweight=600,
+                color=style.INK)
+
+    ax.set_title(title, loc="left", fontsize=12, fontweight=600, color=style.INK)
     ax.set_ylabel("items / block")
-    ax.margins(x=0.01, y=0)
+    ax.set_xlim(nums[0], nums[-1])
     ax.set_ylim(bottom=0)
-    for spine in ("top", "right"):
-        ax.spines[spine].set_visible(False)
+    style.tidy(ax)
 
 
 def render(data: dict, outdir: Path) -> Path:
     nums = data["numbers"]
-    fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+    fig, axes = style.figure(
+        2, 1, (10, 6.6),
+        f"Void vs total accessed — blocks {nums[0]}–{nums[-1]}",
+        f"per-block reads, {_WINDOW}-block rolling mean — "
+        "red was void at block start (skippable), grey found data",
+        sharex=True,
+    )
     _panel(axes[0], nums, data["account_void"], data["account_total"], "Accounts")
     _panel(axes[1], nums, data["slot_void"], data["slot_total"], "Storage slots")
     axes[1].set_xlabel("block")
 
-    span = f"blocks {nums[0]}–{nums[-1]}"
-    fig.suptitle(f"Void vs total accessed — {span}", x=0.02, ha="left",
-                 fontsize=14, fontweight="bold")
-    fig.legend(
-        handles=[Patch(facecolor=_VOID, label="void (skippable read)"),
-                 Patch(facecolor=_EXISTS, label="existed (read paid)")],
-        loc="lower center", ncol=2, frameon=False, fontsize=10,
-    )
-    fig.tight_layout(rect=(0, 0.04, 1, 1))
-
-    out = Path(outdir) / "void-trend.png"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, format="png", dpi=_DPI, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    fig.subplots_adjust(top=0.83, bottom=0.15, left=0.07, right=0.97, hspace=0.42)
+    style.caption(fig, "faint line — raw per-block total, before smoothing")
+    return style.save(fig, outdir, "void-trend.png")

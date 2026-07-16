@@ -1,88 +1,68 @@
-"""The cost of a void read — slower than a real read, and erased by the empty-BAL.
+"""The cost of a void read — proving absence is slower than finding data.
 
-Two panels, accounts and storage. Each shows three read latencies side by side:
-a read that found data, a read that proved absence with no BAL, and that same
-void read once the empty-BAL lets the client answer it from a bitmap instead of
-walking to disk. The first gap is the price of proving absence; the second is
-what the marker reclaims.
+Two panels, accounts and storage. Each compares the mean latency of a read
+that found data with one that proved absence — the ×N badge is the price of
+descending the full trie to confirm nothing is there. What the marker does
+about it is a separate chart (void_skip); this one only establishes the cost.
 
-collect() pulls the Timer A means from InfluxDB (state/read/.../duration),
-tagged per arm (host=BAL-base = un-skipped truth, host=BAL-empty = skip active).
+collect() pulls the Timer A means from InfluxDB (state/read/.../duration) on
+the base arm (host=BAL-base), where nothing is skipped.
 """
 
-import json
-import urllib.parse
-import urllib.request
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")  # headless: no display, just write files
-import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
-
-_DPI = 200
-_EXIST = "#d9d9d9"  # grey: read found data
-_VOID = "#d73027"   # red: read proved absence, all the way to disk
-_SAVED = "#1a9850"  # green: void answered from the BAL, no disk trip
-_DB = "geth"
-
-
-def _mean_us(endpoint: str, measurement: str, host: str) -> float:
-    q = f'SELECT mean("mean") FROM "geth.{measurement}" WHERE "host"=\'{host}\''
-    url = endpoint + "/query?" + urllib.parse.urlencode({"db": _DB, "q": q})
-    with urllib.request.urlopen(url, timeout=15) as r:
-        series = json.load(r)["results"][0].get("series")
-    ns = series[0]["values"][0][1] if series else None
-    return (ns or 0) / 1000.0
+from metrics import influx, style
 
 
 def collect(exports: dict[str, Path], endpoint: str) -> dict:
     def bars(kind: str) -> dict:
         m = f"state/read/{kind}/{{}}/duration.timer"
         return {
-            "exist_us": _mean_us(endpoint, m.format("exist"), "BAL-base"),
-            "void_us": _mean_us(endpoint, m.format("empty"), "BAL-base"),
-            "void_bal_us": _mean_us(endpoint, m.format("empty"), "BAL-empty"),
+            "exist_us": influx.mean_ns(endpoint, m.format("exist"), "BAL-base") / 1e3,
+            "void_us": influx.mean_ns(endpoint, m.format("empty"), "BAL-base") / 1e3,
         }
 
     return {"account": bars("account"), "storage": bars("storage")}
 
 
-def _panel(ax, kind: str, d: dict) -> None:
-    values = [d["exist_us"], d["void_us"], d["void_bal_us"]]
-    bars = ax.bar(["exist", "void", "void + BAL"], values,
-                  color=[_EXIST, _VOID, _SAVED], edgecolor="none")
-    for bar, v in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width() / 2, v, f"{v:.1f} µs",
-                ha="center", va="bottom", fontsize=9, fontweight="bold")
-    ax.set_title(kind.capitalize(), loc="left", fontsize=11, fontweight="bold")
-    ax.set_ylabel("read latency (µs)")
-    ax.margins(y=0.18)
-    ax.set_ylim(bottom=0)
-    for spine in ("top", "right"):
-        ax.spines[spine].set_visible(False)
+def _us(v: float) -> str:
+    return f"{v:.2f} µs" if v < 1 else f"{v:.1f} µs"
+
+
+def _panel(ax, title: str, d: dict) -> None:
+    exist, void = d["exist_us"], d["void_us"]
+    ax.bar([0, 1], [exist, void], width=0.62,
+           color=[style.EXISTS, style.VOID], edgecolor="none")
+    for x, v in ((0, exist), (1, void)):
+        ax.text(x, v + void * 0.02, _us(v), ha="center", va="bottom",
+                fontsize=11, fontweight=600, color=style.INK)
+
+    # anchor line at the exist level; the gap above it is the price of absence
+    ax.axhline(exist, color=style.MUTED, linewidth=1.0, linestyle=(0, (2, 3)))
+    style.badge(ax, 1, void * 1.22, f"{void / exist:.1f}× slower",
+                style.VOID, style.VOID_TINT)
+
+    ax.set_title(title, loc="left", fontsize=12, fontweight=600, color=style.INK)
+    ax.set_xticks([0, 1], ["exist", "void"])
+    ax.tick_params(axis="x", labelsize=11)
+    for tick in ax.get_xticklabels():
+        tick.set_color(style.INK)
+        tick.set_fontweight(500)
+    ax.set_ylabel("mean read latency (µs)")
+    ax.set_ylim(0, void * 1.38)
+    ax.margins(x=0.14)
+    style.tidy(ax)
 
 
 def render(data: dict, outdir: Path) -> Path:
-    fig, axes = plt.subplots(1, 2, figsize=(9, 5))
-    _panel(axes[0], "account", data["account"])
-    _panel(axes[1], "storage", data["storage"])
-
-    fig.suptitle("The cost of a void read", x=0.02, ha="left",
-                 fontsize=14, fontweight="bold")
-    fig.legend(
-        handles=[
-            Patch(facecolor=_EXIST, label="exist — found data"),
-            Patch(facecolor=_VOID, label="void — proved absence (hits disk)"),
-            Patch(facecolor=_SAVED, label="void + BAL — skipped"),
-        ],
-        loc="lower center", ncol=3, frameon=False, fontsize=9,
+    fig, axes = style.figure(
+        1, 2, (9.5, 5.2),
+        "The cost of a void read",
+        "mean state-read latency by outcome — a void read walks the whole trie to prove absence",
     )
-    fig.tight_layout(rect=(0, 0.05, 1, 1))
-
-    out = Path(outdir) / "cost-of-void.png"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, format="png", dpi=_DPI, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    _panel(axes[0], "Account", data["account"])
+    _panel(axes[1], "Storage slot", data["storage"])
+    fig.subplots_adjust(top=0.78, bottom=0.16, left=0.08, right=0.97, wspace=0.28)
+    style.caption(fig, "exist — the read found data   ·   "
+                       "void — nothing there, and proving it costs the full descent")
+    return style.save(fig, outdir, "cost-of-void.png")
