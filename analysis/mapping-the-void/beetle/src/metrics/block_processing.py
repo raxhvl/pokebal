@@ -1,16 +1,12 @@
-"""What the empty-BAL reclaims per block — the gain, in wall-clock.
+"""Block execution wall-clock, with the empty-BAL and without.
 
-A block spends real time proving absence: for every empty account/slot it reads,
-it walks to disk and comes back empty-handed. This sums that time per block and
-shows it before and after the empty-BAL: two stacked bars (no BAL / with BAL),
-each split into the account and storage share, with the reclaimed delta called
-out. The drop between the bars is the metric that matters to a validator.
+Two bars — mean per-block EVM execution on the base arm (no skip) and the empty
+arm (BAL skips the void reads) — and the time the marker shaves off. This is
+geth's own chain/execution timer, i.e. real wall-clock: it cannot exceed the
+block's actual processing time, unlike a sum of per-read latencies (which
+overcounts because the BAL executor reads in parallel).
 
-Per-read latency comes from the Timer A meters in InfluxDB (tagged host=BAL-base
-= un-skipped, host=BAL-empty = skip active); the per-block count comes from the
-replayed range in the export filename. Reclaimed/block = skips/block × the drop
-in mean read latency — mean is used deliberately: it's the only statistic that
-aggregates to a total (count × mean = summed time), which a percentile can't.
+collect() reads it from InfluxDB, tagged host=BAL-base / host=BAL-empty.
 """
 
 import json
@@ -22,84 +18,56 @@ import matplotlib
 
 matplotlib.use("Agg")  # headless: no display, just write files
 import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
-
-import config
 
 _DPI = 200
-_ACCOUNT = "#4575b4"  # blue: account-read share
-_STORAGE = "#91bfdb"  # light blue: storage-read share
-_SAVED = "#1a9850"    # green: the reclaimed delta
+_NO_BAL = "#4575b4"  # blue: base arm, no skip
+_WITH_BAL = "#1a9850"  # green: empty arm, void reads skipped
 _DB = "geth"
 
 
-def _query(endpoint: str, agg: str, field: str, measurement: str, host: str) -> float:
-    q = f'SELECT {agg}("{field}") FROM "geth.{measurement}" WHERE "host"=\'{host}\''
+def _exec_ms(endpoint: str, host: str) -> float:
+    q = f'SELECT mean("mean") FROM "geth.chain/execution.timer" WHERE "host"=\'{host}\''
     url = endpoint + "/query?" + urllib.parse.urlencode({"db": _DB, "q": q})
     with urllib.request.urlopen(url, timeout=15) as r:
         series = json.load(r)["results"][0].get("series")
-    return (series[0]["values"][0][1] or 0) if series else 0.0
+    ns = series[0]["values"][0][1] if series else None
+    return (ns or 0) / 1e6
 
 
-def _blocks(exports: dict[str, Path]) -> int:
-    # replay-<arm>-<from>-<to>.rlp -> block count of the replayed range.
-    stem = next(iter(exports.values())).stem
-    frm, to = (int(x) for x in stem.split("-")[-2:])
-    return to - frm + 1
+def collect(exports: dict[str, Path], endpoint: str) -> dict:
+    base = _exec_ms(endpoint, "BAL-base")
+    empty = _exec_ms(endpoint, "BAL-empty")
+    return {"base_ms": base, "empty_ms": empty, "saved_ms": base - empty}
 
 
-def _per_block_ms(endpoint: str, kind: str, blocks: int) -> tuple[float, float]:
-    """(no-BAL, with-BAL) ms/block spent in this kind's empty reads."""
-    m = f"state/read/{kind}/empty/duration.timer"
-    skips = _query(endpoint, "sum", "count", m, "BAL-base") / blocks
-    base = _query(endpoint, "mean", "mean", m, "BAL-base")
-    withbal = _query(endpoint, "mean", "mean", m, "BAL-empty")
-    return skips * base / 1e6, skips * withbal / 1e6
-
-
-def render(endpoint: str, blocks: int, out: Path) -> Path:
-    acct = _per_block_ms(endpoint, "account", blocks)
-    stor = _per_block_ms(endpoint, "storage", blocks)
-    no_bal = (acct[0], stor[0])   # (account, storage) with no BAL
-    with_bal = (acct[1], stor[1])
-    totals = (sum(no_bal), sum(with_bal))
+def render(data: dict, outdir: Path) -> Path:
+    base, empty, saved = data["base_ms"], data["empty_ms"], data["saved_ms"]
 
     fig, ax = plt.subplots(figsize=(7, 6))
-    x = ["no BAL", "with BAL"]
-    account = [no_bal[0], with_bal[0]]
-    storage = [no_bal[1], with_bal[1]]
-    ax.bar(x, account, color=_ACCOUNT, label="account reads")
-    ax.bar(x, storage, bottom=account, color=_STORAGE, label="storage reads")
+    bars = ax.bar(["no BAL", "with BAL"], [base, empty],
+                  color=[_NO_BAL, _WITH_BAL], edgecolor="none")
+    for bar, v in zip(bars, (base, empty)):
+        ax.text(bar.get_x() + bar.get_width() / 2, v, f"{v:.2f} ms",
+                ha="center", va="bottom", fontsize=11, fontweight="bold")
 
-    for i, total in enumerate(totals):
-        ax.text(i, total, f"{total:.2f} ms", ha="center", va="bottom",
-                fontsize=11, fontweight="bold")
-
-    # Reclaimed delta, drawn in the gap between the bars so it clips neither label.
-    reclaimed = totals[0] - totals[1]
     ax.annotate(
-        "", xy=(0.5, totals[1]), xytext=(0.5, totals[0]),
-        arrowprops=dict(arrowstyle="<->", color=_SAVED, lw=2),
+        "", xy=(0.5, empty), xytext=(0.5, base),
+        arrowprops=dict(arrowstyle="<->", color=_WITH_BAL, lw=2),
     )
-    ax.text(0.58, (totals[0] + totals[1]) / 2, f"−{reclaimed:.2f} ms/block\nreclaimed",
-            color=_SAVED, fontsize=11, fontweight="bold", va="center")
+    ax.text(0.58, (base + empty) / 2, f"−{saved:.2f} ms/block\nsaved",
+            color=_WITH_BAL, fontsize=11, fontweight="bold", va="center")
 
-    ax.set_title(f"Block processing — time spent proving absence  ({blocks} blocks)",
+    ax.set_title("Block execution time — wall-clock per block",
                  loc="left", fontsize=12, fontweight="bold")
-    ax.set_ylabel("empty-read time per block (ms)")
+    ax.set_ylabel("execution time per block (ms)")
     ax.margins(y=0.15)
     ax.set_ylim(bottom=0)
-    ax.legend(frameon=False, fontsize=9, loc="upper right")
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)
     fig.tight_layout()
 
+    out = Path(outdir) / "block-processing.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, format="png", dpi=_DPI, bbox_inches="tight")
     plt.close(fig)
     return out
-
-
-def run(exports: dict[str, Path], outdir: Path) -> Path:
-    endpoint = config.require("INFLUX_ENDPOINT")
-    return render(endpoint, _blocks(exports), Path(outdir) / "block-processing.png")

@@ -22,25 +22,33 @@ def cmd_verify(args: argparse.Namespace) -> None:
     verify.run(args.blocks)
 
 
+def _render_metrics(blocks: tuple[int, int], *, skip_query: bool) -> None:
+    import metrics  # lazy: pulls in matplotlib, unwanted for replay/verify
+
+    exports: dict[str, object] = {}
+    if not skip_query:
+        frm, to = blocks
+        exports = {
+            arm: path
+            for arm in geth.ARMS
+            if (path := snapshot.EXPORTS / f"{arm}-{frm}-{to}.rlp").exists()
+        }
+        if not exports:
+            raise SystemExit(
+                f"no exports for {frm}..{to} in {snapshot.EXPORTS} — "
+                "run `beetle replay --range …` first"
+            )
+    metrics.run_all(exports, snapshot.WORK / "metrics", blocks, skip_query=skip_query)
+
+
 def cmd_replay(args: argparse.Namespace) -> None:
     replay.run(args.blocks, skip_build=args.skip_build, skip_export=args.skip_export)
+    if args.metrics:
+        _render_metrics(args.blocks, skip_query=False)
 
 
 def cmd_metrics(args: argparse.Namespace) -> None:
-    import metrics  # lazy: pulls in matplotlib, unwanted for replay/verify
-
-    frm, to = args.blocks
-    exports = {
-        arm: path
-        for arm in geth.ARMS
-        if (path := snapshot.EXPORTS / f"{arm}-{frm}-{to}.rlp").exists()
-    }
-    if not exports:
-        raise SystemExit(
-            f"no exports for {frm}..{to} in {snapshot.EXPORTS} — "
-            "run `beetle replay --range …` first"
-        )
-    metrics.run_all(exports, snapshot.WORK / "metrics")
+    _render_metrics(args.blocks, skip_query=args.skip_query)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -72,12 +80,20 @@ def build_parser() -> argparse.ArgumentParser:
     replay_cmd.add_argument(
         "--skip-export", action="store_true", help="reuse cached exports in work/exports/"
     )
+    replay_cmd.add_argument(
+        "--metrics", action="store_true", help="render metrics after the replay"
+    )
     replay_cmd.set_defaults(func=cmd_replay)
 
     metrics_cmd = sub.add_parser(
-        "metrics", help="run all metrics over a range's kept exports -> work/metrics/"
+        "metrics", help="query -> stats json -> images in work/metrics/"
     )
     metrics_cmd.add_argument("--range", dest="blocks", type=block_range, required=True)
+    metrics_cmd.add_argument(
+        "--skip-query",
+        action="store_true",
+        help="skip influx; render from the existing stats json",
+    )
     metrics_cmd.set_defaults(func=cmd_metrics)
 
     return parser

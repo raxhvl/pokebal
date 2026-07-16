@@ -6,8 +6,8 @@ non-existent account / a zero slot — a disk read the BAL could skip) and grey
 if it existed. This is the block's void bitmap made visible.
 
 The block shown is the median by total items accessed — a typical-sized block,
-not a cherry-picked spike. Reads the empty arm's export (the only one carrying
-the void bits).
+not a cherry-picked spike. collect() decodes the empty arm's export and keeps
+that one block's bitmaps; render() draws them from the stats json.
 """
 
 from pathlib import Path
@@ -28,9 +28,18 @@ _VOID = "#d73027"    # red: item was void — the skippable read
 _CMAP = ListedColormap([_EXISTS, _VOID])
 
 
-def _median_block(blocks: list[sidecar.BlockVoid]) -> sidecar.BlockVoid:
+def collect(exports: dict[str, Path], endpoint: str) -> dict:
+    export = exports.get("empty")
+    if export is None:
+        raise ValueError("void_heatmap needs the empty arm's export")
+    blocks = sidecar.decode(export)
     ordered = sorted(blocks, key=lambda b: b.accounts + b.slots)
-    return ordered[len(ordered) // 2]
+    median = ordered[len(ordered) // 2]
+    return {
+        "number": median.number,
+        "account_void": median.account_void,
+        "slot_void": median.slot_void,
+    }
 
 
 def _grid(flags: list[bool]) -> np.ndarray:
@@ -58,12 +67,12 @@ def _draw(ax, flags: list[bool], label: str):
         spine.set_visible(False)
 
 
-def render(block: sidecar.BlockVoid, out: Path) -> Path:
+def render(data: dict, outdir: Path) -> Path:
     fig, axes = plt.subplots(1, 2, figsize=(11, 6))
-    _draw(axes[0], block.account_void, "Accounts")
-    _draw(axes[1], block.slot_void, "Storage slots")
+    _draw(axes[0], data["account_void"], "Accounts")
+    _draw(axes[1], data["slot_void"], "Storage slots")
 
-    fig.suptitle(f"The void — block {block.number}", x=0.02, ha="left",
+    fig.suptitle(f"The void — block {data['number']}", x=0.02, ha="left",
                  fontsize=14, fontweight="bold")
     fig.legend(
         handles=[Patch(facecolor=_VOID, label="void (skippable read)"),
@@ -72,15 +81,8 @@ def render(block: sidecar.BlockVoid, out: Path) -> Path:
     )
     fig.subplots_adjust(bottom=0.12)
 
+    out = Path(outdir) / "void-heatmap.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, format="png", dpi=_DPI, bbox_inches="tight")
     plt.close(fig)
     return out
-
-
-def run(exports: dict[str, Path], outdir: Path) -> Path:
-    export = exports.get("empty")
-    if export is None:
-        raise ValueError("void_heatmap needs the empty arm's export")
-    blocks = sidecar.decode(export)
-    return render(_median_block(blocks), Path(outdir) / "void-heatmap.png")

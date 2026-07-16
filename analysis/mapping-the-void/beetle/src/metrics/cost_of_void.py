@@ -6,9 +6,8 @@ void read once the empty-BAL lets the client answer it from a bitmap instead of
 walking to disk. The first gap is the price of proving absence; the second is
 what the marker reclaims.
 
-Unlike the void_* metrics, latency isn't in the export — it comes from the
-Timer A meters in InfluxDB (state/read/.../duration), tagged per arm
-(host=BAL-base = un-skipped truth, host=BAL-empty = skip active).
+collect() pulls the Timer A means from InfluxDB (state/read/.../duration),
+tagged per arm (host=BAL-base = un-skipped truth, host=BAL-empty = skip active).
 """
 
 import json
@@ -21,8 +20,6 @@ import matplotlib
 matplotlib.use("Agg")  # headless: no display, just write files
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
-
-import config
 
 _DPI = 200
 _EXIST = "#d9d9d9"  # grey: read found data
@@ -40,14 +37,20 @@ def _mean_us(endpoint: str, measurement: str, host: str) -> float:
     return (ns or 0) / 1000.0
 
 
-def _bars(endpoint: str, kind: str) -> list[float]:
-    exist = _mean_us(endpoint, f"state/read/{kind}/exist/duration.timer", "BAL-base")
-    void = _mean_us(endpoint, f"state/read/{kind}/empty/duration.timer", "BAL-base")
-    saved = _mean_us(endpoint, f"state/read/{kind}/empty/duration.timer", "BAL-empty")
-    return [exist, void, saved]
+def collect(exports: dict[str, Path], endpoint: str) -> dict:
+    def bars(kind: str) -> dict:
+        m = f"state/read/{kind}/{{}}/duration.timer"
+        return {
+            "exist_us": _mean_us(endpoint, m.format("exist"), "BAL-base"),
+            "void_us": _mean_us(endpoint, m.format("empty"), "BAL-base"),
+            "void_bal_us": _mean_us(endpoint, m.format("empty"), "BAL-empty"),
+        }
+
+    return {"account": bars("account"), "storage": bars("storage")}
 
 
-def _panel(ax, kind: str, values: list[float]) -> None:
+def _panel(ax, kind: str, d: dict) -> None:
+    values = [d["exist_us"], d["void_us"], d["void_bal_us"]]
     bars = ax.bar(["exist", "void", "void + BAL"], values,
                   color=[_EXIST, _VOID, _SAVED], edgecolor="none")
     for bar, v in zip(bars, values):
@@ -61,10 +64,10 @@ def _panel(ax, kind: str, values: list[float]) -> None:
         ax.spines[spine].set_visible(False)
 
 
-def render(endpoint: str, out: Path) -> Path:
+def render(data: dict, outdir: Path) -> Path:
     fig, axes = plt.subplots(1, 2, figsize=(9, 5))
-    _panel(axes[0], "account", _bars(endpoint, "account"))
-    _panel(axes[1], "storage", _bars(endpoint, "storage"))
+    _panel(axes[0], "account", data["account"])
+    _panel(axes[1], "storage", data["storage"])
 
     fig.suptitle("The cost of a void read", x=0.02, ha="left",
                  fontsize=14, fontweight="bold")
@@ -78,13 +81,8 @@ def render(endpoint: str, out: Path) -> Path:
     )
     fig.tight_layout(rect=(0, 0.05, 1, 1))
 
+    out = Path(outdir) / "cost-of-void.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, format="png", dpi=_DPI, bbox_inches="tight")
     plt.close(fig)
     return out
-
-
-def run(exports: dict[str, Path], outdir: Path) -> Path:
-    # exports unused: latency lives in InfluxDB, not the void bitmaps.
-    endpoint = config.require("INFLUX_ENDPOINT")
-    return render(endpoint, Path(outdir) / "cost-of-void.png")
