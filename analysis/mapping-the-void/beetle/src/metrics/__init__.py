@@ -29,9 +29,9 @@ REGISTRY = {
 def run_all(
     exports: dict[str, Path], outdir: Path, blocks: tuple[int, int], *, skip_query: bool = False
 ) -> list[Path]:
-    outdir = Path(outdir)
     frm, to = blocks
-    stats_path = outdir / f"stats-{frm}-{to}.json"
+    outdir = Path(outdir) / f"{frm}-{to}"  # scope by range so ranges don't clobber
+    stats_path = outdir / "stats.json"
 
     if skip_query:
         if not stats_path.exists():
