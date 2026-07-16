@@ -1,3 +1,7 @@
+import urllib.parse
+import urllib.request
+
+import config
 import geth
 import snapshot
 
@@ -64,12 +68,26 @@ def leg(
     return f"replayed {frm}..{to} · export {export}"
 
 
+def _reset_metrics() -> None:
+    endpoint = config.require("INFLUX_ENDPOINT")
+    for q in ("DROP DATABASE geth", "CREATE DATABASE geth"):
+        req = urllib.request.Request(
+            f"{endpoint}/query", data=urllib.parse.urlencode({"q": q}).encode(), method="POST"
+        )
+        try:
+            urllib.request.urlopen(req, timeout=15).read()
+        except OSError as e:
+            raise SystemExit(f"influx reset failed on {q!r}: {e}")
+    print("influx: reset database 'geth' — fresh metrics for this run")
+
+
 def run(
     blocks: tuple[int, int], *, skip_build: bool = False, skip_export: bool = False
 ) -> None:
     frm, _ = blocks
     if frm < 2:
         raise SystemExit("replay: from must be >= 2 — can't rewind to genesis safely")
+    _reset_metrics()
     for arm in geth.ARMS:
         print(
             f"OK {arm}: {leg(arm, blocks, skip_build=skip_build, skip_export=skip_export)}"
