@@ -52,6 +52,18 @@ def flags(datadir: Path) -> list[str]:
     return ["--datadir", str(datadir), "--state.scheme", "path"]
 
 
+def metrics_flags(arm: str) -> list[str]:
+    # host tag separates the two arms in Grafana.
+    return [
+        "--metrics",
+        "--metrics.influxdb",
+        "--metrics.influxdb.endpoint", config.require("INFLUX_ENDPOINT"),
+        "--metrics.influxdb.database", "geth",
+        "--metrics.influxdb.interval", "1s",
+        "--metrics.influxdb.tags", f"host=BAL-{arm}",
+    ]
+
+
 def run(geth_bin: Path, *args: str) -> Result:
     proc = subprocess.Popen(
         [str(geth_bin), *args],
@@ -89,12 +101,15 @@ def export_blocks(
     )
 
 
-def import_blocks(geth_bin: Path, datadir: Path, blocks_file: Path) -> Result:
+def import_blocks(
+    geth_bin: Path, datadir: Path, blocks_file: Path, arm: str
+) -> Result:
     return run(
         geth_bin,
         *flags(datadir),
         "import",
         WITH_BAL,
+        *metrics_flags(arm),
         "--nocompaction=true",
         str(blocks_file),
     )

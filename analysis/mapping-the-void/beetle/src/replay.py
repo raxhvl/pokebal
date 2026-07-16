@@ -45,7 +45,7 @@ def leg(
         if head != frm - 1:
             raise SystemExit(f"replay {arm}: rewind landed at {head}, wanted {frm - 1}")
 
-        imported = geth.import_blocks(geth_bin, datadir, rlp)
+        imported = geth.import_blocks(geth_bin, datadir, rlp, arm)
         if imported.code != 0 or any(m in imported.output.lower() for m in _IMPORT_BAD):
             raise SystemExit(
                 f"replay {arm}: import failed, datadir left rewound — "
