@@ -197,7 +197,6 @@ def index_history(geth_bin: Path, datadir: Path) -> None:
 
 
 _REWIND_POLL_SECS = 10
-_REWIND_DEADLINE_SECS = 3600
 
 
 def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
@@ -213,7 +212,6 @@ def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
                 raise SystemExit(f"debug_setHead failed: {reply['error']}")
         except TimeoutError:
             print(f"setHead still running after the RPC timeout; polling the head")
-        deadline = time.monotonic() + _REWIND_DEADLINE_SECS
         while True:
             try:
                 head = int(_rpc("eth_blockNumber")["result"], 16)
@@ -223,10 +221,6 @@ def rewind(geth_bin: Path, datadir: Path, to_block: int) -> int:
                 return head
             if node.poll() is not None:
                 raise SystemExit("geth exited during rewind (see log above)")
-            if time.monotonic() > deadline:
-                raise SystemExit(
-                    f"rewind to {to_block} still at {head} after {_REWIND_DEADLINE_SECS}s"
-                )
             print(f"rewinding... head at {head}, target {to_block}")
             time.sleep(_REWIND_POLL_SECS)
 
