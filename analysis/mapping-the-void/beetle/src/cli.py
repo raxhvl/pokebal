@@ -23,7 +23,7 @@ def cmd_verify(args: argparse.Namespace) -> None:
 
 
 def cmd_replay(args: argparse.Namespace) -> None:
-    replay.run(args.blocks, skip_build=args.skip_build, keep_export=args.keep_export)
+    replay.run(args.blocks, skip_build=args.skip_build, skip_export=args.skip_export)
 
 
 def cmd_metrics(args: argparse.Namespace) -> None:
@@ -33,12 +33,12 @@ def cmd_metrics(args: argparse.Namespace) -> None:
     exports = {
         arm: path
         for arm in geth.ARMS
-        if (path := snapshot.WORK / f"replay-{arm}-{frm}-{to}.rlp").exists()
+        if (path := snapshot.EXPORTS / f"{arm}-{frm}-{to}.rlp").exists()
     }
     if not exports:
         raise SystemExit(
-            f"no kept exports for {frm}..{to} in {snapshot.WORK} — "
-            "run `beetle replay --range … --keep-export` first"
+            f"no exports for {frm}..{to} in {snapshot.EXPORTS} — "
+            "run `beetle replay --range …` first"
         )
     metrics.run_all(exports, snapshot.WORK / "metrics")
 
@@ -70,9 +70,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--skip-build", action="store_true", help="reuse the built arm binaries"
     )
     replay_cmd.add_argument(
-        "--keep-export",
-        action="store_true",
-        help="keep the exported blocks after the run",
+        "--skip-export", action="store_true", help="reuse cached exports in work/exports/"
     )
     replay_cmd.set_defaults(func=cmd_replay)
 

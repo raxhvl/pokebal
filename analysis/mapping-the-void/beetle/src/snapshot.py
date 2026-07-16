@@ -7,6 +7,7 @@ from pathlib import Path
 import config
 
 WORK = Path(__file__).resolve().parent.parent / "work"
+EXPORTS = WORK / "exports"
 
 
 def reflink_copy(src: Path, dst: Path) -> Path:
