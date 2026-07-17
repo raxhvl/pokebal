@@ -15,9 +15,17 @@ def _query(endpoint: str, q: str) -> list[list]:
 
 
 def mean_ns(endpoint: str, measurement: str, host: str) -> float:
-    q = f'SELECT mean("mean") FROM "geth.{measurement}" WHERE "host"=\'{host}\''
-    values = _query(endpoint, q)
-    return values[0][1] if values else 0.0
+    """Event-weighted mean across the reporter intervals.
+
+    A resetting timer reports one (count, mean) row per interval; averaging the
+    means unweighted weights by wall-time and overstates slow warmup intervals.
+    InfluxQL can't multiply fields inside an aggregate, so weight client-side.
+    """
+    rows = series(endpoint, measurement, host, '"count", "mean"')
+    total = sum(r[1] for r in rows)
+    if not total:
+        return 0.0
+    return sum(r[1] * r[2] for r in rows) / total
 
 
 def series(endpoint: str, measurement: str, host: str, fields: str) -> list[list]:
