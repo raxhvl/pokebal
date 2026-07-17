@@ -13,9 +13,19 @@ The void bitmaps carry one bit per listed item, in BAL order: a set bit marks an
 item that was void (non-existent account / zero slot) at block start. This shape
 is pinned by tests against real exports, not read out of geth's Go.
 
-Library only — nothing runs it from the shell. Metrics import `decode`.
+Mainnet-range exports run to tens of GB, so nothing here reads a whole file
+into memory: the file is mmapped and walked by RLP length prefix, and only
+each entry's sidecar is decoded — the block body, most of the bytes, is
+skipped over (bar the header's number field). `scan` streams the file into
+small per-block tallies; `load` decodes the one block a metric wants full
+bitmaps for.
+
+Library only — nothing runs it from the shell. Metrics import `scan`/`load`.
 """
 
+import functools
+import mmap
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,31 +35,106 @@ from rlp.codec import consume_length_prefix
 _HEADER_NUMBER = 8  # index of `number` within the block header
 
 
-def _split_items(buf: bytes):
-    """Yield (start, end) byte ranges for each top-level RLP item in buf."""
-    i, n = 0, len(buf)
-    while i < n:
-        _, _, content_start, content_len = consume_length_prefix(buf, i)
-        end = content_start + content_len
-        yield i, end
-        i = end
+@contextmanager
+def _mapped(path):
+    with open(path, "rb") as f, mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as buf:
+        yield buf
 
 
-def _flags(bitmap: bytes, n: int) -> list[bool]:
-    """Unpack the first n bits of a void bitmap into per-item flags.
+def _item(buf, pos: int) -> tuple[int, int]:
+    """(payload_start, payload_end) of the RLP item at pos.
 
-    Bits are LSB-first within each byte, byte 0 first — pinned by the padding
-    check below: every bit past item n-1 must be zero, which only holds under
-    this convention (a set pad bit would mean we're reading the wrong end).
+    payload_end is also where the next sibling item starts.
     """
-    flags = [bool((bitmap[i // 8] >> (i % 8)) & 1) for i in range(n)]
-    for i in range(n, len(bitmap) * 8):
-        if (bitmap[i // 8] >> (i % 8)) & 1:
-            raise ValueError(f"void bitmap: pad bit {i} set (bad bit order or count)")
-    return flags
+    _, _, length, payload = consume_length_prefix(buf, pos)
+    return payload, payload + length
 
 
-@dataclass(frozen=True)
+def _number(buf, block_pos: int) -> int:
+    """The block number, read off the header without decoding the body."""
+    header_pos, _ = _item(buf, block_pos)  # block payload starts at its header
+    pos, _ = _item(buf, header_pos)
+    for _ in range(_HEADER_NUMBER):
+        _, pos = _item(buf, pos)
+    start, end = _item(buf, pos)
+    return int.from_bytes(buf[start:end], "big")
+
+
+def _entries(buf, pos: int = 0):
+    """Yield (offset, number, sidecar payload span) per entry, from pos on."""
+    size = len(buf)
+    while pos < size:
+        block_pos, entry_end = _item(buf, pos)
+        _, block_end = _item(buf, block_pos)
+        yield pos, _number(buf, block_pos), _item(buf, block_end)
+        pos = entry_end
+
+
+def _bits(bitmap: bytes, n: int, number: int) -> int:
+    """The bitmap as an int: bit i is item i (LSB-first within each byte,
+    byte 0 first — exactly little-endian).
+
+    geth sized the bitmap to *its* item count, so the byte length must equal
+    ours exactly, and every bit past item n-1 must be zero — a disagreement
+    in item counts or bit order fails loudly instead of zero-extending into
+    phantom flags. Every block of a real export re-proves the shape this way.
+    """
+    if len(bitmap) != (n + 7) // 8:
+        raise ValueError(
+            f"block {number}: void bitmap is {len(bitmap)} bytes "
+            f"for {n} items, expected {(n + 7) // 8}"
+        )
+    value = int.from_bytes(bitmap, "little")
+    if value >> n:
+        raise ValueError(
+            f"block {number}: void bitmap pad bits set (bad bit order or count)"
+        )
+    return value
+
+
+def _flags(value: int, n: int) -> list[bool]:
+    return [bool(value >> i & 1) for i in range(n)]
+
+
+def _slot_count(bal) -> int:
+    total = 0
+    for _addr, writes, reads, *_ in bal:
+        total += len({sc[0] for sc in writes} | set(reads))
+    return total
+
+
+def _sidecar(buf, span: tuple[int, int], number: int) -> tuple[int, int, int, int]:
+    """Decode one sidecar payload into (accounts, account bits, slots, slot bits)."""
+    start, end = span
+    decoded = rlp.decode(buf[start:end])
+    if len(decoded) != 3:
+        raise ValueError(
+            f"block {number}: sidecar has {len(decoded)} fields, expected 3 "
+            "([bal, voidAccountBitmap, voidSlotBitmap]) — is this the empty arm?"
+        )
+    bal, bm_accounts, bm_slots = decoded
+    accounts, slots = len(bal), _slot_count(bal)
+    return (
+        accounts,
+        _bits(bm_accounts, accounts, number),
+        slots,
+        _bits(bm_slots, slots, number),
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class BlockScan:
+    """One block's void tallies, plus where its entry sits in the export."""
+
+    number: int
+    accounts: int
+    void_accounts: int
+    slots: int
+    void_slots: int
+    offset: int
+
+
+@dataclass(frozen=True, slots=True)
 class BlockVoid:
     """One block's void bitmaps: per accessed item, was it void at block start?
 
@@ -86,28 +171,43 @@ class BlockVoid:
         return self.void_slots / self.slots if self.slots else 0.0
 
 
-def _slot_count(bal) -> int:
-    total = 0
-    for _addr, writes, reads, *_ in bal:
-        total += len({sc[0] for sc in writes} | set(reads))
-    return total
+@functools.cache
+def scan(path: Path) -> list[BlockScan]:
+    """Stream an empty-arm export into per-block void tallies, block order.
+
+    One pass, holding one sidecar at a time. Cached per path, so metrics that
+    share an export share the pass; for one block's full bitmaps, hand its
+    `offset` to `load`.
+    """
+    out = []
+    with _mapped(path) as buf:
+        for offset, number, span in _entries(buf):
+            accounts, a_bits, slots, s_bits = _sidecar(buf, span, number)
+            out.append(
+                BlockScan(
+                    number, accounts, a_bits.bit_count(), slots, s_bits.bit_count(), offset
+                )
+            )
+    return out
+
+
+def load(path, offset: int) -> BlockVoid:
+    """Decode the single entry at `offset` (a BlockScan's) into full bitmaps."""
+    with _mapped(path) as buf:
+        _, number, span = next(_entries(buf, offset))
+        accounts, a_bits, slots, s_bits = _sidecar(buf, span, number)
+        return BlockVoid(number, _flags(a_bits, accounts), _flags(s_bits, slots))
 
 
 def decode(path) -> list[BlockVoid]:
-    """Decode an empty-arm export into per-block void tallies, block order."""
-    buf = Path(path).read_bytes()
+    """Every block's full bitmaps in memory — tests and spot checks only.
+
+    Metrics stream with `scan` and pinpoint with `load`; a mainnet-range
+    export's bitmaps do not all fit in memory at once.
+    """
     out = []
-    for start, end in _split_items(buf):
-        block, sidecar = rlp.decode(buf[start:end])
-        number = int.from_bytes(block[0][_HEADER_NUMBER], "big")
-        decoded = rlp.decode(sidecar)
-        if len(decoded) != 3:
-            raise ValueError(
-                f"block {number}: sidecar has {len(decoded)} fields, expected 3 "
-                "([bal, voidAccountBitmap, voidSlotBitmap]) — is this the empty arm?"
-            )
-        bal, bm_accounts, bm_slots = decoded
-        account_void = _flags(bm_accounts, len(bal))
-        slot_void = _flags(bm_slots, _slot_count(bal))
-        out.append(BlockVoid(number, account_void, slot_void))
+    with _mapped(path) as buf:
+        for _, number, span in _entries(buf):
+            accounts, a_bits, slots, s_bits = _sidecar(buf, span, number)
+            out.append(BlockVoid(number, _flags(a_bits, accounts), _flags(s_bits, slots)))
     return out

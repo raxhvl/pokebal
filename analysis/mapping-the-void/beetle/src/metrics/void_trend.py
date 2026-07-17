@@ -9,7 +9,7 @@ tried and dropped: totals are near-constant, so it just re-traced the stack
 boundary. The flatness of the bands is the point: the void is a constant
 feature of the workload, not bursts.
 
-collect() decodes the empty arm's export (the only one carrying the void bits)
+collect() streams the empty arm's export (the only one carrying the void bits)
 into per-block arrays; render() draws them, so the image regenerates from the
 stats json alone.
 """
@@ -28,7 +28,7 @@ def collect(exports: dict[str, Path], endpoint: str) -> dict:
     export = exports.get("empty")
     if export is None:
         raise ValueError("void_trend needs the empty arm's export")
-    blocks = sidecar.decode(export)
+    blocks = sidecar.scan(export)
     return {
         "numbers": [b.number for b in blocks],
         "account_void": [b.void_accounts for b in blocks],

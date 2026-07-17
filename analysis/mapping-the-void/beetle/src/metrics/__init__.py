@@ -16,12 +16,20 @@ from pathlib import Path
 
 import config
 
-from . import block_processing, cost_of_void, void_heatmap, void_skip, void_trend
+from . import (
+    block_processing,
+    block_processing_clean,
+    cost_of_void,
+    void_heatmap,
+    void_skip,
+    void_trend,
+)
 
 REGISTRY = {
     "cost_of_void": cost_of_void,
     "void_skip": void_skip,
     "block_processing": block_processing,
+    "block_processing_clean": block_processing_clean,
     "void_heatmap": void_heatmap,
     "void_trend": void_trend,
 }

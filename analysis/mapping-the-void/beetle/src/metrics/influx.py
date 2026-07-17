@@ -8,10 +8,25 @@ _DB = "geth"
 
 
 def _query(endpoint: str, q: str) -> list[list]:
-    url = endpoint + "/query?" + urllib.parse.urlencode({"db": _DB, "q": q})
-    with urllib.request.urlopen(url, timeout=15) as r:
-        series = json.load(r)["results"][0].get("series")
-    return series[0]["values"] if series else []
+    """Rows for q, streamed in server-side chunks.
+
+    A long replay reports for hours at 1s intervals; an unchunked query is
+    silently cut at the server's max-row-limit (the `partial` flag is easy to
+    miss), while chunked responses are exempt from it. Each chunk arrives as
+    one JSON object per line; their rows concatenate in time order.
+    """
+    url = endpoint + "/query?" + urllib.parse.urlencode(
+        {"db": _DB, "q": q, "chunked": "true", "chunk_size": "10000"}
+    )
+    rows: list[list] = []
+    with urllib.request.urlopen(url, timeout=60) as r:
+        for line in r:
+            result = json.loads(line)["results"][0]
+            if "error" in result:
+                raise ValueError(f"influx: {result['error']} (query: {q})")
+            for series in result.get("series", []):
+                rows.extend(series["values"])
+    return rows
 
 
 def mean_ns(endpoint: str, measurement: str, host: str) -> float:

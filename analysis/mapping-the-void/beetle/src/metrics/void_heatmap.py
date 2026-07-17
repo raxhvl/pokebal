@@ -7,8 +7,9 @@ the BAL could skip) and grey if it existed. This is the block's void bitmap
 made visible.
 
 The block shown is the median by total items accessed — a typical-sized block,
-not a cherry-picked spike. collect() decodes the empty arm's export and keeps
-that one block's bitmaps; render() draws them from the stats json.
+not a cherry-picked spike. collect() streams the empty arm's export for the
+tallies, then decodes just the median block's bitmaps; render() draws them
+from the stats json.
 """
 
 from pathlib import Path
@@ -26,9 +27,9 @@ def collect(exports: dict[str, Path], endpoint: str) -> dict:
     export = exports.get("empty")
     if export is None:
         raise ValueError("void_heatmap needs the empty arm's export")
-    blocks = sidecar.decode(export)
+    blocks = sidecar.scan(export)
     ordered = sorted(blocks, key=lambda b: b.accounts + b.slots)
-    median = ordered[len(ordered) // 2]
+    median = sidecar.load(export, ordered[len(ordered) // 2].offset)
     return {
         "number": median.number,
         "account_void": median.account_void,
