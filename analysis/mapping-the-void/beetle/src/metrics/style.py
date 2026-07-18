@@ -62,8 +62,13 @@ def figure(nrows: int, ncols: int, size: tuple[float, float],
 
 
 def drop_x_zero(ax) -> None:
-    """Blank the x-axis 0 so it doesn't collide with the y-axis 0 at the origin."""
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: "" if v == 0 else f"{v:g}"))
+    """Comma-separated x-axis, with 0 blanked so it doesn't collide with the y-axis 0."""
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: "" if v == 0 else f"{int(v):,}"))
+
+
+def commas_x(ax) -> None:
+    """Plain comma-separated integers on the x-axis, no scientific offset."""
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{int(v):,}"))
 
 
 def tidy(ax, *, grid: bool = True) -> None:

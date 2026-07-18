@@ -48,7 +48,7 @@ def render(data: dict, outdir: Path) -> Path:
     fig, ax = style.figure(
         1, 1, (9.5, 5.2),
         "Block execution time",
-        f"mean wall-clock per block · blocks {frm}–{to}",
+        f"mean wall-clock per block · blocks {frm:,}–{to:,}",
     )
 
     # common grid so the gap between the arms can be shaded

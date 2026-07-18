@@ -70,6 +70,8 @@ def _panel(ax, nums, void, total, title):
     ax.set_xlim(nums[0], nums[-1])
     ax.set_ylim(bottom=0)
     style.tidy(ax)
+    style.commas_x(ax)
+    ax.tick_params(labelbottom=True)
 
 
 def render(data: dict, outdir: Path) -> Path:
@@ -77,7 +79,7 @@ def render(data: dict, outdir: Path) -> Path:
     fig, axes = style.figure(
         2, 1, (10, 6.6),
         "Void vs total accessed",
-        f"per-block reads, {_WINDOW}-block rolling mean · blocks {nums[0]}–{nums[-1]}",
+        f"per-block reads, {_WINDOW}-block rolling mean · blocks {nums[0]:,}–{nums[-1]:,}",
         sharex=True,
     )
     _panel(axes[0], nums, data["account_void"], data["account_total"], "Accounts")

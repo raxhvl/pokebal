@@ -57,7 +57,7 @@ def render(data: dict, outdir: Path) -> Path:
     fig, axes = style.figure(
         1, 2, (9.5, 5.2),
         "Skipping the void",
-        f"void-read latency, with and without the void bitmap · blocks {frm}–{to}",
+        f"void-read latency, with and without the void bitmap · blocks {frm:,}–{to:,}",
     )
     _panel(axes[0], "Account", data["account"])
     _panel(axes[1], "Storage slot", data["storage"])

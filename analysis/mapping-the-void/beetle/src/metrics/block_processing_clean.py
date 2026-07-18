@@ -81,7 +81,7 @@ def render(data: dict, outdir: Path) -> Path:
     fig, ax = style.figure(
         1, 1, (9.5, 5.2),
         "Block execution time — steady state",
-        f"mean wall-clock per block, importer noise removed · blocks {frm}–{to}",
+        f"mean wall-clock per block, importer noise removed · blocks {frm:,}–{to:,}",
     )
 
     # shading between the arms, interpolated over each arm's kept points

@@ -75,7 +75,7 @@ def render(data: dict, outdir: Path) -> Path:
         2,
         (9.5, 5.2),
         "The cost of reading the void",
-        f"mean state-read latency · blocks {frm}–{to}",
+        f"mean state-read latency · blocks {frm:,}–{to:,}",
     )
     _panel(axes[0], "Account", data["account"])
     _panel(axes[1], "Storage slot", data["storage"])

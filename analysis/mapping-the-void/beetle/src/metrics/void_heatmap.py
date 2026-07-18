@@ -72,7 +72,7 @@ def render(data: dict, outdir: Path) -> Path:
         1,
         2,
         (10, 6),
-        f"The void in block #{data['number']}",
+        f"The void in block #{data['number']:,}",
         "one cell per item accessed, in BAL order",
         width_ratios=[_grid(acct).shape[1], _grid(slots).shape[1]],
     )
