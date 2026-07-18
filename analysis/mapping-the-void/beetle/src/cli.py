@@ -3,6 +3,7 @@ import argparse
 import geth
 import index
 import replay
+import sidecar
 import snapshot
 import verify
 
@@ -51,6 +52,25 @@ def cmd_metrics(args: argparse.Namespace) -> None:
     _render_metrics(args.blocks, skip_query=args.skip_query)
 
 
+def cmd_splice(args: argparse.Namespace) -> None:
+    frm, to = args.blocks
+    end = args.end
+    sources = {arm: snapshot.EXPORTS / f"{arm}-{frm}-{to}.rlp" for arm in geth.ARMS}
+    for arm, src in sources.items():
+        if not src.exists():
+            raise SystemExit(f"no export {src} — check --range")
+    for arm, src in sources.items():
+        dst = snapshot.EXPORTS / f"{arm}-{frm}-{end}.rlp"
+        try:
+            first, last, count = sidecar.slice_to(src, dst, end)
+        except ValueError as exc:
+            raise SystemExit(f"splice {arm}: {exc}")
+        print(f"{arm}: {count} blocks {first}..{last} -> {dst.name}")
+    print("\ntrimmed both arms to the salvageable range — now the regular path:")
+    print(f"  uv run beetle replay  --range {frm}..{end} --skip-export")
+    print(f"  uv run beetle metrics --range {frm}..{end}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="beetle")
     sub = parser.add_subparsers(required=True)
@@ -95,6 +115,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="skip influx; render from the existing stats json",
     )
     metrics_cmd.set_defaults(func=cmd_metrics)
+
+    splice_cmd = sub.add_parser(
+        "splice", help="trim cached exports to end at --end (salvage a partial run)"
+    )
+    splice_cmd.add_argument(
+        "--range",
+        dest="blocks",
+        type=block_range,
+        required=True,
+        help="the source export range, e.g. 25410001..25499000",
+    )
+    splice_cmd.add_argument(
+        "--end",
+        type=int,
+        required=True,
+        help="last block to keep (F-1, where F is the failed block)",
+    )
+    splice_cmd.set_defaults(func=cmd_splice)
 
     return parser
 

@@ -211,3 +211,37 @@ def decode(path) -> list[BlockVoid]:
             accounts, a_bits, slots, s_bits = _sidecar(buf, span, number)
             out.append(BlockVoid(number, _flags(a_bits, accounts), _flags(s_bits, slots)))
     return out
+
+
+def slice_to(src: Path, dst: Path, last_block: int) -> tuple[int, int, int]:
+    """Copy the entries up to and including `last_block` from `src` into `dst`.
+
+    Walks by length prefix to the first entry numbered past `last_block` and
+    copies the byte-exact prefix ending there — every block's RLP is untouched,
+    so `dst` is a valid export of the shorter range. The sidecar is never
+    decoded, so a base-arm export (no bitmaps) slices as readily as an empty
+    one. Returns (first_block, last_kept_block, block_count).
+    """
+    with _mapped(src) as buf:
+        first = last = cut = None
+        count = 0
+        for offset, number, _span in _entries(buf):
+            if first is None:
+                first = number
+            if number > last_block:
+                cut = offset
+                break
+            last, count = number, count + 1
+        if first is None:
+            raise ValueError(f"{src}: empty export")
+        if last_block < first:
+            raise ValueError(f"cut {last_block} precedes the first block {first}")
+        if cut is None:
+            raise ValueError(
+                f"cut {last_block} is at or past the last block {last} — nothing to trim"
+            )
+        with open(dst, "wb") as out:
+            step = 1 << 24
+            for pos in range(0, cut, step):
+                out.write(buf[pos : min(pos + step, cut)])
+    return first, last, count
