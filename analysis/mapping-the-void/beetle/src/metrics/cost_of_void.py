@@ -31,19 +31,33 @@ def _us(v: float) -> str:
 
 def _panel(ax, title: str, d: dict) -> None:
     exist, void = d["exist_us"], d["void_us"]
-    ax.bar([0, 1], [exist, void], width=0.62,
-           color=[style.EXISTS, style.VOID], edgecolor="none")
+    ax.bar(
+        [0, 1],
+        [exist, void],
+        width=0.62,
+        color=[style.EXISTS, style.VOID],
+        edgecolor="none",
+    )
     for x, v in ((0, exist), (1, void)):
-        ax.text(x, v + void * 0.02, _us(v), ha="center", va="bottom",
-                fontsize=11, fontweight=600, color=style.INK)
+        ax.text(
+            x,
+            v + void * 0.02,
+            _us(v),
+            ha="center",
+            va="bottom",
+            fontsize=11,
+            fontweight=600,
+            color=style.INK,
+        )
 
     # anchor line at the exist level; the gap above it is the price of absence
     ax.axhline(exist, color=style.MUTED, linewidth=1.0, linestyle=(0, (2, 3)))
-    style.badge(ax, 1, void * 1.22, f"{void / exist:.1f}× slower",
-                style.VOID, style.VOID_TINT)
+    style.badge(
+        ax, 1, void * 1.22, f"{void / exist:.1f}× slower", style.VOID, style.VOID_TINT
+    )
 
     ax.set_title(title, loc="left", fontsize=12, fontweight=600, color=style.INK)
-    ax.set_xticks([0, 1], ["exist", "void"])
+    ax.set_xticks([0, 1], ["present", "void"])
     ax.tick_params(axis="x", labelsize=11)
     for tick in ax.get_xticklabels():
         tick.set_color(style.INK)
@@ -55,14 +69,16 @@ def _panel(ax, title: str, d: dict) -> None:
 
 
 def render(data: dict, outdir: Path) -> Path:
+    frm, to = data["range"]
     fig, axes = style.figure(
-        1, 2, (9.5, 5.2),
-        "The cost of a void read",
-        "mean state-read latency by outcome — a void read walks the whole trie to prove absence",
+        1,
+        2,
+        (9.5, 5.2),
+        "The cost of reading the void",
+        f"mean state-read latency · blocks {frm}–{to}",
     )
     _panel(axes[0], "Account", data["account"])
     _panel(axes[1], "Storage slot", data["storage"])
     fig.subplots_adjust(top=0.78, bottom=0.16, left=0.08, right=0.97, wspace=0.28)
-    style.caption(fig, "exist — the read found data   ·   "
-                       "void — nothing there, and proving it costs the full descent")
+    style.caption(fig, "proving absence descends the full trie; a present read stops at the data")
     return style.save(fig, outdir, "cost-of-void.png")

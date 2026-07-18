@@ -41,7 +41,7 @@ def _panel(ax, title: str, d: dict) -> None:
                 style.SAVED, style.SAVED_TINT)
 
     ax.set_title(title, loc="left", fontsize=12, fontweight=600, color=style.INK)
-    ax.set_xticks([0, 1], ["void", "void + BAL"])
+    ax.set_xticks([0, 1], ["BAL", "BAL + void bitmap"])
     ax.tick_params(axis="x", labelsize=11)
     for tick in ax.get_xticklabels():
         tick.set_color(style.INK)
@@ -53,14 +53,14 @@ def _panel(ax, title: str, d: dict) -> None:
 
 
 def render(data: dict, outdir: Path) -> Path:
+    frm, to = data["range"]
     fig, axes = style.figure(
         1, 2, (9.5, 5.2),
-        "The void read, answered from the BAL",
-        "the same void read, once the marker lets the reader skip the disk descent",
+        "Skipping the void",
+        f"void-read latency, with and without the void bitmap · blocks {frm}–{to}",
     )
     _panel(axes[0], "Account", data["account"])
     _panel(axes[1], "Storage slot", data["storage"])
     fig.subplots_adjust(top=0.78, bottom=0.16, left=0.08, right=0.97, wspace=0.28)
-    style.caption(fig, "void — proved absence on disk   ·   "
-                       "void + BAL — absence read off the bitmap, no disk trip")
+    style.caption(fig, "The void bitmap avoids the costly disk read entirely.")
     return style.save(fig, outdir, "void-skip.png")

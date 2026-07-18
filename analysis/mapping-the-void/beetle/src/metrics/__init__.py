@@ -68,6 +68,8 @@ def run_all(
         if data is None:
             print(f"render {name}: skipped (no data)")
             continue
+        if isinstance(data, dict):
+            data.setdefault("range", stats["range"])
         try:
             artifact = mod.render(data, outdir)
         except Exception as exc:

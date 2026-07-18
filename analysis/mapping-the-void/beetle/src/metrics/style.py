@@ -17,6 +17,7 @@ import matplotlib
 matplotlib.use("Agg")  # headless: no display, just write files
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
+from matplotlib.ticker import FuncFormatter
 
 # palette — semantic, keep it religiously consistent across charts
 VOID = "#ef4444"        # red: a void read
@@ -60,6 +61,11 @@ def figure(nrows: int, ncols: int, size: tuple[float, float],
     return fig, axes
 
 
+def drop_x_zero(ax) -> None:
+    """Blank the x-axis 0 so it doesn't collide with the y-axis 0 at the origin."""
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: "" if v == 0 else f"{v:g}"))
+
+
 def tidy(ax, *, grid: bool = True) -> None:
     """Strip the box; keep a hairline bottom spine and a faint y-grid."""
     for side in ("top", "right", "left"):
@@ -80,8 +86,8 @@ def badge(ax, x, y, text: str, color: str, tint: str, *,
 
 
 def caption(fig, text: str, *, y: float = 0.02) -> None:
-    """Muted one-liner along the bottom — replaces boxed legends."""
-    fig.text(0.02, y, text, ha="left", va="bottom",
+    """Muted one-liner centered along the bottom — replaces boxed legends."""
+    fig.text(0.5, y, text, ha="center", va="bottom",
              fontsize=9.5, fontweight=500, color=MUTED)
 
 

@@ -76,12 +76,12 @@ def render(data: dict, outdir: Path) -> Path:
     base_ms, empty_ms, saved = data["base_ms"], data["empty_ms"], data["saved_ms"]
     total = max(data["total_blocks"].values())
     pct = data["dropped_blocks"]["base"] / data["total_blocks"]["base"]
+    frm, to = data["range"]
 
     fig, ax = style.figure(
         1, 1, (9.5, 5.2),
         "Block execution time — steady state",
-        f"as measured, minus warmup and import batch handoffs "
-        f"({pct:.1%} of blocks, at predictable positions, identical in both arms)",
+        f"mean wall-clock per block, importer noise removed · blocks {frm}–{to}",
     )
 
     # shading between the arms, interpolated over each arm's kept points
@@ -103,26 +103,26 @@ def render(data: dict, outdir: Path) -> Path:
         for seg in data[arm]["segments"]:
             ax.plot(seg["blocks"], seg["ms"], color=color, linewidth=1.8)
 
-    for avg, color, label in (
-        (base_ms, style.INK, "baseline BAL"),
-        (empty_ms, style.SAVED, "void-marked BAL"),
+    for avg, color, label, dy in (
+        (base_ms, style.INK, "BAL", 8),
+        (empty_ms, style.SAVED, "BAL + void bitmap", -8),
     ):
         ax.axhline(avg, color=color, linewidth=1.0, linestyle=(0, (2, 3)), alpha=0.6)
         ax.annotate(f"{label} · avg {avg:.2f} ms", xy=(1.0, avg),
-                    xycoords=("axes fraction", "data"), xytext=(8, 0),
+                    xycoords=("axes fraction", "data"), xytext=(8, dy),
                     textcoords="offset points", va="center",
                     fontsize=10, fontweight=600, color=color)
 
     style.badge(ax, 0.86, 0.90, f"saves {saved:.2f} ms/block · {saved / base_ms:.1%}",
                 style.SAVED, style.SAVED_TINT, fontsize=12.5, transform=ax.transAxes)
 
-    ax.set_xlabel("blocks replayed")
     ax.set_ylabel("mean execution time (ms)")
     ax.set_xlim(0, total)
     ax.set_ylim(bottom=0)
     style.tidy(ax)
+    style.drop_x_zero(ax)
 
     fig.subplots_adjust(top=0.80, bottom=0.13, left=0.07, right=0.82)
-    style.caption(fig, "gaps — dropped intervals (importer artifacts); "
-                       "see block-processing.png for the unfiltered series")
+    style.caption(fig, "warmup and batch handoffs are replay blips a production node "
+                       f"never sees; {pct:.1%} of blocks dropped")
     return style.save(fig, outdir, "block-processing-clean.png")

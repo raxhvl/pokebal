@@ -61,7 +61,7 @@ def _panel(ax, nums, void, total, title):
             ha="center", va="center", fontsize=11, fontweight=700, color="white")
     if exist_avg > void_avg / 3:  # label the grey band only if it can hold text
         ax.text(center, void_avg + exist_avg / 2,
-                f"existed — avg {exist_avg:.0f}/block · {1 - pct:.0%}",
+                f"present — avg {exist_avg:.0f}/block · {1 - pct:.0%}",
                 ha="center", va="center", fontsize=10, fontweight=600,
                 color=style.INK)
 
@@ -76,15 +76,13 @@ def render(data: dict, outdir: Path) -> Path:
     nums = data["numbers"]
     fig, axes = style.figure(
         2, 1, (10, 6.6),
-        f"Void vs total accessed — blocks {nums[0]}–{nums[-1]}",
-        f"per-block reads, {_WINDOW}-block rolling mean — "
-        "red was void at block start (skippable), grey found data",
+        "Void vs total accessed",
+        f"per-block reads, {_WINDOW}-block rolling mean · blocks {nums[0]}–{nums[-1]}",
         sharex=True,
     )
     _panel(axes[0], nums, data["account_void"], data["account_total"], "Accounts")
     _panel(axes[1], nums, data["slot_void"], data["slot_total"], "Storage slots")
-    axes[1].set_xlabel("block")
 
     fig.subplots_adjust(top=0.83, bottom=0.15, left=0.07, right=0.97, hspace=0.42)
-    style.caption(fig, "faint line — raw per-block total, before smoothing")
+    style.caption(fig, "the void is a steady share of every block, not occasional bursts")
     return style.save(fig, outdir, "void-trend.png")

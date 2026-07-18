@@ -48,14 +48,18 @@ def _grid(flags: list[bool]) -> np.ndarray:
 
 def _draw(ax, flags: list[bool], label: str):
     grid = _grid(flags)
-    ax.pcolormesh(grid, cmap=_CMAP, vmin=0, vmax=1,
-                  edgecolors="white", linewidth=1.4)
+    ax.pcolormesh(grid, cmap=_CMAP, vmin=0, vmax=1, edgecolors="white", linewidth=1.4)
     void = sum(flags)
     ax.set_title(label, loc="left", fontsize=12, fontweight=600, color=style.INK)
-    ax.set_title(f"{void} of {len(flags)} void · {void / len(flags):.0%}",
-                 loc="right", fontsize=10, fontweight=500, color=style.MUTED)
+    ax.set_title(
+        f"{void} of {len(flags)} void · {void / len(flags):.0%}",
+        loc="right",
+        fontsize=10,
+        fontweight=500,
+        color=style.MUTED,
+    )
     ax.set_aspect("equal")
-    ax.set_anchor("N")  # hang both grids from the same top line
+    ax.set_anchor("N")
     ax.invert_yaxis()
     ax.set_xticks([])
     ax.set_yticks([])
@@ -65,14 +69,16 @@ def _draw(ax, flags: list[bool], label: str):
 def render(data: dict, outdir: Path) -> Path:
     acct, slots = data["account_void"], data["slot_void"]
     fig, axes = style.figure(
-        1, 2, (10, 6),
-        f"The void — block {data['number']}",
-        "one cell per item the block accessed, in BAL order, read left to right",
+        1,
+        2,
+        (10, 6),
+        f"The void in block #{data['number']}",
+        "one cell per item accessed, in BAL order",
         width_ratios=[_grid(acct).shape[1], _grid(slots).shape[1]],
     )
     _draw(axes[0], acct, "Accounts")
     _draw(axes[1], slots, "Storage slots")
 
     fig.subplots_adjust(top=0.80, bottom=0.10, left=0.04, right=0.96, wspace=0.14)
-    style.caption(fig, "red — void (skippable read)   ·   grey — existed (read paid)")
+    style.caption(fig, "a portion of a block's reads are void, often dominated by storage slots")
     return style.save(fig, outdir, "void-heatmap.png")
