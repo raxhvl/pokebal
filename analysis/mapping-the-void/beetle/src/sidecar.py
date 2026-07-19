@@ -18,9 +18,10 @@ into memory: the file is mmapped and walked by RLP length prefix, and only
 each entry's sidecar is decoded — the block body, most of the bytes, is
 skipped over (bar the header's number field). `scan` streams the file into
 small per-block tallies; `load` decodes the one block a metric wants full
-bitmaps for.
+bitmaps for; `sizes` streams per-block BAL byte sizes (raw and snappy)
+without decoding, and so works on either arm.
 
-Library only — nothing runs it from the shell. Metrics import `scan`/`load`.
+Library only — nothing runs it from the shell. Metrics import `scan`/`load`/`sizes`.
 """
 
 import functools
@@ -30,6 +31,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import rlp
+import snappy
 from rlp.codec import consume_length_prefix
 
 _HEADER_NUMBER = 8  # index of `number` within the block header
@@ -135,6 +137,22 @@ class BlockScan:
 
 
 @dataclass(frozen=True, slots=True)
+class BlockSize:
+    """One block's BAL bytes: raw, and snappy block-format compressed.
+
+    `raw` is the sidecar payload length — exactly the `balRLP` geth meters
+    (`chain/bal/size`), bitmaps included on the empty arm. `compressed` is
+    `snappy.compress(balRLP)`, matching geth's `snappy.Encode(nil, balRLP)`
+    (`chain/bal/size/compressed`). Both arms size the same way, so nothing
+    here decodes — it walks the RLP framing and measures the bytes.
+    """
+
+    number: int
+    raw: int
+    compressed: int
+
+
+@dataclass(frozen=True, slots=True)
 class BlockVoid:
     """One block's void bitmaps: per accessed item, was it void at block start?
 
@@ -188,6 +206,22 @@ def scan(path: Path) -> list[BlockScan]:
                     number, accounts, a_bits.bit_count(), slots, s_bits.bit_count(), offset
                 )
             )
+    return out
+
+
+@functools.cache
+def sizes(path: Path) -> list[BlockSize]:
+    """Stream an export into per-block BAL byte sizes, raw and snappy.
+
+    Works on either arm — the sidecar payload is `balRLP` in both, so this
+    only measures the span and compresses it, never decoding the BAL. Cached
+    per path like `scan`.
+    """
+    out = []
+    with _mapped(path) as buf:
+        for _offset, number, (start, end) in _entries(buf):
+            raw = buf[start:end]
+            out.append(BlockSize(number, len(raw), len(snappy.compress(raw))))
     return out
 
 

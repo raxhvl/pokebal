@@ -17,6 +17,7 @@ from pathlib import Path
 import config
 
 from . import (
+    bal_size,
     block_processing,
     block_processing_clean,
     cost_of_void,
@@ -30,6 +31,7 @@ REGISTRY = {
     "void_skip": void_skip,
     "block_processing": block_processing,
     "block_processing_clean": block_processing_clean,
+    "bal_size": bal_size,
     "void_heatmap": void_heatmap,
     "void_trend": void_trend,
 }
