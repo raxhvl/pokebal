@@ -19,7 +19,7 @@ Notice the large number of lookups that return void (marked red) - dominated by 
 slots, while missing accounts are comparatively rare.
 
 This pattern is consistent across blocks. On average, **6%** of account lookups and **35%** of
-storage lookups return void (Appendix A).
+storage lookups return void ([Appendix A](#appendix-a-analysis)).
 
 ![Void vs total accessed per block](results/25410001-25416000/void-trend.png)
 
@@ -86,9 +86,9 @@ Total bitmap payload: **188 + 207 = 395 bytes**. The remaining **4 bytes** are R
 
 ## Skipping the void
 
-Void-marked BAL reduces mean block execution time by **29.5%** across the analysed mainnet range.
+Void-marked BAL reduces mean block execution time by **29.8%** across the analysed mainnet range.
 
-![Block execution time: baseline vs void-marked](results/25410001-25416000/block-processing-clean.png)
+![Block execution time: baseline vs void-marked](results/25410001-25416000/block-processing.png)
 
 The improvement comes from skipping expensive trie traversals for absent state.
 Mean state read latency falls by **436x** for account lookups and **177x** for storage lookups.
@@ -98,3 +98,48 @@ Mean state read latency falls by **436x** for account lookups and **177x** for s
 The optimization comes at almost no cost. Recording void entries increases BAL size by only 0.4%.
 
 ![BAL size: baseline vs void-marked](results/25410001-25416000/bal-size.png)
+
+## Appendix A: Analysis
+
+**The sample.** 6,000 mainnet blocks (25410001–25416000).
+
+**The client.** The baseline arm is geth built from the `glamsterdam-devnet-6` branch, with EIP-7928 BAL
+enabled on the Fusaka fork and no other Amsterdam EIPs. Execution and gas usage therefore remain identical
+to mainnet, and the BAL reflects real access patterns.
+
+The export command adds a `--with-bal` flag that writes each block's recomputed BAL
+as a sidecar, producing a stream of `[block, BAL]`. The state reader adds a timer metric for every
+disk read, split by whether it finds data or proves absence.
+
+The void-bitmap arm branches from the same baseline. Its BAL carries the void bitmaps, producing `[block, EmptyBAL]`.
+During import, reads marked absent are answered from the bitmap instead of traversing the trie.
+
+**The commands.** Export requires the archival state-history index:
+
+```sh
+geth --datadir <snapshot> --state.scheme path --gcmode archive \
+  export --with-bal blocks.rlp 25410001 25416000
+```
+
+Import replays the sample:
+
+```sh
+geth --datadir <snapshot> --state.scheme path import --with-bal blocks.rlp
+```
+
+Geth's trie prefetcher was enabled during the run.
+
+**Beetle.** A small harness, [**beetle**](https://github.com/raxhvl/pokebal/tree/main/analysis/mapping-the-void/beetle), automates export, import, and analysis.
+Each run uses a disposable copy-on-write clone of the snapshot. This adds a small amount
+of disk I/O latency, but both arms pay the same cost, so it cancels out in the comparison.
+Absolute latencies may therefore differ slightly from a production deployment,
+while the reported speedups remain unaffected.
+
+**Hardware.**
+
+* OS: Debian GNU/Linux 13 (trixie)
+* Kernel: Linux 6.12.95+deb13-cloud-amd64
+* Virtualization: kvm (QEMU)
+* CPU: 16 core vCPU @ 2.0GHz
+* Memory: 32G
+* Disk: QEMU HARDDISK (2TB)
