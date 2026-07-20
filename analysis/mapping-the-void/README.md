@@ -7,7 +7,7 @@ These lookups are **over five times slower** because proving a value is absent r
 to the bottom of the trie and coming back empty-handed.
 
 Marking absent entries in Block Access Lists (BAL) increases their size by only **0.4%** and
-avoids most of this work.
+avoids most of this work during block validation.
 
 ## The void
 
@@ -83,3 +83,18 @@ Total bitmap payload: **188 + 207 = 395 bytes**. The remaining **4 bytes** are R
 | Per-account bitmaps | 1.7 kB | 87% |
 | Two global bitmaps | **399 B** | **97%** |
 
+
+## Skipping the void
+
+Void-marked BAL reduces mean block execution time by **29.5%** across the analysed mainnet range.
+
+![Block execution time: baseline vs void-marked](results/25410001-25416000/block-processing-clean.png)
+
+The improvement comes from skipping expensive trie traversals for absent state.
+Mean state read latency falls by **436x** for account lookups and **177x** for storage lookups.
+
+![Void read latency: disk vs bitmap](results/25410001-25416000/void-skip.png)
+
+The optimization comes at almost no cost. Recording void entries increases BAL size by only 0.4%.
+
+![BAL size: baseline vs void-marked](results/25410001-25416000/bal-size.png)
