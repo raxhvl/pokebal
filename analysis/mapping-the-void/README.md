@@ -3,7 +3,7 @@
 ## TL;DR
 
 **Over a quarter** of a typical block's execution time is spent chasing data that does not exist.
-These lookups are **over five times slower** because proving a value is absent requires descending
+These lookups are **up to 5x slower** because proving a value is absent requires descending
 to the bottom of the trie and coming back empty-handed.
 
 Marking absent entries in Block Access Lists (BAL) increases their size by only **0.4%** and
@@ -95,7 +95,7 @@ Mean state read latency falls by **436x** for account lookups and **177x** for s
 
 ![Void read latency: disk vs bitmap](results/25410001-25416000/void-skip.png)
 
-The optimization comes at almost no cost. Recording void entries increases BAL size by only 0.4%.
+The optimization comes at almost no cost. Recording void entries increases BAL size by only **0.4%**.
 
 ![BAL size: baseline vs void-marked](results/25410001-25416000/bal-size.png)
 
@@ -121,7 +121,8 @@ geth --datadir <snapshot> --state.scheme path --gcmode archive \
   export --with-bal blocks.rlp 25410001 25416000
 ```
 
-Import replays the sample:
+Import replays the sample onto its parent state, so the datadir is first rewound to the parent
+block (25,410,000) in the geth console with `debug.setHead`:
 
 ```sh
 geth --datadir <snapshot> --state.scheme path import --with-bal blocks.rlp
