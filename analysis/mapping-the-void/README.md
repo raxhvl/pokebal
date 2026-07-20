@@ -143,3 +143,20 @@ while the reported speedups remain unaffected.
 * CPU: 16 core vCPU @ 2.0GHz
 * Memory: 32G
 * Disk: QEMU HARDDISK (2TB)
+
+## Future work
+
+A larger sample size to be analysed.
+
+Verifying void-marked BAL remains an open problem. Although execution can skip reads marked absent,
+a client must still prove that the claimed entries do not exist.
+
+One possible approach is to maintain two prefetch queues: an execution queue driven by the BAL,
+and a verification queue that validates void claims in parallel. How effectively these two streams
+can be overlapped (and share disk I/O) will ultimately determine how much execution time can be reclaimed.
+
+## Resources
+
+* [EIP-7928: Block-Level Access Lists](https://eips.ethereum.org/EIPS/eip-7928)
+* [beetle](https://github.com/raxhvl/pokebal/tree/main/analysis/mapping-the-void/beetle) — the analysis harness
+* geth fork: [baseline arm](https://github.com/raxhvl/go-ethereum/tree/lab/baseline-bal-replay) · [void-bitmap arm](https://github.com/raxhvl/go-ethereum/tree/lab/bal-with-empty)
