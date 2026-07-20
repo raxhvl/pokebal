@@ -27,8 +27,8 @@ The next question is whether these failed lookups are cheap.
 
 ## The cost of proving absence
 
-Reading a void is decisively slower than reading real data — modestly for accounts (1.8x),
-dramatically for storage (5.1x). Proving a slot is absent means descending the trie to the
+Reading a void is decisively slower than reading real data — modestly for accounts (**1.8x**),
+dramatically for storage (**5.1x**). Proving a slot is absent means descending the trie to the
 bottom and coming back empty-handed; fetching an existing slot short-circuits as soon as
 it's found.
 
