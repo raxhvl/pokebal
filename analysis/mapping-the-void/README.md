@@ -13,14 +13,23 @@ avoids most of this work.
 
 A block with a median state access pattern is shown below.
 
-![Void heatmap of the median block — one cell per accessed item, red is a void read](results/25410001-25416000/void-heatmap.png)
+![Void heatmap of the median block](results/25410001-25416000/void-heatmap.png)
 
-Notice the large number of lookups that return void - dominated by missing storage slots, while
-missing accounts are comparatively rare.
+Notice the large number of lookups that return void (marked red) - dominated by missing storage
+slots, while missing accounts are comparatively rare.
 
 This pattern is consistent across blocks. On average, **6%** of account lookups and **35%** of
 storage lookups return void (Appendix A).
 
-![Void versus total accessed items per block across the range](results/25410001-25416000/void-trend.png)
+![Void vs total accessed per block](results/25410001-25416000/void-trend.png)
 
 The next question is whether these failed lookups are cheap.
+
+## The cost of proving absence
+
+Reading a void is decisively slower than reading real data — modestly for accounts (1.8x),
+dramatically for storage (5.1x). Proving a slot is absent means descending the trie to the
+bottom and coming back empty-handed; fetching an existing slot short-circuits as soon as
+it's found.
+
+![Read latency: existing vs void](results/25410001-25416000/cost-of-void.png)
