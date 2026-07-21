@@ -3,8 +3,9 @@
 ## TL;DR
 
 **Over a quarter** of a typical block's execution time is spent chasing data that does not exist.
-These lookups are **up to 5x slower** because proving a value is absent requires descending
-to the bottom of the trie and coming back empty-handed.
+These lookups are **up to 5x slower**: an existing value is often already warm in an upper cache
+layer (pebble's block cache, the OS page cache), while confirming a key is absent means falling
+through to the on-disk state database and coming back empty-handed.
 
 Marking absent entries in Block Access Lists (BAL) increases their size by only **0.4%** and
 avoids most of this work during block validation.
@@ -28,9 +29,9 @@ The next question is whether these failed lookups are cheap.
 ## The cost of proving absence
 
 Reading a void is decisively slower than reading real data — modestly for accounts (**1.8x**),
-dramatically for storage (**5.1x**). Proving a slot is absent means descending the trie to the
-bottom and coming back empty-handed; fetching an existing slot short-circuits as soon as
-it's found.
+dramatically for storage (**5.1x**). State is read flat, by hashed key, through a stack of caches
+ending in the on-disk store. A value a block touches is often warm in an upper layer; a void read
+more often falls through the whole stack, only to come back empty-handed.
 
 ![Read latency: existing vs void](results/25410001-25416000/cost-of-void.png)
 
@@ -90,7 +91,7 @@ Void-marked BAL reduces mean block execution time by **29.8%** across the analys
 
 ![Block execution time: baseline vs void-marked](results/25410001-25416000/block-processing.png)
 
-The improvement comes from skipping expensive trie traversals for absent state.
+The improvement comes from skipping these expensive database lookups for absent state.
 Mean state read latency falls by **436x** for account lookups and **177x** for storage lookups.
 
 ![Void read latency: disk vs bitmap](results/25410001-25416000/void-skip.png)
@@ -112,7 +113,7 @@ as a sidecar, producing a stream of `[block, BAL]`. The state reader adds a time
 disk read, split by whether it finds data or proves absence.
 
 The void-bitmap arm branches from the same baseline. Its BAL carries the void bitmaps, producing `[block, EmptyBAL]`.
-During import, reads marked absent are answered from the bitmap instead of traversing the trie.
+During import, reads marked absent are answered from the bitmap instead of querying the state database.
 
 **The commands.** Export requires the archival state-history index:
 
@@ -155,6 +156,9 @@ a client must still prove that the claimed entries do not exist.
 One possible approach is to maintain two prefetch queues: an execution queue driven by the BAL,
 and a verification queue that validates void claims in parallel. How effectively these two streams
 can be overlapped (and share disk I/O) will ultimately determine how much execution time can be reclaimed.
+
+These figures are specific to geth; other clients cache and store state differently, so the numbers
+will vary, but reading an absent item tends to be costlier than reading a present one.
 
 ## Resources
 
